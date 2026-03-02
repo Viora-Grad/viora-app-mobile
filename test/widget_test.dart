@@ -27,5 +27,14 @@ void main() {
 
       expect(find.byType(AppBar), findsOneWidget);
     });
+
+    testWidgets('[CI CHECK] app builds and renders without error', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MyApp());
+      await tester.pump();
+
+      expect(find.byType(Scaffold), findsOneWidget);
+    });
   });
 }
