@@ -1,5 +1,3 @@
-// TODO cache helper class to manage caching of api repsonse and data
-// TODO in shared preferences or local storage db like sqflite
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:viora_app/core/errors/exceptions.dart';
 
