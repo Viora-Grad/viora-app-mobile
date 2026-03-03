@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:viora_app/core/database/api/api_consumer.dart';
-import 'package:viora_app/core/database/api/end_points.dart';
+import 'package:viora_app/core/connections/api/api_consumer.dart';
+import 'package:viora_app/core/connections/api/end_points.dart';
 import 'package:viora_app/core/errors/error_handler.dart';
 
 // DioConsumer is an implementation of ApiConsumer using the Dio package for HTTP requests.
