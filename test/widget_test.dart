@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:viora_app/main.dart';
+import 'package:viora_app/main_dev.dart';
 
 void main() {
   group('MyApp widget tests', () {
