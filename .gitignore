@@ -43,3 +43,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Commands text files
+commands.txt
+
+# Fastlabe report 
+/android/fastlane/report.xml
+
+# env file
+.env

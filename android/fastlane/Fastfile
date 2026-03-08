@@ -1,38 +1,25 @@
-# This file contains the fastlane.tools configuration
-# You can find the documentation at https://docs.fastlane.tools
-#
-# For a list of all available actions, check out
-#
-#     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
-
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
+# This is a fastlane configuration file.
+# For more information about the syntax, see the documentation:
+# https://docs.fastlane.tools
+# Summary: This Fastfile defines a lane for distributing an Android app via Firebase App Distribution.
+# It includes steps to clean the Flutter project, build the APK, and upload it to Firebase with specified testers and release notes.
+# To run this lane, use the command: `fastlane android firebase_app_distribution`
 
 default_platform(:android)
 
 platform :android do
-  desc "Runs all the tests"
-  lane :test do
-    gradle(task: "test")
-  end
-
-  desc "Submit a new Beta Build to Crashlytics Beta"
-  lane :beta do
-    gradle(task: "clean assembleRelease")
-    crashlytics
-  
-    # sh "your_script.sh"
-    # You can also use other beta testing services here
-  end
-
-  desc "Deploy a new version to the Google Play"
-  lane :deploy do
-    gradle(task: "clean assembleRelease")
-    upload_to_play_store
+  desc "Lane for firebase app distribution"
+  lane :distribute do
+    sh "flutter clean"
+    sh "flutter build apk --release --flavor production --target lib/main_prod.dart --no-tree-shake-icons"
+    firebase_app_distribution(
+        app: ENV["FIREBASE_APP_ID"],
+        groups: "Viora_tester",
+        firebase_cli_token: ENV["FIREBASE_CLI_TOKEN"],
+        android_artifact_type: "APK", # or "AAB" for Android App Bundle files smaller size for store.
+        android_artifact_path: "../build/app/outputs/flutter-apk/app-production-release.apk",
+        # testers: "tester@example.com, tester2@example.com",
+        release_notes: "New release for testing, please work and if it didn't work, YOUR PROBLEM DON'T CALL ME. Thanks! :D"
+    )
   end
 end
