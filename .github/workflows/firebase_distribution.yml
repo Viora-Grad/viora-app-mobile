@@ -1,9 +1,10 @@
 name: Android Fastlane with Firebase APP Distribution Workflow
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch: # Manually disabled: trigger only via GitHub UI, not on push
+  # push:
+  #   branches:
+  #     - main
 jobs:
   build:
     name: Build and Distribute
@@ -14,15 +15,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: "temurin"
           java-version: "17"
+          cache: gradle # Cache Gradle dependencies
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
+          cache: true # Cache Flutter SDK
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -31,11 +34,15 @@ jobs:
           bundler-cache: true
           working-directory: android # Where to finde gemfile
 
+      - name: Cache pub packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: ${{ runner.os }}-pub-
+
       - name: Install dependencies
         run: flutter pub get
-
-      - name: Build APK (Android)
-        run: flutter build apk --release --flavor production --target lib/main_prod.dart --no-tree-shake-icons
 
       - name: Distribute to Firebase App Distribution
         env:

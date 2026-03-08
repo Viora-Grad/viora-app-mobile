@@ -10,7 +10,6 @@ default_platform(:android)
 platform :android do
   desc "Lane for firebase app distribution"
   lane :distribute do
-    sh "flutter clean"
     sh "flutter build apk --release --flavor production --target lib/main_prod.dart --no-tree-shake-icons"
     firebase_app_distribution(
         app: ENV["FIREBASE_APP_ID"],
