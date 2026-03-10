@@ -1,5 +1,5 @@
-// TODO NEED SOME IMPROVEMENT IN THIS FILE
 import 'package:viora_app/core/errors/error_model.dart';
+import 'package:viora_app/core/errors/failure.dart';
 
 /// **ServerException** - Thrown when API/server requests fail
 ///
@@ -8,17 +8,22 @@ import 'package:viora_app/core/errors/error_model.dart';
 /// try {
 ///   final users = await fetchUsers();
 /// } on ServerException catch (e) {
-///   showSnackBar (e.message); // Shows: '404: Not Found'
+///   showSnackBar(e.message); // Shows: '404: Not Found'
 ///   print('Status: ${e.errorModel.statusCode}');      // e.g., 404
 ///   print('Message: ${e.errorModel.errorMessage}');   // e.g., 'Not Found'
 /// }
 /// ```
 class ServerException implements Exception {
   final ErrorModel errorModel;
-  ServerException(this.errorModel);
+  const ServerException(this.errorModel);
+
+  String get message => errorModel.toString();
+
+  ServerFailure toFailure() =>
+      ServerFailure(message, statusCode: errorModel.statusCode);
 
   @override
-  String toString() => '${errorModel.statusCode}: ${errorModel.errorMessage}';
+  String toString() => 'ServerException: $message';
 }
 
 /// **CacheException** - Thrown when local cache/storage operations fail
@@ -28,13 +33,14 @@ class ServerException implements Exception {
 /// try {
 ///   await cacheHelper.patchData('user_token', newToken);
 /// } on CacheException catch (e) {
-///   
 ///   print('Cache Error: ${e.message}');  // e.g., 'Key user_token does not exist'
 /// }
 /// ```
 class CacheException implements Exception {
   final String message;
-  CacheException(this.message);
+  const CacheException(this.message);
+
+  CacheFailure toFailure() => CacheFailure(message);
 
   @override
   String toString() => 'CacheException: $message';
@@ -52,7 +58,9 @@ class CacheException implements Exception {
 /// ```
 class NetworkException implements Exception {
   final String message;
-  NetworkException(this.message);
+  const NetworkException(this.message);
+
+  NetworkFailure toFailure() => NetworkFailure(message);
 
   @override
   String toString() => 'NetworkException: $message';
@@ -70,7 +78,9 @@ class NetworkException implements Exception {
 /// ```
 class ValidationException implements Exception {
   final String message;
-  ValidationException(this.message);
+  const ValidationException(this.message);
+
+  ValidationFailure toFailure() => ValidationFailure(message);
 
   @override
   String toString() => 'ValidationException: $message';

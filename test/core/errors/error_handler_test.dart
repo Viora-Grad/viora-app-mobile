@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:viora_app/core/errors/error_handler.dart';
+import 'package:viora_app/core/errors/error_model.dart';
 import 'package:viora_app/core/errors/exceptions.dart';
+import 'package:viora_app/core/errors/failure.dart';
 
 DioException _makeDioException(DioExceptionType type, {Response? response}) {
   return DioException(
@@ -136,6 +138,40 @@ void main() {
           ),
         ),
       );
+    });
+  });
+
+  group('handleException', () {
+    test('maps ServerException to ServerFailure', () {
+      final e = ServerException(
+        ErrorModel(statusCode: 500, errorMessage: 'Server Error'),
+      );
+      final failure = handleException(e);
+      expect(failure, isA<ServerFailure>());
+      expect(failure.message, '500: Server Error');
+    });
+
+    test('maps CacheException to CacheFailure', () {
+      final failure = handleException(CacheException('disk full'));
+      expect(failure, isA<CacheFailure>());
+      expect(failure.message, 'disk full');
+    });
+
+    test('maps NetworkException to NetworkFailure', () {
+      final failure = handleException(NetworkException('no connection'));
+      expect(failure, isA<NetworkFailure>());
+      expect(failure.message, 'no connection');
+    });
+
+    test('maps ValidationException to ValidationFailure', () {
+      final failure = handleException(ValidationException('invalid email'));
+      expect(failure, isA<ValidationFailure>());
+      expect(failure.message, 'invalid email');
+    });
+
+    test('maps unknown exception to ServerFailure', () {
+      final failure = handleException(Exception('unexpected'));
+      expect(failure, isA<ServerFailure>());
     });
   });
 }
