@@ -52,3 +52,11 @@ commands.txt
 
 # env file
 .env
+
+# Md files
+errors.md
+
+# .github files for copilot instructions
+.github/copilot-instructions.md
+.github/commit_template.md
+.github/pull_request_template.md

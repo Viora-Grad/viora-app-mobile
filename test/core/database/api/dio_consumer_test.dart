@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:viora_app/core/connections/api/dio_consumer.dart';
+import 'package:viora_app/core/api/dio_consumer.dart';
 import 'package:viora_app/core/errors/exceptions.dart';
 
 class MockDio extends Mock implements Dio {}

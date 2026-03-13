@@ -1,6 +1,6 @@
 import 'package:data_connection_checker_tv/data_connection_checker.dart';
 
-abstract class NetworkInfo {
+abstract interface class NetworkInfo {
   Future<bool>? get isConnected;
 }
 

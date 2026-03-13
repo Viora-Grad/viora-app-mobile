@@ -39,6 +39,9 @@ dependencies:
   shared_preferences: ^2.5.4
   dartz: ^0.10.1
   firebase_core: ^4.5.0
+  equatable: ^2.0.8
+  get_it: ^9.2.1
+  bloc: ^9.2.0
 
 dev_dependencies:
   flutter_test:
