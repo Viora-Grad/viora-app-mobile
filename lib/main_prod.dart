@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:viora_app/core/di/service_locator.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dependencyInjection();
+
   runApp(const MyApp());
 }
 
