@@ -1,16 +1,85 @@
 # viora_app
 
-A new Flutter project.
+Flutter application with a Docker workflow for consistent tooling across contributors.
 
-## Getting Started
+## Why Docker in this project
 
-This project is a starting point for a Flutter application.
+Docker is used to standardize Flutter tooling for all developers.
 
-A few resources to get you started if this is your first Flutter project:
+It helps contributors run the same versions and commands for:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- `flutter pub get`
+- `flutter analyze`
+- `flutter test`
+- `flutter build apk`
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Important scope
+
+This setup does **not** run Android/iOS emulators inside Docker.
+
+Use emulator/device on your host machine (Android Studio, iOS Simulator, or physical device).
+
+## Prerequisites
+
+- Docker Desktop installed and running
+- Host emulator/device setup (outside Docker)
+
+## Docker files
+
+- `Dockerfile` - Flutter image definition
+- `docker-compose.yml` - shared service for contributor commands
+- `.dockerignore` - keeps image builds fast/small
+
+## Quick start
+
+From repository root:
+
+```bash
+docker compose build
+docker compose run --rm flutter flutter pub get
+docker compose run --rm flutter flutter analyze
+docker compose run --rm flutter flutter test
+```
+
+## Build Android APK with Docker
+
+```bash
+docker compose run --rm flutter flutter build apk --release
+```
+
+APK output on host:
+
+- `build/app/outputs/flutter-apk/app-release.apk`
+
+## Open shell in container
+
+```bash
+docker compose run --rm flutter bash
+```
+
+Then run Flutter commands inside container as needed.
+
+## Run app with emulator outside Docker
+
+For day-to-day UI debugging, run Flutter from host so it can communicate with your local emulator/device.
+
+Typical host flow:
+
+```bash
+flutter pub get
+flutter run
+```
+
+Use Docker primarily for consistent checks and build commands used by contributors/CI.
+
+## PowerShell examples
+
+If you are on Windows PowerShell:
+
+```powershell
+docker compose build
+docker compose run --rm flutter flutter pub get
+docker compose run --rm flutter flutter analyze
+docker compose run --rm flutter flutter test
+docker compose run --rm flutter flutter build apk --release
+```

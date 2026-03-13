@@ -1,0 +1,16 @@
+services:
+  flutter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+      - pub-cache:/root/.pub-cache
+      - gradle-cache:/root/.gradle
+    stdin_open: true
+    tty: true
+
+volumes:
+  pub-cache:
+  gradle-cache:
