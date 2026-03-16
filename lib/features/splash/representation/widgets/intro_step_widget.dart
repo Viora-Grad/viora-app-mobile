@@ -74,8 +74,8 @@ class _IntroStepWidgetState extends State<IntroStepWidget> {
     }
 
     final screenWidth = MediaQuery.sizeOf(context).width;
-    final animationWidth = math.min(screenWidth * 0.86, 420.0);
-    final animationHeight = animationWidth * 0.6;
+    final animationWidth = math.min(screenWidth * 0.86, 500.0);
+    final animationHeight = animationWidth * 0.8;
 
     return Scaffold(
       backgroundColor: _backgroundColor,

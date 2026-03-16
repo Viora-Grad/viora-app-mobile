@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:viora_app/core/di/service_locator.dart';
+import 'package:viora_app/features/splash/representation/pages/splash.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:viora_app/features/splash/representation/blocs/splash_bloc.dart';
+import 'package:viora_app/features/splash/representation/blocs/splash_events.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,9 +20,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Viora App',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Viora Home Page')),
-        body: const Center(child: Text('Welcome to Viora App!')),
+      home: BlocProvider(
+        create: (_) => SplashBloc()..add(const SplashStarted()),
+        child: const SplashPage(),
       ),
     );
   }
