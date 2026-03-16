@@ -41,7 +41,6 @@ android {
         }
         create("development") {
             dimension = "default"
-            applicationIdSuffix = ".dev"
             resValue("string", "app_name", "viora_app Development")
         }
     }
