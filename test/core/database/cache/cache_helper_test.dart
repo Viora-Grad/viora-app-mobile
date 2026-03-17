@@ -6,9 +6,10 @@ import 'package:viora_app/core/errors/exceptions.dart';
 void main() {
   late CacheHelperImpl cacheHelper;
 
-  setUp(() {
+  setUp(() async {
     SharedPreferences.setMockInitialValues({});
-    cacheHelper = CacheHelperImpl();
+    final prefs = await SharedPreferences.getInstance();
+    cacheHelper = CacheHelperImpl(prefs);
   });
 
   group('CacheHelperImpl - containsKey', () {

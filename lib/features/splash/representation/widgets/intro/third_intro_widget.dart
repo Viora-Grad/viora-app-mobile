@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viora_app/features/splash/representation/blocs/splash_bloc.dart';
 import 'package:viora_app/features/splash/representation/blocs/splash_events.dart';
-import 'package:viora_app/features/splash/representation/widgets/intro_step_widget.dart';
+import 'package:viora_app/features/splash/representation/widgets/intro/intro_step_widget.dart';
 
 /* 
   This widget represents the third introduction screen in the splash flow. It uses the IntroStepWidget to display an animation and a message, along with back and continue buttons. The back button allows the user to return to the second introduction screen, while the continue button signals that the third introduction is finished.
@@ -13,6 +13,7 @@ class ThirdIntroWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IntroStepWidget(
+      currentStep: 3,
       assetPath: 'assets/json/third_intro.json',
       message: 'Find trusted providers,\nSchedule it, Reserve instantly.',
       maxTextWidth: 500,

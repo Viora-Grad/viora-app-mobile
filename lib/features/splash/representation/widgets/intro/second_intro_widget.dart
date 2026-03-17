@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viora_app/features/splash/representation/blocs/splash_bloc.dart';
 import 'package:viora_app/features/splash/representation/blocs/splash_events.dart';
-import 'package:viora_app/features/splash/representation/widgets/intro_step_widget.dart';
+import 'package:viora_app/features/splash/representation/widgets/intro/intro_step_widget.dart';
 
 class SecondIntroWidget extends StatelessWidget {
   const SecondIntroWidget({super.key});
@@ -10,6 +10,7 @@ class SecondIntroWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IntroStepWidget(
+      currentStep: 2,
       assetPath: 'assets/json/second_intro.json',
       message: 'Manage your appointments effortlessly, all in one place.',
       onBack: () {

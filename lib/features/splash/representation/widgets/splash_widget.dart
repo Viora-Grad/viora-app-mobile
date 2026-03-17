@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:viora_app/features/splash/representation/widgets/logo_widget.dart';
-import 'package:viora_app/features/splash/representation/widgets/third_intro_widget.dart';
+import 'package:viora_app/features/splash/representation/widgets/intro/third_intro_widget.dart';
 import 'package:viora_app/features/splash/representation/widgets/wave_widget.dart';
-import 'package:viora_app/features/splash/representation/widgets/first_intro_widget.dart';
-import 'package:viora_app/features/splash/representation/widgets/second_intro_widget.dart';
+import 'package:viora_app/features/splash/representation/widgets/intro/first_intro_widget.dart';
+import 'package:viora_app/features/splash/representation/widgets/intro/second_intro_widget.dart';
 import '../blocs/splash_phases.dart';
 
 Widget buildContentForPhase(SplashPhase phase) {
