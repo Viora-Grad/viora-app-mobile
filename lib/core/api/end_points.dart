@@ -1,7 +1,9 @@
 class EndPoints {
   static const String baseUrl = 'https://api.example.com';
-  static const String users = '$baseUrl/users';
-  static const String posts = '$baseUrl/posts';
+  static const String usersUrl = '$baseUrl/users';
+  static const String postsUrl = '$baseUrl/posts';
+  static const String loginUrl = '$baseUrl/login';
+  static const String registerUrl = '$baseUrl/register';
 }
 
 class ApiKey {

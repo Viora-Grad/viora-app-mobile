@@ -1,7 +1,7 @@
 import 'package:viora_app/features/Auth/domain/repositories/auth_repository.dart';
 
 class LogoutUsecase {
-  final Authrepository repository;
+  final AuthRepository repository;
 
   LogoutUsecase(this.repository);
 

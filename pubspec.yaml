@@ -45,6 +45,7 @@ dependencies:
   hydrated_bloc: ^10.1.1
   path_provider: ^2.0.11
   lottie: ^3.3.2
+  flutter_secure_storage: ^10.0.0
 
 dev_dependencies:
   flutter_test:
