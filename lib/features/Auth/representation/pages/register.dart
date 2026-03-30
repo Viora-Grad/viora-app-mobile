@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:viora_app/core/widgets/app_snackbar.dart';
 import 'package:viora_app/core/enums/gender.dart';
 import 'package:viora_app/core/di/service_locator.dart';
 import 'package:viora_app/core/routes/app_router.dart';
@@ -11,6 +15,7 @@ import 'package:viora_app/features/Auth/representation/blocs/register_events.dar
 import 'package:viora_app/features/Auth/representation/blocs/register_states.dart';
 import 'package:viora_app/features/Auth/representation/widgets/register_form_fields.dart';
 import 'package:viora_app/features/Auth/representation/widgets/register_layout_shell.dart';
+import 'package:viora_app/features/Auth/representation/widgets/register_login_placeholder.dart';
 import 'package:viora_app/features/Auth/representation/widgets/register_profile_picture_section.dart';
 import 'package:viora_app/features/Auth/representation/widgets/register_submit_button.dart';
 
@@ -74,36 +79,76 @@ class _RegisterPageState extends State<RegisterPage> {
         return;
       }
 
+      // Check if the file exists and is accessible
+      final file = File(pickedFile.path);
+      final exists = await file.exists();
+      if (!exists) {
+        AppSnackBar.show(
+          context,
+          'Cannot access this image. Please choose one stored on your device.',
+          type: AppSnackBarType.error,
+        );
+        return;
+      }
+
+      // Optionally, copy to temp directory for consistent access
+      final bytes = await file.readAsBytes();
+      if (bytes.isEmpty) {
+        AppSnackBar.show(
+          context,
+          'Cannot access this image. Please choose one stored on your device.',
+          type: AppSnackBarType.error,
+        );
+        return;
+      }
+
+      final temporaryDirectory = await getTemporaryDirectory();
+      final sanitizedName = pickedFile.name.isEmpty
+          ? 'profile_image.jpg'
+          : pickedFile.name;
+      final temporaryFile = File(
+        '${temporaryDirectory.path}/register_${DateTime.now().millisecondsSinceEpoch}_$sanitizedName',
+      );
+      await temporaryFile.writeAsBytes(bytes, flush: true);
+
       setState(() {
-        _selectedProfileImage = pickedFile;
+        _selectedProfileImage = XFile(
+          temporaryFile.path,
+          name: sanitizedName,
+          mimeType: pickedFile.mimeType,
+        );
       });
     } on MissingPluginException {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Image picker not initialized. Please restart the app.',
-          ),
-        ),
+      AppSnackBar.show(
+        context,
+        'Image picker not initialized. Please restart the app.',
+        type: AppSnackBarType.error,
       );
     } on PlatformException catch (exception) {
       if (!mounted) {
         return;
       }
+      if (exception.code == 'no_valid_image_uri') {
+        AppSnackBar.show(
+          context,
+          'Cannot find the selected image. Please pick an image saved locally on this device.',
+          type: AppSnackBarType.error,
+        );
+        return;
+      }
       final message = exception.message ?? 'Failed to pick image.';
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(message)));
+      AppSnackBar.show(context, message, type: AppSnackBarType.error);
     } catch (_) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to pick image. Please try again.'),
-        ),
+      AppSnackBar.show(
+        context,
+        'Failed to pick image. Please try again.',
+        type: AppSnackBarType.error,
       );
     }
   }
@@ -116,9 +161,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
     final parsedAge = int.tryParse(_ageController.text.trim());
     if (parsedAge == null) {
-      ScaffoldMessenger.of(
+      AppSnackBar.show(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Please enter a valid age')));
+        'Please enter a valid age',
+        type: AppSnackBarType.error,
+      );
       return;
     }
 
@@ -142,9 +189,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
     if (state.status == RegisterStatus.success) {
       final user = state.user;
-      ScaffoldMessenger.of(
+      AppSnackBar.show(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Registered successfully')));
+        'Registered successfully',
+        type: AppSnackBarType.success,
+      );
       if (user != null) {
         context.push(
           AppRoutes.registerSuccess,
@@ -162,22 +211,21 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     if (state.status == RegisterStatus.failure && state.errorMessage != null) {
-      ScaffoldMessenger.of(
+      AppSnackBar.show(
         context,
-      ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
+        state.errorMessage!,
+        type: AppSnackBarType.error,
+      );
       context.read<RegisterBloc>().add(const RegisterReset());
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final formTopSpacing = (MediaQuery.sizeOf(context).height * 0.11).clamp(
-      48.0,
-      120.0,
+    final formTopSpacing = (MediaQuery.sizeOf(context).height * 0.06).clamp(
+      20.0,
+      72.0,
     );
-    final inputTextStyle = Theme.of(
-      context,
-    ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600, fontSize: 17);
 
     return BlocProvider.value(
       value: _registerBloc,
@@ -190,6 +238,7 @@ class _RegisterPageState extends State<RegisterPage> {
             body: RegisterLayoutShell(
               formKey: _formKey,
               formTopSpacing: formTopSpacing,
+              footer: const RegisterLoginPlaceholder(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -202,7 +251,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     selectedGender: _selectedGender,
                     obscurePassword: _obscurePassword,
                     isSubmitting: isSubmitting,
-                    inputTextStyle: inputTextStyle,
+                    inputTextStyle: Theme.of(context).textTheme.bodyLarge
+                        ?.copyWith(fontWeight: FontWeight.w600, fontSize: 17),
                     requiredValidator: _requiredValidator,
                     onTogglePasswordVisibility: () {
                       setState(() {
