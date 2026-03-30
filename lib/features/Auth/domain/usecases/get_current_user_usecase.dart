@@ -1,17 +1,20 @@
+import 'package:dartz/dartz.dart';
+import 'package:viora_app/core/errors/failure.dart';
 import 'package:viora_app/features/Auth/domain/entities/user.dart';
-import 'package:viora_app/core/errors/exceptions.dart';
-import 'package:viora_app/features/Auth/domain/repositories/auth_repository.dart';
+import 'package:viora_app/features/Auth/domain/repositories/auth_local_repository.dart';
 
 class GetCurrentUserUsecase {
-  final AuthRepository repository;
+  final AuthLocalRepository repository;
 
   GetCurrentUserUsecase(this.repository);
 
-  Future<User> call() async {
-    final currentUser = await repository.getCurrentUser();
-    if (currentUser == null) {
-      throw const ValidationException('No user is currently logged in');
-    }
-    return currentUser;
+  Future<Either<Failure, User>> call() async {
+    final result = await repository.getCurrentUser();
+    return result.fold(
+      Left.new,
+      (currentUser) => currentUser == null
+          ? const Left(ValidationFailure('No user is currently logged in'))
+          : Right(currentUser),
+    );
   }
 }

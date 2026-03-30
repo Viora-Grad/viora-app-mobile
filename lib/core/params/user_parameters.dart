@@ -1,13 +1,10 @@
-import 'package:viora_app/features/Auth/domain/entities/user.dart';
+import 'package:viora_app/core/enums/gender.dart';
 
 class LoginParameters {
   final String email;
   final String password;
-  
-  LoginParameters({
-    required this.email,
-    required this.password,
-  });
+
+  LoginParameters({required this.email, required this.password});
 }
 
 class RegisterParameters {
@@ -17,7 +14,7 @@ class RegisterParameters {
   final String phoneNumber;
   final Gender gender;
   final int age;
-  final String? profilePictureUrl;
+  final String? profilePicturePath;
   RegisterParameters({
     required this.userName,
     required this.email,
@@ -25,6 +22,6 @@ class RegisterParameters {
     required this.phoneNumber,
     required this.gender,
     required this.age,
-    this.profilePictureUrl,
+    this.profilePicturePath,
   });
 }

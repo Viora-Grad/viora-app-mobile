@@ -1,27 +1,28 @@
+import 'package:viora_app/core/enums/gender.dart';
 import 'package:viora_app/features/Auth/domain/entities/user.dart';
 
-class UserModel extends User {
-  UserModel({
-    required String id,
-    required String userName,
-    required String email,
-    required String phoneNumber,
-    required Gender gender,
-    required int age,
-    required DateTime createdAt,
-    required DateTime updatedAt,
-    String? profilePictureUrl,
-  }) : super(
-         id: id,
-         userName: userName,
-         email: email,
-         phoneNumber: phoneNumber,
-         gender: gender,
-         age: age,
-         createdAt: createdAt,
-         updatedAt: updatedAt,
-         profilePictureUrl: profilePictureUrl,
-       );
+class UserModel {
+  final String id;
+  final String userName;
+  final String email;
+  final String? profilePictureUrl;
+  final String phoneNumber;
+  final Gender gender;
+  final int age;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  const UserModel({
+    required this.id,
+    required this.userName,
+    required this.email,
+    required this.phoneNumber,
+    required this.gender,
+    required this.age,
+    required this.createdAt,
+    required this.updatedAt,
+    this.profilePictureUrl,
+  });
 
   factory UserModel.fromEntity(User user) {
     return UserModel(
@@ -58,8 +59,8 @@ class UserModel extends User {
 
     if (value is String) {
       final normalized = value.toLowerCase();
-      if (normalized.contains('male')) return Gender.male;
-      if (normalized.contains('female')) return Gender.female;
+      if (normalized == 'female') return Gender.female;
+      if (normalized == 'male') return Gender.male;
       final matched = Gender.values.where((g) => g.name == normalized);
       if (matched.isNotEmpty) return matched.first;
     }

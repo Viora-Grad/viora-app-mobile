@@ -1,5 +1,6 @@
 import 'package:viora_app/features/Auth/data/models/user_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:viora_app/core/errors/exceptions.dart';
 import 'auth_local.dart';
 import 'dart:convert';
 
@@ -16,8 +17,8 @@ class AuthLocalImpl implements AuthLocalDataSource {
   }
 
   @override
-  Future<void> saveUserToken(String token) {
-    return secureStorage.write(key: tokenKey, value: token);
+  Future<void> saveUserToken(String token) async {
+    await secureStorage.write(key: tokenKey, value: token);
   }
 
   @override
@@ -27,21 +28,37 @@ class AuthLocalImpl implements AuthLocalDataSource {
 
   @override
   Future<void> logout() {
-    return Future.wait([
-      clearUserToken(),
-      secureStorage.delete(key: userKey),
-    ]);
+    return Future.wait([clearUserToken(), clearUser()]);
   }
 
   @override
-  Future<UserModel?> getCurrentUser() {
-    return secureStorage.read(key: userKey).then((userData) {
-      return userData != null ? UserModel.fromJson(json.decode(userData)) : null;
-    });
+  Future<UserModel?> getCurrentUser() async {
+    final userData = await secureStorage.read(key: userKey);
+    if (userData == null) {
+      return null;
+    }
+
+    try {
+      final decoded = json.decode(userData);
+      if (decoded is! Map<String, dynamic>) {
+        await clearUser();
+        throw const CacheException('Stored user data has invalid format');
+      }
+      return UserModel.fromJson(decoded);
+    } on FormatException {
+      await clearUser();
+      throw const CacheException('Stored user data is corrupted');
+    }
   }
 
   @override
-  Future<void> saveUser(UserModel user) {
-    return secureStorage.write(key: userKey, value: json.encode(user.toJson()));
+  Future<void> saveUser(UserModel user) async {
+    final encodedUser = json.encode(user.toJson());
+    await secureStorage.write(key: userKey, value: encodedUser);
+  }
+
+  @override
+  Future<void> clearUser() {
+    return secureStorage.delete(key: userKey);
   }
 }

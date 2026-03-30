@@ -12,4 +12,6 @@ abstract class AuthLocalDataSource {
   Future<UserModel?> getCurrentUser();
 
   Future<void> saveUser(UserModel user);
+
+  Future<void> clearUser();
 }
