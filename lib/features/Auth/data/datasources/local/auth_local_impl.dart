@@ -1,4 +1,4 @@
-import 'package:viora_app/features/Auth/data/models/user_model.dart';
+import 'package:viora_app/features/auth/data/models/user_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:viora_app/core/errors/exceptions.dart';
 import 'auth_local.dart';

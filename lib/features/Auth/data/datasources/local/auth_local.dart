@@ -1,4 +1,4 @@
-import 'package:viora_app/features/Auth/data/models/user_model.dart';
+import 'package:viora_app/features/auth/data/models/user_model.dart';
 
 abstract class AuthLocalDataSource {
   Future<void> saveUserToken(String token);

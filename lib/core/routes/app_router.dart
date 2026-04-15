@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:viora_app/features/Auth/representation/pages/register.dart';
-import 'package:viora_app/features/Auth/representation/pages/register_success_debug_page.dart';
+import 'package:viora_app/features/auth/representation/pages/register.dart';
+import 'package:viora_app/features/auth/representation/pages/register_success_debug_page.dart';
 import 'package:viora_app/features/splash/representation/blocs/splash_bloc.dart';
 import 'package:viora_app/features/splash/representation/blocs/splash_events.dart';
 import 'package:viora_app/features/splash/representation/pages/splash.dart';

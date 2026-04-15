@@ -1,10 +1,10 @@
 import 'package:dartz/dartz.dart';
 import 'package:viora_app/core/errors/error_handler.dart';
 import 'package:viora_app/core/errors/failure.dart';
-import 'package:viora_app/features/Auth/data/datasources/local/auth_local.dart';
-import 'package:viora_app/features/Auth/data/models/user_model.dart';
-import 'package:viora_app/features/Auth/domain/entities/user.dart';
-import 'package:viora_app/features/Auth/domain/repositories/auth_local_repository.dart';
+import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/auth/data/models/user_model.dart';
+import 'package:viora_app/features/auth/domain/entities/user.dart';
+import 'package:viora_app/features/auth/domain/repositories/auth_local_repository.dart';
 
 class AuthLocalRepositoryImpl implements AuthLocalRepository {
   final AuthLocalDataSource localDataSource;

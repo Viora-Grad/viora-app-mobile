@@ -8,17 +8,17 @@ import 'package:viora_app/core/connections/network_info.dart';
 import 'package:viora_app/core/api/api_consumer.dart';
 import 'package:viora_app/core/api/dio_consumer.dart';
 import 'package:viora_app/core/database/cache/cache_helper.dart';
-import 'package:viora_app/features/Auth/data/datasources/local/auth_local.dart';
-import 'package:viora_app/features/Auth/data/datasources/local/auth_local_impl.dart';
-import 'package:viora_app/features/Auth/data/datasources/dummy/auth_remote_dummy_impl.dart';
-import 'package:viora_app/features/Auth/data/datasources/remote/auth_remote.dart';
-import 'package:viora_app/features/Auth/data/datasources/remote/auth_remote_impl.dart';
-import 'package:viora_app/features/Auth/data/repositories/auth_local_repository_impl.dart';
-import 'package:viora_app/features/Auth/data/repositories/auth_repository_impl.dart';
-import 'package:viora_app/features/Auth/domain/repositories/auth_local_repository.dart';
-import 'package:viora_app/features/Auth/domain/repositories/auth_repository.dart';
-import 'package:viora_app/features/Auth/domain/usecases/register_usecase.dart';
-import 'package:viora_app/features/Auth/representation/blocs/register_bloc.dart';
+import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/auth/data/datasources/local/auth_local_impl.dart';
+import 'package:viora_app/features/auth/data/datasources/dummy/auth_remote_dummy_impl.dart';
+import 'package:viora_app/features/auth/data/datasources/remote/auth_remote.dart';
+import 'package:viora_app/features/auth/data/datasources/remote/auth_remote_impl.dart';
+import 'package:viora_app/features/auth/data/repositories/auth_local_repository_impl.dart';
+import 'package:viora_app/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:viora_app/features/auth/domain/repositories/auth_local_repository.dart';
+import 'package:viora_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:viora_app/features/auth/domain/usecases/register_usecase.dart';
+import 'package:viora_app/features/auth/representation/blocs/register_bloc.dart';
 import 'package:viora_app/features/splash/representation/blocs/splash_bloc.dart';
 
 final sl = GetIt.instance;
@@ -69,7 +69,7 @@ Future<void> dependencyInjection() async {
     sl.registerLazySingleton<AuthRemoteDataSource>(
       () => useDummyAuthApi
           ? AuthRemoteDummyDataSourceImpl()
-          : AuthRemoteDataSourceImpl(sl()),
+          : AuthRemoteDataSourceImpl(sl(), sl()),
     );
   }
 

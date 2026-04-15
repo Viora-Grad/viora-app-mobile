@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:viora_app/features/Auth/representation/widgets/register_page_header.dart';
+import 'package:viora_app/features/auth/representation/widgets/register_page_header.dart';
 
 class RegisterLayoutShell extends StatelessWidget {
   const RegisterLayoutShell({

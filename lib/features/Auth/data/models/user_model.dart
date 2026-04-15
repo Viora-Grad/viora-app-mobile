@@ -1,5 +1,5 @@
 import 'package:viora_app/core/enums/gender.dart';
-import 'package:viora_app/features/Auth/domain/entities/user.dart';
+import 'package:viora_app/features/auth/domain/entities/user.dart';
 
 class UserModel {
   final String id;
