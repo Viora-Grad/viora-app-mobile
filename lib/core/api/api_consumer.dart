@@ -1,9 +1,12 @@
+import 'package:dio/dio.dart';
+
 abstract class ApiConsumer {
   Future<Map<String, dynamic>> get(
     String url, {
     Object? data,
     Map<String, dynamic>? queryParameters,
     bool isFormData = false,
+    CancelToken? cancelToken,
   });
 
   Future<Map<String, dynamic>> post(
@@ -11,6 +14,7 @@ abstract class ApiConsumer {
     Object? data,
     Map<String, dynamic>? queryParameters,
     bool isFormData = false,
+    CancelToken? cancelToken,
   });
 
   Future<Map<String, dynamic>> put(
@@ -18,6 +22,7 @@ abstract class ApiConsumer {
     Object? data,
     Map<String, dynamic>? queryParameters,
     bool isFormData = false,
+    CancelToken? cancelToken,
   });
 
   Future<Map<String, dynamic>> patch(
@@ -25,6 +30,7 @@ abstract class ApiConsumer {
     Object? data,
     Map<String, dynamic>? queryParameters,
     bool isFormData = false,
+    CancelToken? cancelToken,
   });
 
   Future<Map<String, dynamic>> delete(
@@ -32,5 +38,6 @@ abstract class ApiConsumer {
     Object? data,
     Map<String, dynamic>? queryParameters,
     bool isFormData = false,
+    CancelToken? cancelToken,
   });
 }

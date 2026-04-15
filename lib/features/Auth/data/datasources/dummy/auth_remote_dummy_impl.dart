@@ -1,7 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:viora_app/core/enums/gender.dart';
 import 'package:viora_app/core/params/user_parameters.dart';
-import 'package:viora_app/features/Auth/data/datasources/remote/auth_remote.dart';
-import 'package:viora_app/features/Auth/data/models/user_model.dart';
+import 'package:viora_app/features/auth/data/datasources/remote/auth_remote.dart';
+import 'package:viora_app/features/auth/data/models/user_model.dart';
 
 class AuthRemoteDummyDataSourceImpl implements AuthRemoteDataSource {
   @override
@@ -21,7 +22,10 @@ class AuthRemoteDummyDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserModel> register(RegisterParameters params) async {
+  Future<UserModel> register(
+    RegisterParameters params, {
+    CancelToken? cancelToken,
+  }) async {
     await Future<void>.delayed(const Duration(milliseconds: 700));
     final now = DateTime.now();
     return UserModel(
