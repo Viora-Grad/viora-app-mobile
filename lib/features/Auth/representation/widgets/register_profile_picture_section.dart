@@ -45,7 +45,23 @@ class RegisterProfilePictureSection extends StatelessWidget {
             child: Image.file(
               File(selectedProfileImage!.path),
               height: 120,
+              // For more performance, especially with large images, we can limit the cache size and dimensions.
+              cacheWidth: 240, // Limit decoded image size for performance
               fit: BoxFit.cover,
+              // Handle image loading errors gracefully
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  height: 120,
+                  color: theme.colorScheme.errorContainer,
+                  child: const Center(
+                    child: Icon(
+                      Icons.broken_image_rounded,
+                      color: Colors.redAccent,
+                      size: 40,
+                    ),
+                  ),
+                );
+              },
             ),
           ),
           const SizedBox(height: 8),
