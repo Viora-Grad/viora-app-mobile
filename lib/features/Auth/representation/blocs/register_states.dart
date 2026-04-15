@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:viora_app/features/Auth/domain/entities/user.dart';
+import 'package:viora_app/features/auth/domain/entities/user.dart';
 
 enum RegisterStatus { initial, loading, success, failure }
 
@@ -15,6 +15,11 @@ final class RegisterState extends Equatable {
   });
 
   bool get isLoading => status == RegisterStatus.loading;
+
+  bool get hasErrors => errorMessage != null && errorMessage!.trim().isNotEmpty;
+
+  List<String> get errorMessages =>
+      hasErrors ? [errorMessage!.trim()] : const [];
 
   RegisterState copyWith({
     RegisterStatus? status,

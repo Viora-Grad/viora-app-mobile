@@ -10,14 +10,14 @@ import 'package:viora_app/core/widgets/app_snackbar.dart';
 import 'package:viora_app/core/enums/gender.dart';
 import 'package:viora_app/core/di/service_locator.dart';
 import 'package:viora_app/core/routes/app_router.dart';
-import 'package:viora_app/features/Auth/representation/blocs/register_bloc.dart';
-import 'package:viora_app/features/Auth/representation/blocs/register_events.dart';
-import 'package:viora_app/features/Auth/representation/blocs/register_states.dart';
-import 'package:viora_app/features/Auth/representation/widgets/register_form_fields.dart';
-import 'package:viora_app/features/Auth/representation/widgets/register_layout_shell.dart';
-import 'package:viora_app/features/Auth/representation/widgets/register_login_placeholder.dart';
-import 'package:viora_app/features/Auth/representation/widgets/register_profile_picture_section.dart';
-import 'package:viora_app/features/Auth/representation/widgets/register_submit_button.dart';
+import 'package:viora_app/features/auth/representation/blocs/register_bloc.dart';
+import 'package:viora_app/features/auth/representation/blocs/register_events.dart';
+import 'package:viora_app/features/auth/representation/blocs/register_states.dart';
+import 'package:viora_app/features/auth/representation/widgets/register_form_fields.dart';
+import 'package:viora_app/features/auth/representation/widgets/register_layout_shell.dart';
+import 'package:viora_app/features/auth/representation/widgets/register_login_placeholder.dart';
+import 'package:viora_app/features/auth/representation/widgets/register_profile_picture_section.dart';
+import 'package:viora_app/features/auth/representation/widgets/register_submit_button.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -40,6 +40,11 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _obscurePassword = true;
   XFile? _selectedProfileImage;
 
+  // This method to securly clear passwords from memory
+  void _clearPasswordControllers() {
+    _passwordController.clear();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +53,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   void dispose() {
+    _clearPasswordControllers();
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -210,12 +216,9 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    if (state.status == RegisterStatus.failure && state.errorMessage != null) {
-      AppSnackBar.show(
-        context,
-        state.errorMessage!,
-        type: AppSnackBarType.error,
-      );
+    if (state.status == RegisterStatus.failure && state.hasErrors) {
+      final message = state.errorMessages.map((error) => '• $error').join('\n');
+      AppSnackBar.show(context, message, type: AppSnackBarType.error);
       context.read<RegisterBloc>().add(const RegisterReset());
     }
   }
