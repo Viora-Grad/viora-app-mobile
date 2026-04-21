@@ -13,6 +13,7 @@ import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/features/auth/representation/blocs/register_bloc.dart';
 import 'package:viora_app/features/auth/representation/blocs/register_events.dart';
 import 'package:viora_app/features/auth/representation/blocs/register_states.dart';
+import 'package:viora_app/features/auth/representation/validators/register_validators.dart';
 import 'package:viora_app/features/auth/representation/widgets/register_form_fields.dart';
 import 'package:viora_app/features/auth/representation/widgets/register_layout_shell.dart';
 import 'package:viora_app/features/auth/representation/widgets/register_login_placeholder.dart';
@@ -60,13 +61,6 @@ class _RegisterPageState extends State<RegisterPage> {
     _ageController.dispose();
     _registerBloc.close();
     super.dispose();
-  }
-
-  String? _requiredValidator(String? value, String fieldName) {
-    if (value == null || value.trim().isEmpty) {
-      return '$fieldName is required';
-    }
-    return null;
   }
 
   Future<void> _pickProfileImage() async {
@@ -165,18 +159,24 @@ class _RegisterPageState extends State<RegisterPage> {
 
     final isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) {
+      final invalidFields = RegisterValidators.collectInvalidFields(
+        username: _usernameController.text,
+        email: _emailController.text,
+        phoneNumber: _phoneNumberController.text,
+        password: _passwordController.text,
+        age: _ageController.text,
+      );
+      if (invalidFields.isNotEmpty) {
+        AppSnackBar.show(
+          context,
+          RegisterValidators.buildValidationSummary(invalidFields),
+          type: AppSnackBarType.error,
+        );
+      }
       return;
     }
 
-    final parsedAge = int.tryParse(_ageController.text.trim());
-    if (parsedAge == null) {
-      AppSnackBar.show(
-        context,
-        'Please enter a valid age',
-        type: AppSnackBarType.error,
-      );
-      return;
-    }
+    final parsedAge = int.parse(_ageController.text.trim());
 
     context.read<RegisterBloc>().add(
       RegisterSubmitted(
@@ -258,7 +258,12 @@ class _RegisterPageState extends State<RegisterPage> {
                     isSubmitting: isSubmitting,
                     inputTextStyle: Theme.of(context).textTheme.bodyLarge
                         ?.copyWith(fontWeight: FontWeight.w600, fontSize: 17),
-                    requiredValidator: _requiredValidator,
+                    usernameValidator: RegisterValidators.validateUsername,
+                    emailValidator: RegisterValidators.validateEmail,
+                    phoneNumberValidator:
+                        RegisterValidators.validatePhoneNumber,
+                    passwordValidator: RegisterValidators.validatePassword,
+                    ageValidator: RegisterValidators.validateAge,
                     onGenderChanged: (value) {
                       setState(() {
                         _selectedGender = value;

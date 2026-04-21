@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:viora_app/core/enums/gender.dart';
 import 'package:viora_app/features/auth/representation/widgets/register_password_field.dart';
 
@@ -12,7 +13,11 @@ class RegisterFormFields extends StatelessWidget {
     required this.selectedGender,
     required this.isSubmitting,
     required this.inputTextStyle,
-    required this.requiredValidator,
+    required this.usernameValidator,
+    required this.emailValidator,
+    required this.phoneNumberValidator,
+    required this.passwordValidator,
+    required this.ageValidator,
     required this.onGenderChanged,
     super.key,
   });
@@ -25,7 +30,11 @@ class RegisterFormFields extends StatelessWidget {
   final Gender selectedGender;
   final bool isSubmitting;
   final TextStyle? inputTextStyle;
-  final String? Function(String?, String) requiredValidator;
+  final String? Function(String?) usernameValidator;
+  final String? Function(String?) emailValidator;
+  final String? Function(String?) phoneNumberValidator;
+  final String? Function(String?) passwordValidator;
+  final String? Function(String?) ageValidator;
   final ValueChanged<Gender> onGenderChanged;
 
   @override
@@ -36,10 +45,11 @@ class RegisterFormFields extends StatelessWidget {
         TextFormField(
           controller: usernameController,
           enabled: !isSubmitting,
+          keyboardType: TextInputType.name,
           textInputAction: TextInputAction.next,
           style: inputTextStyle,
           decoration: const InputDecoration(labelText: 'Username'),
-          validator: (value) => requiredValidator(value, 'Username'),
+          validator: usernameValidator,
         ),
         const SizedBox(height: 16),
         TextFormField(
@@ -49,24 +59,28 @@ class RegisterFormFields extends StatelessWidget {
           textInputAction: TextInputAction.next,
           style: inputTextStyle,
           decoration: const InputDecoration(labelText: 'Email'),
-          validator: (value) => requiredValidator(value, 'Email'),
+          validator: emailValidator,
         ),
         const SizedBox(height: 16),
         TextFormField(
           controller: phoneNumberController,
           enabled: !isSubmitting,
-          keyboardType: TextInputType.phone,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(15),
+          ],
           textInputAction: TextInputAction.next,
           style: inputTextStyle,
           decoration: const InputDecoration(labelText: 'Phone Number'),
-          validator: (value) => requiredValidator(value, 'Phone Number'),
+          validator: phoneNumberValidator,
         ),
         const SizedBox(height: 16),
         RegisterPasswordField(
           controller: passwordController,
           isSubmitting: isSubmitting,
           inputTextStyle: inputTextStyle,
-          validator: (value) => requiredValidator(value, 'Password'),
+          validator: passwordValidator,
         ),
         const SizedBox(height: 16),
         Row(
@@ -103,28 +117,19 @@ class RegisterFormFields extends StatelessWidget {
                 controller: ageController,
                 enabled: !isSubmitting,
                 keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(3),
+                ],
                 textInputAction: TextInputAction.done,
                 style: inputTextStyle,
                 decoration: const InputDecoration(labelText: 'Age'),
-                validator: _validateAge,
+                validator: ageValidator,
               ),
             ),
           ],
         ),
       ],
     );
-  }
-
-  String? _validateAge(String? value) {
-    final requiredError = requiredValidator(value, 'Age');
-    if (requiredError != null) {
-      return requiredError;
-    }
-
-    final parsedAge = int.tryParse(value!.trim());
-    if (parsedAge == null || parsedAge < 1) {
-      return 'Please enter a valid age';
-    }
-    return null;
   }
 }

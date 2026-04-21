@@ -32,6 +32,7 @@ class _RegisterPasswordFieldState extends State<RegisterPasswordField> {
     return TextFormField(
       controller: widget.controller,
       enabled: !widget.isSubmitting,
+      keyboardType: TextInputType.visiblePassword,
       obscureText: _obscurePassword,
       textInputAction: TextInputAction.next,
       style: widget.inputTextStyle,
