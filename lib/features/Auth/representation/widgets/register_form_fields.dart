@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:viora_app/core/enums/gender.dart';
+import 'package:viora_app/features/auth/representation/widgets/register_password_field.dart';
 
 class RegisterFormFields extends StatelessWidget {
   const RegisterFormFields({
@@ -9,11 +10,9 @@ class RegisterFormFields extends StatelessWidget {
     required this.passwordController,
     required this.ageController,
     required this.selectedGender,
-    required this.obscurePassword,
     required this.isSubmitting,
     required this.inputTextStyle,
     required this.requiredValidator,
-    required this.onTogglePasswordVisibility,
     required this.onGenderChanged,
     super.key,
   });
@@ -24,11 +23,9 @@ class RegisterFormFields extends StatelessWidget {
   final TextEditingController passwordController;
   final TextEditingController ageController;
   final Gender selectedGender;
-  final bool obscurePassword;
   final bool isSubmitting;
   final TextStyle? inputTextStyle;
   final String? Function(String?, String) requiredValidator;
-  final VoidCallback onTogglePasswordVisibility;
   final ValueChanged<Gender> onGenderChanged;
 
   @override
@@ -65,21 +62,10 @@ class RegisterFormFields extends StatelessWidget {
           validator: (value) => requiredValidator(value, 'Phone Number'),
         ),
         const SizedBox(height: 16),
-        TextFormField(
+        RegisterPasswordField(
           controller: passwordController,
-          enabled: !isSubmitting,
-          obscureText: obscurePassword,
-          textInputAction: TextInputAction.next,
-          style: inputTextStyle,
-          decoration: InputDecoration(
-            labelText: 'Password',
-            suffixIcon: IconButton(
-              onPressed: isSubmitting ? null : onTogglePasswordVisibility,
-              icon: Icon(
-                obscurePassword ? Icons.visibility_off : Icons.visibility,
-              ),
-            ),
-          ),
+          isSubmitting: isSubmitting,
+          inputTextStyle: inputTextStyle,
           validator: (value) => requiredValidator(value, 'Password'),
         ),
         const SizedBox(height: 16),

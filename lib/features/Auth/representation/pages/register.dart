@@ -37,7 +37,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final _imagePicker = ImagePicker();
 
   Gender _selectedGender = Gender.male;
-  bool _obscurePassword = true;
   XFile? _selectedProfileImage;
 
   // This method to securly clear passwords from memory
@@ -160,6 +159,10 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _onRegisterPressed(BuildContext context) {
+    if (context.read<RegisterBloc>().state.isLoading) {
+      return;
+    }
+
     final isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) {
       return;
@@ -252,16 +255,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     passwordController: _passwordController,
                     ageController: _ageController,
                     selectedGender: _selectedGender,
-                    obscurePassword: _obscurePassword,
                     isSubmitting: isSubmitting,
                     inputTextStyle: Theme.of(context).textTheme.bodyLarge
                         ?.copyWith(fontWeight: FontWeight.w600, fontSize: 17),
                     requiredValidator: _requiredValidator,
-                    onTogglePasswordVisibility: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
                     onGenderChanged: (value) {
                       setState(() {
                         _selectedGender = value;

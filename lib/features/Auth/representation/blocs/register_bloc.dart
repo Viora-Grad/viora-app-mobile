@@ -8,6 +8,7 @@ import 'package:dio/dio.dart';
 class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   final RegisterUsecase registerUsecase;
   CancelToken? _cancelToken; // Track active registration request
+  bool _isRegistering = false;
 
   RegisterBloc({required this.registerUsecase}) : super(const RegisterState()) {
     on<RegisterSubmitted>(_onRegisterSubmitted);
@@ -18,41 +19,50 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     RegisterSubmitted event,
     Emitter<RegisterState> emit,
   ) async {
-    _cancelToken?.cancel(); // Cancel any previous request
-    _cancelToken = CancelToken(); // Create a new cancel token for this request
+    if (_isRegistering) {
+      return;
+    }
 
-    emit(
-      state.copyWith(status: RegisterStatus.loading, clearErrorMessage: true),
-    );
+    _isRegistering = true;
+    _cancelToken = CancelToken();
 
-    final result = await registerUsecase(
-      RegisterParameters(
-        userName: event.userName,
-        email: event.email,
-        password: event.password,
-        phoneNumber: event.phoneNumber,
-        gender: event.gender,
-        age: event.age,
-        profilePicturePath: event.profilePicturePath,
-      ),
-      cancelToken: _cancelToken, // Pass the cancel token to the use case
-    );
+    try {
+      emit(
+        state.copyWith(status: RegisterStatus.loading, clearErrorMessage: true),
+      );
 
-    result.fold(
-      (failure) => emit(
-        state.copyWith(
-          status: RegisterStatus.failure,
-          errorMessage: failure.message,
+      final result = await registerUsecase(
+        RegisterParameters(
+          userName: event.userName,
+          email: event.email,
+          password: event.password,
+          phoneNumber: event.phoneNumber,
+          gender: event.gender,
+          age: event.age,
+          profilePicturePath: event.profilePicturePath,
         ),
-      ),
-      (user) => emit(
-        state.copyWith(
-          status: RegisterStatus.success,
-          clearErrorMessage: true,
-          user: user,
+        cancelToken: _cancelToken,
+      );
+
+      result.fold(
+        (failure) => emit(
+          state.copyWith(
+            status: RegisterStatus.failure,
+            errorMessage: failure.message,
+          ),
         ),
-      ),
-    );
+        (user) => emit(
+          state.copyWith(
+            status: RegisterStatus.success,
+            clearErrorMessage: true,
+            user: user,
+          ),
+        ),
+      );
+    } finally {
+      _isRegistering = false;
+      _cancelToken = null;
+    }
   }
 
   void _onRegisterReset(RegisterReset event, Emitter<RegisterState> emit) {
