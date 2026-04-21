@@ -3,6 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:viora_app/core/enums/gender.dart';
 import 'package:viora_app/features/auth/representation/widgets/register_password_field.dart';
 
+const double _spacing10 = 10.0;
+const double _spacing16 = 16.0;
+const int _phoneMaxDigits15 = 15;
+const int _ageMaxDigits3 = 3;
+
 class RegisterFormFields extends StatelessWidget {
   const RegisterFormFields({
     required this.usernameController,
@@ -51,7 +56,7 @@ class RegisterFormFields extends StatelessWidget {
           decoration: const InputDecoration(labelText: 'Username'),
           validator: usernameValidator,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: _spacing16),
         TextFormField(
           controller: emailController,
           enabled: !isSubmitting,
@@ -61,28 +66,28 @@ class RegisterFormFields extends StatelessWidget {
           decoration: const InputDecoration(labelText: 'Email'),
           validator: emailValidator,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: _spacing16),
         TextFormField(
           controller: phoneNumberController,
           enabled: !isSubmitting,
           keyboardType: TextInputType.number,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(15),
+            LengthLimitingTextInputFormatter(_phoneMaxDigits15),
           ],
           textInputAction: TextInputAction.next,
           style: inputTextStyle,
           decoration: const InputDecoration(labelText: 'Phone Number'),
           validator: phoneNumberValidator,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: _spacing16),
         RegisterPasswordField(
           controller: passwordController,
           isSubmitting: isSubmitting,
           inputTextStyle: inputTextStyle,
           validator: passwordValidator,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: _spacing16),
         Row(
           children: [
             Expanded(
@@ -111,7 +116,7 @@ class RegisterFormFields extends StatelessWidget {
                       },
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: _spacing10),
             Expanded(
               child: TextFormField(
                 controller: ageController,
@@ -119,7 +124,7 @@ class RegisterFormFields extends StatelessWidget {
                 keyboardType: TextInputType.number,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(3),
+                  LengthLimitingTextInputFormatter(_ageMaxDigits3),
                 ],
                 textInputAction: TextInputAction.done,
                 style: inputTextStyle,

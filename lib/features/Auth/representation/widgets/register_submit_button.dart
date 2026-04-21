@@ -1,5 +1,15 @@
 import 'package:flutter/material.dart';
 
+const double _buttonHeight56 = 56.0;
+const double _borderRadius16 = 16.0;
+const double _disabledAlpha35 = 0.35;
+const double _shadowBlur18 = 18.0;
+const double _shadowOffsetY10 = 10.0;
+const double _loaderSize24 = 24.0;
+const double _progressStrokeWidth24 = 2.4;
+const double _fontText18 = 18.0;
+const double _letterSpacing02 = 0.2;
+
 class RegisterSubmitButton extends StatelessWidget {
   const RegisterSubmitButton({
     required this.isSubmitting,
@@ -18,24 +28,24 @@ class RegisterSubmitButton extends StatelessWidget {
     final isEnabled = !isSubmitting;
 
     return SizedBox(
-      height: 56,
+      height: _buttonHeight56,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(_borderRadius16),
           gradient: LinearGradient(
             colors: isEnabled
                 ? const [_gradientStart, _gradientEnd]
                 : [
-                    _gradientStart.withValues(alpha: 0.35),
-                    _gradientEnd.withValues(alpha: 0.35),
+                    _gradientStart.withValues(alpha: _disabledAlpha35),
+                    _gradientEnd.withValues(alpha: _disabledAlpha35),
                   ],
           ),
           boxShadow: isEnabled
               ? const [
                   BoxShadow(
                     color: Color(0x3300D5FF),
-                    blurRadius: 18,
-                    offset: Offset(0, 10),
+                    blurRadius: _shadowBlur18,
+                    offset: Offset(0, _shadowOffsetY10),
                   ),
                 ]
               : null,
@@ -44,14 +54,14 @@ class RegisterSubmitButton extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: isEnabled ? onPressed : null,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(_borderRadius16),
             child: Center(
               child: isSubmitting
                   ? const SizedBox(
-                      width: 24,
-                      height: 24,
+                      width: _loaderSize24,
+                      height: _loaderSize24,
                       child: CircularProgressIndicator(
-                        strokeWidth: 2.4,
+                        strokeWidth: _progressStrokeWidth24,
                         color: Colors.white,
                       ),
                     )
@@ -59,9 +69,9 @@ class RegisterSubmitButton extends StatelessWidget {
                       'Create Account',
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
-                        fontSize: 18,
+                        fontSize: _fontText18,
                         color: Colors.white,
-                        letterSpacing: 0.2,
+                        letterSpacing: _letterSpacing02,
                       ),
                     ),
             ),

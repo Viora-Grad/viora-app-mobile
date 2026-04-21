@@ -1,12 +1,19 @@
 class RegisterValidators {
   const RegisterValidators._();
 
+  static const int usernameMinChars3 = 3;
+  static const int phoneMinDigits11 = 11;
+  static const int phoneMaxDigits15 = 15;
+  static const int passwordMinChars8 = 8;
+  static const int ageMin16 = 16;
+  static const int ageMax122 = 122;
+
   static String? validateUsername(String? value) {
     final trimmed = value?.trim() ?? '';
     if (trimmed.isEmpty) {
       return 'Username is required';
     }
-    if (trimmed.length < 3) {
+    if (trimmed.length < usernameMinChars3) {
       return 'Min 3 characters';
     }
     if (RegExp(r'^\d+$').hasMatch(trimmed)) {
@@ -35,10 +42,10 @@ class RegisterValidators {
     }
 
     final digitsOnly = trimmed.replaceAll(RegExp(r'\D'), '');
-    if (digitsOnly.length < 11) {
+    if (digitsOnly.length < phoneMinDigits11) {
       return 'Min 11 digits';
     }
-    if (digitsOnly.length > 15) {
+    if (digitsOnly.length > phoneMaxDigits15) {
       return 'Max 15 digits';
     }
     return null;
@@ -49,7 +56,7 @@ class RegisterValidators {
     if (trimmed.isEmpty) {
       return 'Password is required';
     }
-    if (trimmed.length < 8) {
+    if (trimmed.length < passwordMinChars8) {
       return 'Min 8 characters';
     }
 
@@ -74,10 +81,10 @@ class RegisterValidators {
     if (parsedAge == null) {
       return 'Invalid age';
     }
-    if (parsedAge < 16) {
+    if (parsedAge < ageMin16) {
       return 'Min age is 16';
     }
-    if (parsedAge > 122) {
+    if (parsedAge > ageMax122) {
       return 'Max age is 122';
     }
     return null;

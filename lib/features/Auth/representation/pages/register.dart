@@ -20,6 +20,14 @@ import 'package:viora_app/features/auth/representation/widgets/register_login_pl
 import 'package:viora_app/features/auth/representation/widgets/register_profile_picture_section.dart';
 import 'package:viora_app/features/auth/representation/widgets/register_submit_button.dart';
 
+const int _imageQuality75 = 75;
+const double _formTopSpacingRatio06 = 0.06;
+const double _formTopSpacingMin20 = 20.0;
+const double _formTopSpacingMax72 = 72.0;
+const double _fontText17 = 17.0;
+const double _spacing16 = 16.0;
+const double _spacing24 = 24.0;
+
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -67,7 +75,7 @@ class _RegisterPageState extends State<RegisterPage> {
     try {
       final pickedFile = await _imagePicker.pickImage(
         source: ImageSource.gallery,
-        imageQuality: 75,
+        imageQuality: _imageQuality75,
       );
 
       if (pickedFile == null) {
@@ -228,10 +236,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final formTopSpacing = (MediaQuery.sizeOf(context).height * 0.06).clamp(
-      20.0,
-      72.0,
-    );
+    final formTopSpacing =
+        (MediaQuery.sizeOf(context).height * _formTopSpacingRatio06).clamp(
+          _formTopSpacingMin20,
+          _formTopSpacingMax72,
+        );
 
     return BlocProvider.value(
       value: _registerBloc,
@@ -257,7 +266,10 @@ class _RegisterPageState extends State<RegisterPage> {
                     selectedGender: _selectedGender,
                     isSubmitting: isSubmitting,
                     inputTextStyle: Theme.of(context).textTheme.bodyLarge
-                        ?.copyWith(fontWeight: FontWeight.w600, fontSize: 17),
+                        ?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          fontSize: _fontText17,
+                        ),
                     usernameValidator: RegisterValidators.validateUsername,
                     emailValidator: RegisterValidators.validateEmail,
                     phoneNumberValidator:
@@ -270,13 +282,13 @@ class _RegisterPageState extends State<RegisterPage> {
                       });
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: _spacing16),
                   RegisterProfilePictureSection(
                     isSubmitting: isSubmitting,
                     onPickImage: _pickProfileImage,
                     selectedProfileImage: _selectedProfileImage,
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: _spacing24),
                   RegisterSubmitButton(
                     isSubmitting: isSubmitting,
                     onPressed: () => _onRegisterPressed(context),
