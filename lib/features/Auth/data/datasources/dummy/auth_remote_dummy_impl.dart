@@ -37,7 +37,6 @@ class AuthRemoteDummyDataSourceImpl implements AuthRemoteDataSource {
       age: params.age,
       createdAt: now,
       updatedAt: now,
-      profilePictureUrl: params.profilePicturePath,
     );
   }
 }

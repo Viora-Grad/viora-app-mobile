@@ -83,11 +83,6 @@ class RegisterUsecase {
       return const Left(ValidationFailure('Invalid gender value'));
     }
 
-    if (params.profilePicturePath != null &&
-        params.profilePicturePath!.trim().isEmpty) {
-      return const Left(ValidationFailure('Invalid profile picture file path'));
-    }
-
     return repository.register(params, cancelToken: cancelToken);
   }
 }

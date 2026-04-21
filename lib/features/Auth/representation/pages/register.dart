@@ -1,11 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:viora_app/core/widgets/app_snackbar.dart';
 import 'package:viora_app/core/enums/gender.dart';
 import 'package:viora_app/core/di/service_locator.dart';
@@ -17,15 +12,12 @@ import 'package:viora_app/features/auth/representation/validators/register_valid
 import 'package:viora_app/features/auth/representation/widgets/register_form_fields.dart';
 import 'package:viora_app/features/auth/representation/widgets/register_layout_shell.dart';
 import 'package:viora_app/features/auth/representation/widgets/register_login_placeholder.dart';
-import 'package:viora_app/features/auth/representation/widgets/register_profile_picture_section.dart';
 import 'package:viora_app/features/auth/representation/widgets/register_submit_button.dart';
 
-const int _imageQuality75 = 75;
 const double _formTopSpacingRatio06 = 0.06;
 const double _formTopSpacingMin20 = 20.0;
 const double _formTopSpacingMax72 = 72.0;
 const double _fontText17 = 17.0;
-const double _spacing16 = 16.0;
 const double _spacing24 = 24.0;
 
 class RegisterPage extends StatefulWidget {
@@ -43,10 +35,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _phoneNumberController = TextEditingController();
   final _ageController = TextEditingController();
-  final _imagePicker = ImagePicker();
 
   Gender _selectedGender = Gender.male;
-  XFile? _selectedProfileImage;
 
   // This method to securly clear passwords from memory
   void _clearPasswordControllers() {
@@ -69,95 +59,6 @@ class _RegisterPageState extends State<RegisterPage> {
     _ageController.dispose();
     _registerBloc.close();
     super.dispose();
-  }
-
-  Future<void> _pickProfileImage() async {
-    try {
-      final pickedFile = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: _imageQuality75,
-      );
-
-      if (pickedFile == null) {
-        return;
-      }
-
-      if (!mounted) {
-        return;
-      }
-
-      // Check if the file exists and is accessible
-      final file = File(pickedFile.path);
-      final exists = await file.exists();
-      if (!exists) {
-        AppSnackBar.show(
-          context,
-          'Cannot access this image. Please choose one stored on your device.',
-          type: AppSnackBarType.error,
-        );
-        return;
-      }
-
-      // Optionally, copy to temp directory for consistent access
-      final bytes = await file.readAsBytes();
-      if (bytes.isEmpty) {
-        AppSnackBar.show(
-          context,
-          'Cannot access this image. Please choose one stored on your device.',
-          type: AppSnackBarType.error,
-        );
-        return;
-      }
-
-      final temporaryDirectory = await getTemporaryDirectory();
-      final sanitizedName = pickedFile.name.isEmpty
-          ? 'profile_image.jpg'
-          : pickedFile.name;
-      final temporaryFile = File(
-        '${temporaryDirectory.path}/register_${DateTime.now().millisecondsSinceEpoch}_$sanitizedName',
-      );
-      await temporaryFile.writeAsBytes(bytes, flush: true);
-
-      setState(() {
-        _selectedProfileImage = XFile(
-          temporaryFile.path,
-          name: sanitizedName,
-          mimeType: pickedFile.mimeType,
-        );
-      });
-    } on MissingPluginException {
-      if (!mounted) {
-        return;
-      }
-      AppSnackBar.show(
-        context,
-        'Image picker not initialized. Please restart the app.',
-        type: AppSnackBarType.error,
-      );
-    } on PlatformException catch (exception) {
-      if (!mounted) {
-        return;
-      }
-      if (exception.code == 'no_valid_image_uri') {
-        AppSnackBar.show(
-          context,
-          'Cannot find the selected image. Please pick an image saved locally on this device.',
-          type: AppSnackBarType.error,
-        );
-        return;
-      }
-      final message = exception.message ?? 'Failed to pick image.';
-      AppSnackBar.show(context, message, type: AppSnackBarType.error);
-    } catch (_) {
-      if (!mounted) {
-        return;
-      }
-      AppSnackBar.show(
-        context,
-        'Failed to pick image. Please try again.',
-        type: AppSnackBarType.error,
-      );
-    }
   }
 
   void _onRegisterPressed(BuildContext context) {
@@ -194,7 +95,6 @@ class _RegisterPageState extends State<RegisterPage> {
         phoneNumber: _phoneNumberController.text.trim(),
         gender: _selectedGender,
         age: parsedAge,
-        profilePicturePath: _selectedProfileImage?.path,
       ),
     );
   }
@@ -219,7 +119,6 @@ class _RegisterPageState extends State<RegisterPage> {
             'email': user.email,
             'gender': user.gender.name,
             'age': user.age,
-            'hasProfilePicture': _selectedProfileImage != null,
           },
         );
       }
@@ -281,12 +180,6 @@ class _RegisterPageState extends State<RegisterPage> {
                         _selectedGender = value;
                       });
                     },
-                  ),
-                  const SizedBox(height: _spacing16),
-                  RegisterProfilePictureSection(
-                    isSubmitting: isSubmitting,
-                    onPickImage: _pickProfileImage,
-                    selectedProfileImage: _selectedProfileImage,
                   ),
                   const SizedBox(height: _spacing24),
                   RegisterSubmitButton(

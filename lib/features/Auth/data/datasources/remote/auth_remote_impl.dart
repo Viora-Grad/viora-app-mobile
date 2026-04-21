@@ -42,23 +42,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       'age': params.age,
     };
 
-    final hasProfilePicture =
-        params.profilePicturePath != null &&
-        params.profilePicturePath!.isNotEmpty;
-
-    if (hasProfilePicture) {
-      final imagePath = params.profilePicturePath!;
-      final imageName = imagePath.split(RegExp(r'[/\\]')).last;
-      data['profilePicture'] = await MultipartFile.fromFile(
-        imagePath,
-        filename: imageName,
-      );
-    }
-
     final response = await _apiConsumer.post(
       EndPoints.registerUrl,
       data: data,
-      isFormData: hasProfilePicture,
       cancelToken: cancelToken,
     );
     return UserModel.fromJson(response);

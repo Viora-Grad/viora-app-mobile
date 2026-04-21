@@ -14,7 +14,6 @@ class RegisterParameters {
   final String phoneNumber;
   final Gender gender;
   final int age;
-  final String? profilePicturePath;
   RegisterParameters({
     required this.userName,
     required this.email,
@@ -22,6 +21,5 @@ class RegisterParameters {
     required this.phoneNumber,
     required this.gender,
     required this.age,
-    this.profilePicturePath,
   });
 }

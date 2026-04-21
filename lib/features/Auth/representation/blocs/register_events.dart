@@ -13,7 +13,6 @@ final class RegisterSubmitted extends RegisterEvent {
   final String password;
   final String userName;
   final String phoneNumber;
-  final String? profilePicturePath;
   final int age;
   final Gender gender;
 
@@ -22,7 +21,6 @@ final class RegisterSubmitted extends RegisterEvent {
     required this.password,
     required this.userName,
     required this.phoneNumber,
-    this.profilePicturePath,
     required this.age,
     required this.gender,
   });
@@ -33,7 +31,6 @@ final class RegisterSubmitted extends RegisterEvent {
     password,
     userName,
     phoneNumber,
-    profilePicturePath,
     age,
     gender,
   ];

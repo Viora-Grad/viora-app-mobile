@@ -39,7 +39,6 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           phoneNumber: event.phoneNumber,
           gender: event.gender,
           age: event.age,
-          profilePicturePath: event.profilePicturePath,
         ),
         cancelToken: _cancelToken,
       );

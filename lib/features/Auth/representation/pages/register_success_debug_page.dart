@@ -33,9 +33,6 @@ class RegisterSuccessDebugPage extends StatelessWidget {
                 Text('Email: ${_readString('email')}'),
                 Text('Gender: ${_readString('gender')}'),
                 Text('Age: ${_readString('age')}'),
-                Text(
-                  'Has profile picture: ${_readString('hasProfilePicture')}',
-                ),
               ],
             ),
           ),
