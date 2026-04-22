@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+// Brief: This is a simple debug page that displays the submitted 
+// registration form data.
+// TODO: Remove this page and related code after testing is complete.
+
 class RegisterSuccessDebugPage extends StatelessWidget {
   final Map<String, dynamic> submittedForm;
 

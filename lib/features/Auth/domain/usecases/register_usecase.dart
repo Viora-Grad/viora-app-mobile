@@ -6,6 +6,11 @@ import 'package:viora_app/core/params/user_parameters.dart';
 import 'package:viora_app/features/auth/domain/entities/user.dart';
 import 'package:viora_app/features/auth/domain/repositories/auth_repository.dart';
 
+// Brief: This is the RegisterUsecase, which is responsible for handling the registration
+// logic in the domain layer. It validates the input parameters and then calls the register method of the AuthRepository.
+// It returns an Either<Failure, User> to handle success and failure cases explicitly,
+// allowing the caller to manage errors effectively in the domain layer.
+
 class RegisterUsecase {
   final AuthRepository repository;
 

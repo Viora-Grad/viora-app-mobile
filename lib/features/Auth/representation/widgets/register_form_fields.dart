@@ -3,6 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:viora_app/core/enums/gender.dart';
 import 'package:viora_app/features/auth/representation/widgets/register_password_field.dart';
 
+// Brief: This widget defines the form fields used in the registration page. It includes
+// text fields for username, email, phone number, password, and age, as well as a dropdown
+// for selecting gender.
+
 const double _spacing10 = 10.0;
 const double _spacing16 = 16.0;
 const int _phoneMaxDigits15 = 15;

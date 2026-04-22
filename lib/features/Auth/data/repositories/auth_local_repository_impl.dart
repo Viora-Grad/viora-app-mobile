@@ -6,6 +6,12 @@ import 'package:viora_app/features/auth/data/models/user_model.dart';
 import 'package:viora_app/features/auth/domain/entities/user.dart';
 import 'package:viora_app/features/auth/domain/repositories/auth_local_repository.dart';
 
+// Brief: This is the implementation of the AuthLocalRepository,
+// which interacts with the AuthLocalDataSource to perform local data operations
+// such as saving and retrieving user tokens and data.
+// It also handles exceptions and converts them to Failure objects
+// for better error handling in the domain layer.
+
 class AuthLocalRepositoryImpl implements AuthLocalRepository {
   final AuthLocalDataSource localDataSource;
 

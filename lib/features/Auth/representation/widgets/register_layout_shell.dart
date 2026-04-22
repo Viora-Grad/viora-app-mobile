@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:viora_app/features/auth/representation/widgets/register_page_header.dart';
 
+// Brief: This widget defines the layout shell for the registration page. It includes a gradient background,
+// a decorative circle, and a form container with a header. The child widget is where the registration form fields
+// will be placed, and an optional footer can be included for additional actions or navigation links. The layout
+// is designed to be visually appealing and responsive, with consistent spacing and theming throughout the page.
+
 class RegisterLayoutShell extends StatelessWidget {
   const RegisterLayoutShell({
     required this.formKey,

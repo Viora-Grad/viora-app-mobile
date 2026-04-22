@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+// Brief: This widget defines the header section of the registration page, 
+// which includes a title and a subtitle.
+
+
 class RegisterPageHeader extends StatelessWidget {
   const RegisterPageHeader({
     required this.title,

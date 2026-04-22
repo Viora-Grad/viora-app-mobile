@@ -4,6 +4,12 @@ import 'package:viora_app/core/params/user_parameters.dart';
 import 'package:viora_app/features/auth/data/datasources/remote/auth_remote.dart';
 import 'package:viora_app/features/auth/data/models/user_model.dart';
 
+// Brief: This is a dummy impl for the AuthRemoteDataSource,
+// which simulates network calls with delays
+// and returns mock user data based on the input parameters.
+// It is useful for testing and development purposes
+// without needing a real backend service.
+
 class AuthRemoteDummyDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel> login(LoginParameters params) async {

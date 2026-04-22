@@ -4,6 +4,10 @@ import 'package:viora_app/core/errors/exceptions.dart';
 import 'auth_local.dart';
 import 'dart:convert';
 
+// Brief: This impl of AuthLocalDataSource uses FlutterSecureStorage
+// to persist user tokens and data securely on the device.
+// 
+
 class AuthLocalImpl implements AuthLocalDataSource {
   final FlutterSecureStorage secureStorage;
   static const tokenKey = 'user_token';

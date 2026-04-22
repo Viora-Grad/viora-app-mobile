@@ -6,6 +6,11 @@ import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/auth/data/datasources/remote/auth_remote.dart';
 import 'package:viora_app/features/auth/data/models/user_model.dart';
 
+// Brief: This is the implementation of the AuthRemoteDataSource,
+// which uses an ApiConsumer to make HTTP requests to the backend API
+// for user authentication. It also interacts with the AuthLocalDataSource
+// to save the user token locally after a successful login.
+
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final ApiConsumer _apiConsumer;
   final AuthLocalDataSource _authLocalDataSource;

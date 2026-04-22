@@ -8,6 +8,13 @@ import 'package:viora_app/features/auth/domain/entities/user.dart';
 import 'package:viora_app/features/auth/data/datasources/remote/auth_remote.dart';
 import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
 
+// Brief: This is the implementation of the AuthRepository,
+// which serves as the main data repository for authentication-related operations.
+// It interacts with both the AuthRemoteDataSource for network calls
+// and the AuthLocalDataSource for local data management.
+// It also handles exceptions and converts them to Failure objects
+// for better error handling in the domain layer.
+
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   final AuthLocalDataSource localDataSource;

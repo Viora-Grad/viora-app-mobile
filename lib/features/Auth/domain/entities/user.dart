@@ -1,6 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:viora_app/core/enums/gender.dart';
 
+// Brief: This is the User entity class, which represents the user data structure
+// used in the domain layer. It is a plain Dart class that extends Equatable
+// for value equality.
+
 class User extends Equatable {
   final String id;
   final String userName;

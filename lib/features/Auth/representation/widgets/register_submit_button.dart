@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+// Brief: This widget defines the submit button for the registration form.
+// It includes a gradient background, rounded corners, and a loading state
+// that displays a circular progress indicator when the form is being submitted.
+// The button is disabled during submission to prevent multiple submissions,
+// and it provides visual feedback to the user about the current state of the
+// registration process.
+
 const double _buttonHeight56 = 56.0;
 const double _borderRadius16 = 16.0;
 const double _disabledAlpha35 = 0.35;

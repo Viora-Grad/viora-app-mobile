@@ -1,6 +1,10 @@
 import 'package:viora_app/core/enums/gender.dart';
 import 'package:viora_app/features/auth/domain/entities/user.dart';
 
+// Brief: This is the UserModel class, which represents the user data structure
+// used in the data layer. It includes methods for converting to/from JSON
+// and to/from the User entity used in the domain layer.
+
 class UserModel {
   final String id;
   final String userName;

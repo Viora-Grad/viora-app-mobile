@@ -5,6 +5,14 @@ import 'register_events.dart';
 import 'register_states.dart';
 import 'package:dio/dio.dart';
 
+// Brief: This is the RegisterBloc, which manages the state of the registration
+// process in the presentation layer. It listens for RegisterSubmitted events,
+// calls the RegisterUsecase to perform the registration logic,
+// and emits RegisterState updates based on the success or failure of the
+// registration attempt. It also handles cancellation of ongoing registration
+// requests when a new one is initiated or when the bloc is closed.
+
+
 class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   final RegisterUsecase registerUsecase;
   CancelToken? _cancelToken; // Track active registration request

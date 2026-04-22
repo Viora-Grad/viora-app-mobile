@@ -1,3 +1,9 @@
+// This file contains the RegisterValidators class, which provides static methods for validating
+// the input fields of the registration form. Each method checks a specific field (username,
+// email, phone number, password, age) against defined criteria and returns an error message
+// if the validation fails, or null if the input is valid. Additionally, there are helper
+// methods to collect all invalid fields and build a summary message for display in the UI.
+
 class RegisterValidators {
   const RegisterValidators._();
 

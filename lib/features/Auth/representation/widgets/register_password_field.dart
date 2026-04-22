@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 
+// Brief: This widget defines the password field for the registration form.
+// It includes functionality to toggle the visibility of the password,
+// allowing users to see or hide their input as needed.
+// The field is also disabled when the form is being submitted to prevent changes during the submission process. 
+// The validator function is used to ensure that the password meets the required criteria before allowing form submission.
+
 class RegisterPasswordField extends StatefulWidget {
   const RegisterPasswordField({
     required this.controller,
