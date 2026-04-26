@@ -149,44 +149,46 @@ class _RegisterPageState extends State<RegisterPage> {
           final isSubmitting = state.isLoading;
 
           return Scaffold(
-            body: RegisterLayoutShell(
-              formKey: _formKey,
-              formTopSpacing: formTopSpacing,
-              footer: const RegisterLoginPlaceholder(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  RegisterFormFields(
-                    usernameController: _usernameController,
-                    emailController: _emailController,
-                    phoneNumberController: _phoneNumberController,
-                    passwordController: _passwordController,
-                    ageController: _ageController,
-                    selectedGender: _selectedGender,
-                    isSubmitting: isSubmitting,
-                    inputTextStyle: Theme.of(context).textTheme.bodyLarge
-                        ?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          fontSize: _fontText17,
-                        ),
-                    usernameValidator: RegisterValidators.validateUsername,
-                    emailValidator: RegisterValidators.validateEmail,
-                    phoneNumberValidator:
-                        RegisterValidators.validatePhoneNumber,
-                    passwordValidator: RegisterValidators.validatePassword,
-                    ageValidator: RegisterValidators.validateAge,
-                    onGenderChanged: (value) {
-                      setState(() {
-                        _selectedGender = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: _spacing24),
-                  RegisterSubmitButton(
-                    isSubmitting: isSubmitting,
-                    onPressed: () => _onRegisterPressed(context),
-                  ),
-                ],
+            body: SizedBox.expand(
+              child: RegisterLayoutShell(
+                formKey: _formKey,
+                formTopSpacing: formTopSpacing,
+                footer: const RegisterLoginPlaceholder(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    RegisterFormFields(
+                      usernameController: _usernameController,
+                      emailController: _emailController,
+                      phoneNumberController: _phoneNumberController,
+                      passwordController: _passwordController,
+                      ageController: _ageController,
+                      selectedGender: _selectedGender,
+                      isSubmitting: isSubmitting,
+                      inputTextStyle: Theme.of(context).textTheme.bodyLarge
+                          ?.copyWith(
+                            fontWeight: FontWeight.w600,
+                            fontSize: _fontText17,
+                          ),
+                      usernameValidator: RegisterValidators.validateUsername,
+                      emailValidator: RegisterValidators.validateEmail,
+                      phoneNumberValidator:
+                          RegisterValidators.validatePhoneNumber,
+                      passwordValidator: RegisterValidators.validatePassword,
+                      ageValidator: RegisterValidators.validateAge,
+                      onGenderChanged: (value) {
+                        setState(() {
+                          _selectedGender = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: _spacing24),
+                    RegisterSubmitButton(
+                      isSubmitting: isSubmitting,
+                      onPressed: () => _onRegisterPressed(context),
+                    ),
+                  ],
+                ),
               ),
             ),
           );

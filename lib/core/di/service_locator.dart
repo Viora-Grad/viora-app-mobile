@@ -17,7 +17,9 @@ import 'package:viora_app/features/auth/data/repositories/auth_local_repository_
 import 'package:viora_app/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:viora_app/features/auth/domain/repositories/auth_local_repository.dart';
 import 'package:viora_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:viora_app/features/auth/domain/usecases/login_usecase.dart';
 import 'package:viora_app/features/auth/domain/usecases/register_usecase.dart';
+import 'package:viora_app/features/auth/representation/blocs/login_bloc.dart';
 import 'package:viora_app/features/auth/representation/blocs/register_bloc.dart';
 import 'package:viora_app/features/splash/representation/blocs/splash_bloc.dart';
 
@@ -91,5 +93,13 @@ Future<void> dependencyInjection() async {
 
   if (!sl.isRegistered<RegisterBloc>()) {
     sl.registerFactory<RegisterBloc>(() => RegisterBloc(registerUsecase: sl()));
+  }
+
+  if (!sl.isRegistered<LoginUsecase>()) {
+    sl.registerLazySingleton<LoginUsecase>(() => LoginUsecase(sl()));
+  }
+
+  if (!sl.isRegistered<LoginBloc>()) {
+    sl.registerFactory<LoginBloc>(() => LoginBloc(loginUsecase: sl()));
   }
 }
