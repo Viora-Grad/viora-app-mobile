@@ -109,5 +109,6 @@ Failure handleException(Object e) {
   if (e is CacheException) return e.toFailure();
   if (e is NetworkException) return e.toFailure();
   if (e is ValidationException) return e.toFailure();
+  if (e is OAuthCancelledException) return e.toFailure();
   return ServerFailure(e.toString(), statusCode: 500);
 }

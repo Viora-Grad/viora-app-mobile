@@ -85,3 +85,13 @@ class ValidationException implements Exception {
   @override
   String toString() => 'ValidationException: $message';
 }
+
+class OAuthCancelledException implements Exception {
+  final String message;
+  const OAuthCancelledException([this.message = 'OAuth cancelled by user']);
+
+  OAuthCancelledFailure toFailure() => OAuthCancelledFailure(message);
+
+  @override
+  String toString() => 'OAuthCancelledException: $message';
+}
