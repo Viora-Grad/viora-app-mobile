@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:viora_app/core/di/service_locator.dart';
-import 'package:viora_app/features/splash/representation/pages/splash.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:viora_app/features/splash/representation/blocs/splash_bloc.dart';
-import 'package:viora_app/features/splash/representation/blocs/splash_events.dart';
+import 'package:viora_app/core/routes/app_router.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,13 +15,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       title: 'Viora App',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: BlocProvider(
-        create: (_) => SplashBloc()..add(const SplashStarted()),
-        child: const SplashPage(),
-      ),
+      routerConfig: appRouter,
+      
     );
   }
 }

@@ -12,7 +12,20 @@
           "package_name": "com.example.viora_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "171037310820-q72rf9a0elb2jblkoon3grcikagb54ur.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.viora_app",
+            "certificate_hash": "23d5ee82536b2cc1a210bbc86bc341a057e3f80a"
+          }
+        },
+        {
+          "client_id": "171037310820-nh3s7it97s0168qujhs0a3sqbq0cr647.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCZLNcfjJNHUzCMnVczoKI3uVRZMmg53_s"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "171037310820-nh3s7it97s0168qujhs0a3sqbq0cr647.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "171037310820-8fevdcsjj36541pkcah2k91o0cqig2l8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.vioraApp"
+              }
+            }
+          ]
         }
       }
     }

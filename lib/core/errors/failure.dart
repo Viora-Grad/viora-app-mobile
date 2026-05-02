@@ -19,6 +19,15 @@ class ServerFailure extends Failure {
   List<Object> get props => [message, statusCode];
 }
 
+// Returned when oauth provider sign-in fails.
+class OAuthFailure extends Failure {
+  const OAuthFailure(super.message);
+}
+
+class OAuthCancelledFailure extends OAuthFailure {
+  const OAuthCancelledFailure([super.message = 'OAuth cancelled by user']);
+}
+
 /// Returned when a local cache/storage operation fails.
 class CacheFailure extends Failure {
   const CacheFailure(super.message);

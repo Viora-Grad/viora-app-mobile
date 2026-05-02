@@ -1,0 +1,57 @@
+import 'package:dio/dio.dart';
+import 'package:viora_app/core/api/api_consumer.dart';
+import 'package:viora_app/core/api/end_points.dart';
+import 'package:viora_app/core/params/user_parameters.dart';
+import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/auth/data/datasources/remote/auth_remote.dart';
+import 'package:viora_app/features/auth/data/models/user_model.dart';
+
+// Brief: This is the implementation of the AuthRemoteDataSource,
+// which uses an ApiConsumer to make HTTP requests to the backend API
+// for user authentication. It also interacts with the AuthLocalDataSource
+// to save the user token locally after a successful login.
+
+class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
+  final ApiConsumer _apiConsumer;
+  final AuthLocalDataSource _authLocalDataSource;
+
+  AuthRemoteDataSourceImpl(this._apiConsumer, this._authLocalDataSource);
+
+  @override
+  Future<UserModel> login(LoginParameters params) async {
+    final response = await _apiConsumer.post(
+      EndPoints.loginUrl,
+      data: {'email': params.email, 'password': params.password},
+    );
+
+    // Extract the token from the response and save it to local storage
+    final token = response['token'];
+    if (token != null) {
+      await _authLocalDataSource.saveUserToken(token);
+    }
+
+    return UserModel.fromJson(response);
+  }
+
+  @override
+  Future<UserModel> register(
+    RegisterParameters params, {
+    CancelToken? cancelToken,
+  }) async {
+    final data = <String, dynamic>{
+      'email': params.email,
+      'password': params.password,
+      'name': params.userName,
+      'phone': params.phoneNumber,
+      'gender': params.gender.name,
+      'age': params.age,
+    };
+
+    final response = await _apiConsumer.post(
+      EndPoints.registerUrl,
+      data: data,
+      cancelToken: cancelToken,
+    );
+    return UserModel.fromJson(response);
+  }
+}
