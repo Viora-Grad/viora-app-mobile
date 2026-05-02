@@ -113,7 +113,8 @@ class _RegisterPageState extends State<RegisterPage> {
       );
       if (user != null) {
         context.push(
-          AppRoutes.registerSuccess,
+          // TODO: Using login route until we have landing page.
+          AppRoutes.login,
           extra: {
             'userName': user.userName,
             'email': user.email,
