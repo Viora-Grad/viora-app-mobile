@@ -24,7 +24,7 @@ class ThirdIntroWidget extends StatelessWidget {
         context.read<SplashBloc>().add(const SplashResetSecondIntro());
       },
       onContinue: () {
-        context.push(AppRoutes.register); 
+        context.push(AppRoutes.login); 
       },
     );
   }
