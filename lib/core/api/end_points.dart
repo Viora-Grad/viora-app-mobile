@@ -4,6 +4,7 @@ class EndPoints {
   static const String postsUrl = '$baseUrl/posts';
   static const String loginUrl = '$baseUrl/login';
   static const String registerUrl = '$baseUrl/register';
+  static const String googleLoginUrl = '$baseUrl/auth/google';
 }
 
 class ApiKey {
