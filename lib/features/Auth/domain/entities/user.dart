@@ -9,7 +9,6 @@ class User extends Equatable {
   final String id;
   final String userName;
   final String email;
-  final String? profilePictureUrl;
   final String phoneNumber;
   final Gender gender;
   final int age;
@@ -26,7 +25,6 @@ class User extends Equatable {
     required this.age,
     required this.createdAt,
     required this.updatedAt,
-    this.profilePictureUrl,
   });
 
   @override
@@ -34,7 +32,6 @@ class User extends Equatable {
     id,
     userName,
     email,
-    profilePictureUrl,
     phoneNumber,
     gender,
     age,

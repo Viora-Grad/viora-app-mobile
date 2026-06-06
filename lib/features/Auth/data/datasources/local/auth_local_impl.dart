@@ -6,7 +6,7 @@ import 'dart:convert';
 
 // Brief: This impl of AuthLocalDataSource uses FlutterSecureStorage
 // to persist user tokens and data securely on the device.
-// 
+// NOTE: I didn't use cache_helper here because secure storage is more suitable for sensitive data.
 
 class AuthLocalImpl implements AuthLocalDataSource {
   final FlutterSecureStorage secureStorage;

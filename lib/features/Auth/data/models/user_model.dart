@@ -38,7 +38,6 @@ class UserModel {
       age: user.age,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
-      profilePictureUrl: user.profilePictureUrl,
     );
   }
 
@@ -52,7 +51,6 @@ class UserModel {
       age: age,
       createdAt: createdAt,
       updatedAt: updatedAt,
-      profilePictureUrl: profilePictureUrl,
     );
   }
 

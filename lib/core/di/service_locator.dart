@@ -36,12 +36,16 @@ import 'package:viora_app/features/auth/representation/blocs/oauth_bloc.dart';
 final sl = GetIt.instance;
 
 Future<void> dependencyInjection() async {
+  if (!sl.isRegistered<FlutterSecureStorage>()) {
+    sl.registerSingleton<FlutterSecureStorage>(const FlutterSecureStorage());
+  }
+
   if (!sl.isRegistered<Dio>()) {
     sl.registerSingleton<Dio>(Dio());
   }
 
   if (!sl.isRegistered<ApiConsumer>()) {
-    sl.registerLazySingleton<ApiConsumer>(() => DioConsumer(sl()));
+    sl.registerLazySingleton<ApiConsumer>(() => DioConsumer(sl(), sl()));
   }
 
   if (!sl.isRegistered<DataConnectionChecker>()) {
@@ -57,10 +61,6 @@ Future<void> dependencyInjection() async {
   if (!sl.isRegistered<SharedPreferences>()) {
     final sharedPreferences = await SharedPreferences.getInstance();
     sl.registerSingleton<SharedPreferences>(sharedPreferences);
-  }
-
-  if (!sl.isRegistered<FlutterSecureStorage>()) {
-    sl.registerSingleton<FlutterSecureStorage>(const FlutterSecureStorage());
   }
 
   if (!sl.isRegistered<CacheHelper>()) {
