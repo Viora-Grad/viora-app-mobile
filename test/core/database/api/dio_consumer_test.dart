@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:viora_app/core/api/dio_consumer.dart';
@@ -6,8 +7,11 @@ import 'package:viora_app/core/errors/exceptions.dart';
 
 class MockDio extends Mock implements Dio {}
 
+class MockFlutterSecureStorage extends Mock implements FlutterSecureStorage {}
+
 void main() {
   late MockDio mockDio;
+  late MockFlutterSecureStorage mockSecureStorage;
   late DioConsumer dioConsumer;
 
   setUpAll(() {
@@ -16,9 +20,10 @@ void main() {
 
   setUp(() {
     mockDio = MockDio();
+    mockSecureStorage = MockFlutterSecureStorage();
     // Provide a BaseOptions so DioConsumer constructor doesn't crash
     when(() => mockDio.options).thenReturn(BaseOptions());
-    dioConsumer = DioConsumer(mockDio);
+    dioConsumer = DioConsumer(mockDio, mockSecureStorage);
   });
 
   group('DioConsumer - GET', () {

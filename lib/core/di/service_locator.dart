@@ -3,15 +3,14 @@ import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:viora_app/core/config/app_flags.dart';
 import 'package:viora_app/core/config/oauth_config.dart';
 import 'package:viora_app/core/connections/network_info.dart';
 import 'package:viora_app/core/api/api_consumer.dart';
+import 'package:viora_app/core/api/auth_interceptor.dart';
 import 'package:viora_app/core/api/dio_consumer.dart';
 import 'package:viora_app/core/database/cache/cache_helper.dart';
 import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/auth/data/datasources/local/auth_local_impl.dart';
-import 'package:viora_app/features/auth/data/datasources/dummy/auth_remote_dummy_impl.dart';
 import 'package:viora_app/features/auth/data/datasources/remote/auth_remote.dart';
 import 'package:viora_app/features/auth/data/datasources/remote/auth_remote_impl.dart';
 import 'package:viora_app/features/auth/data/datasources/remote/oauth_remote_impl.dart';
@@ -28,20 +27,37 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:viora_app/features/auth/data/datasources/remote/oauth_remote.dart';
 import 'package:viora_app/features/auth/data/datasources/facade/oauth_facade.dart';
 import 'package:viora_app/features/auth/domain/repositories/oauth_repository.dart';
-import 'package:viora_app/features/auth/domain/usecases/get_cached_oauth_token_usecase.dart';
 import 'package:viora_app/features/auth/domain/usecases/sign_in_with_oauth_usecase.dart';
 import 'package:viora_app/features/auth/data/repositories/oauth_repository_impl.dart';
 import 'package:viora_app/features/auth/representation/blocs/oauth_bloc.dart';
+import 'package:viora_app/features/profile/data/datasources/local/user_local.dart';
+import 'package:viora_app/features/profile/data/datasources/local/user_local_impl.dart';
+import 'package:viora_app/features/profile/data/datasources/remote/user_remote.dart';
+import 'package:viora_app/features/profile/data/datasources/remote/user_remote_impl.dart';
+import 'package:viora_app/features/profile/data/repositories/user_repository_impl.dart';
+import 'package:viora_app/features/profile/domain/repositories/user_repository.dart';
 
 final sl = GetIt.instance;
 
 Future<void> dependencyInjection() async {
+  if (!sl.isRegistered<FlutterSecureStorage>()) {
+    sl.registerSingleton<FlutterSecureStorage>(const FlutterSecureStorage());
+  }
+
   if (!sl.isRegistered<Dio>()) {
-    sl.registerSingleton<Dio>(Dio());
+    final dio = Dio();
+    dio.options.baseUrl = 'http://10.0.2.2:8080';
+    dio.options.connectTimeout = const Duration(seconds: 10);
+    dio.options.receiveTimeout = const Duration(seconds: 15);
+
+    // Add auth interceptor for automatic token refresh
+    dio.interceptors.add(AuthInterceptor(sl(), dio));
+
+    sl.registerSingleton<Dio>(dio);
   }
 
   if (!sl.isRegistered<ApiConsumer>()) {
-    sl.registerLazySingleton<ApiConsumer>(() => DioConsumer(sl()));
+    sl.registerLazySingleton<ApiConsumer>(() => DioConsumer(sl(), sl()));
   }
 
   if (!sl.isRegistered<DataConnectionChecker>()) {
@@ -57,10 +73,6 @@ Future<void> dependencyInjection() async {
   if (!sl.isRegistered<SharedPreferences>()) {
     final sharedPreferences = await SharedPreferences.getInstance();
     sl.registerSingleton<SharedPreferences>(sharedPreferences);
-  }
-
-  if (!sl.isRegistered<FlutterSecureStorage>()) {
-    sl.registerSingleton<FlutterSecureStorage>(const FlutterSecureStorage());
   }
 
   if (!sl.isRegistered<CacheHelper>()) {
@@ -79,9 +91,7 @@ Future<void> dependencyInjection() async {
 
   if (!sl.isRegistered<AuthRemoteDataSource>()) {
     sl.registerLazySingleton<AuthRemoteDataSource>(
-      () => useDummyAuthApi
-          ? AuthRemoteDummyDataSourceImpl()
-          : AuthRemoteDataSourceImpl(sl(), sl()),
+      () => AuthRemoteDataSourceImpl(sl(), sl()),
     );
   }
 
@@ -124,21 +134,32 @@ Future<void> dependencyInjection() async {
   // register OAuth remote impl
   if (!sl.isRegistered<OAuthRemote>()) {
     sl.registerLazySingleton<OAuthRemote>(
-      () => GoogleOAuthRemoteImpl(googleSignIn: sl(), apiConsumer: sl()),
+      () => GoogleOAuthRemoteImpl(
+        googleSignIn: sl(),
+        apiConsumer: sl(),
+        authLocalDataSource: sl(),
+      ),
     );
   }
 
   // facade
   if (!sl.isRegistered<OAuthFacade>()) {
     sl.registerLazySingleton<OAuthFacade>(
-      () => OAuthFacade(googleRemote: sl()),
+      () => OAuthFacade(
+        googleRemote: sl(),
+        authLocalDataSource: sl(),
+        authRemoteDataSource: sl(),
+      ),
     );
   }
 
   // repository
   if (!sl.isRegistered<OAuthRepository>()) {
     sl.registerLazySingleton<OAuthRepository>(
-      () => OAuthRepositoryImpl(facade: sl(), cacheHelper: sl()),
+      () => OAuthRepositoryImpl(
+        facade: sl(),
+        authLocalDataSource: sl(),
+      ),
     );
   }
 
@@ -149,15 +170,26 @@ Future<void> dependencyInjection() async {
     );
   }
 
-  if (!sl.isRegistered<GetCachedOAuthTokenUseCase>()) {
-    sl.registerLazySingleton<GetCachedOAuthTokenUseCase>(
-      () => GetCachedOAuthTokenUseCase(sl()),
-    );
-  }
-
   if (!sl.isRegistered<OAuthBloc>()) {
     sl.registerFactory<OAuthBloc>(
       () => OAuthBloc(signInWithOAuthUseCase: sl()),
+    );
+  }
+
+  // Profile
+  if (!sl.isRegistered<UserLocal>()) {
+    sl.registerLazySingleton<UserLocal>(() => UserLocalImpl(sl()));
+  }
+
+  if (!sl.isRegistered<UserRemote>()) {
+    sl.registerLazySingleton<UserRemote>(
+      () => UserRemoteImpl(sl(), sl(), sl()),
+    );
+  }
+
+  if (!sl.isRegistered<UserRepository>()) {
+    sl.registerLazySingleton<UserRepository>(
+      () => UserRepositoryImpl(sl(), sl()),
     );
   }
 }

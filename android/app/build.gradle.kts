@@ -33,17 +33,6 @@ android {
         versionName = flutter.versionName
     }
 
-    flavorDimensions += "default"
-    productFlavors {
-        create("production") {
-            dimension = "default"
-            resValue("string", "app_name", "viora_app Production")
-        }
-        create("development") {
-            dimension = "default"
-            resValue("string", "app_name", "viora_app Development")
-        }
-    }
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

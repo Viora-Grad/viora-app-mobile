@@ -95,3 +95,21 @@ class OAuthCancelledException implements Exception {
   @override
   String toString() => 'OAuthCancelledException: $message';
 }
+
+class OAuthRequiresRegistrationException implements Exception {
+  final String providerKey;
+  final String email;
+  final String? firstName;
+  final String? lastName;
+
+  const OAuthRequiresRegistrationException({
+    required this.providerKey,
+    required this.email,
+    this.firstName,
+    this.lastName,
+  });
+
+  @override
+  String toString() =>
+      'OAuthRequiresRegistrationException(providerKey: $providerKey, email: $email)';
+}

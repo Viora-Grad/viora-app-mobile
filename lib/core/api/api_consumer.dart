@@ -6,6 +6,7 @@ abstract class ApiConsumer {
     Object? data,
     Map<String, dynamic>? queryParameters,
     bool isFormData = false,
+    bool requiresAuth = false,
     CancelToken? cancelToken,
   });
 
@@ -14,6 +15,16 @@ abstract class ApiConsumer {
     Object? data,
     Map<String, dynamic>? queryParameters,
     bool isFormData = false,
+    bool requiresAuth = false,
+    CancelToken? cancelToken,
+  });
+
+  Future<dynamic> postRaw(
+    String url, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    bool isFormData = false,
+    bool requiresAuth = false,
     CancelToken? cancelToken,
   });
 
@@ -22,6 +33,7 @@ abstract class ApiConsumer {
     Object? data,
     Map<String, dynamic>? queryParameters,
     bool isFormData = false,
+    bool requiresAuth = false,
     CancelToken? cancelToken,
   });
 
@@ -30,6 +42,7 @@ abstract class ApiConsumer {
     Object? data,
     Map<String, dynamic>? queryParameters,
     bool isFormData = false,
+    bool requiresAuth = false,
     CancelToken? cancelToken,
   });
 
@@ -38,6 +51,7 @@ abstract class ApiConsumer {
     Object? data,
     Map<String, dynamic>? queryParameters,
     bool isFormData = false,
+    bool requiresAuth = false,
     CancelToken? cancelToken,
   });
 }

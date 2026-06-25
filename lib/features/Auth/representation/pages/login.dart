@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:viora_app/core/di/service_locator.dart';
+import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/core/widgets/app_snackbar.dart';
 import 'package:viora_app/features/auth/representation/blocs/login_bloc.dart';
 import 'package:viora_app/features/auth/representation/blocs/login_events.dart';
@@ -94,12 +96,8 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     if (state.status == LoginStatus.success) {
-      AppSnackBar.show(
-        context,
-        'Logged in successfully',
-        type: AppSnackBarType.success,
-      );
       context.read<LoginBloc>().add(const LoginReset());
+      context.go(AppRoutes.profile);
       return;
     }
 
@@ -116,10 +114,20 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     if (state.status == OAuthStatus.success) {
-      AppSnackBar.show(
-        context,
-        'Google account connected successfully',
-        type: AppSnackBarType.success,
+      context.read<OAuthBloc>().add(const OAuthReset());
+      context.go(AppRoutes.profile);
+      return;
+    }
+
+    if (state.status == OAuthStatus.needsRegistration) {
+      context.push(
+        AppRoutes.register,
+        extra: {
+          'oauth_providerKey': state.registrationProviderKey,
+          'oauth_email': state.registrationEmail,
+          'oauth_firstName': state.registrationFirstName,
+          'oauth_lastName': state.registrationLastName,
+        },
       );
       context.read<OAuthBloc>().add(const OAuthReset());
       return;

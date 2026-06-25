@@ -58,4 +58,29 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(handleException(e));
     }
   }
+
+  @override
+  Future<Either<Failure, User>> oauthRegister({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String gender,
+    required String dateOfBirth,
+    required String providerKey,
+  }) async {
+    try {
+      final userModel = await remoteDataSource.oauthRegister(
+        firstName: firstName,
+        lastName: lastName,
+        email: email,
+        gender: gender,
+        dateOfBirth: dateOfBirth,
+        providerKey: providerKey,
+      );
+      await localDataSource.saveUser(userModel);
+      return Right(userModel.toEntity());
+    } catch (e) {
+      return Left(handleException(e));
+    }
+  }
 }

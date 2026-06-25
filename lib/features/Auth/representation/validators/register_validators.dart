@@ -1,29 +1,27 @@
-// This file contains the RegisterValidators class, which provides static methods for validating
-// the input fields of the registration form. Each method checks a specific field (username,
-// email, phone number, password, age) against defined criteria and returns an error message
-// if the validation fails, or null if the input is valid. Additionally, there are helper
-// methods to collect all invalid fields and build a summary message for display in the UI.
-
 class RegisterValidators {
   const RegisterValidators._();
 
-  static const int usernameMinChars3 = 3;
-  static const int phoneMinDigits11 = 11;
-  static const int phoneMaxDigits15 = 15;
+  static const int nameMinChars2 = 2;
   static const int passwordMinChars8 = 8;
-  static const int ageMin16 = 16;
-  static const int ageMax122 = 122;
 
-  static String? validateUsername(String? value) {
+  static String? validateFirstName(String? value) {
     final trimmed = value?.trim() ?? '';
     if (trimmed.isEmpty) {
-      return 'Username is required';
+      return 'First name is required';
     }
-    if (trimmed.length < usernameMinChars3) {
-      return 'Min 3 characters';
+    if (trimmed.length < nameMinChars2) {
+      return 'Min 2 characters';
     }
-    if (RegExp(r'^\d+$').hasMatch(trimmed)) {
-      return 'Cannot be numbers only';
+    return null;
+  }
+
+  static String? validateLastName(String? value) {
+    final trimmed = value?.trim() ?? '';
+    if (trimmed.isEmpty) {
+      return 'Last name is required';
+    }
+    if (trimmed.length < nameMinChars2) {
+      return 'Min 2 characters';
     }
     return null;
   }
@@ -37,22 +35,6 @@ class RegisterValidators {
     final emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.[a-zA-Z]{2,}$');
     if (!emailRegex.hasMatch(trimmed)) {
       return 'Invalid email';
-    }
-    return null;
-  }
-
-  static String? validatePhoneNumber(String? value) {
-    final trimmed = value?.trim() ?? '';
-    if (trimmed.isEmpty) {
-      return 'Phone is required';
-    }
-
-    final digitsOnly = trimmed.replaceAll(RegExp(r'\D'), '');
-    if (digitsOnly.length < phoneMinDigits11) {
-      return 'Min 11 digits';
-    }
-    if (digitsOnly.length > phoneMaxDigits15) {
-      return 'Max 15 digits';
     }
     return null;
   }
@@ -77,31 +59,33 @@ class RegisterValidators {
     return null;
   }
 
-  static String? validateAge(String? value) {
-    final trimmed = value?.trim() ?? '';
-    if (trimmed.isEmpty) {
-      return 'Age is required';
+  static String? validateDateOfBirth(DateTime? date) {
+    if (date == null) {
+      return 'Date of birth is required';
     }
 
-    final parsedAge = int.tryParse(trimmed);
-    if (parsedAge == null) {
-      return 'Invalid age';
+    final now = DateTime.now();
+    int age = now.year - date.year;
+    if (now.month < date.month ||
+        (now.month == date.month && now.day < date.day)) {
+      age--;
     }
-    if (parsedAge < ageMin16) {
-      return 'Min age is 16';
+
+    if (age < 13) {
+      return 'Must be at least 13 years old';
     }
-    if (parsedAge > ageMax122) {
-      return 'Max age is 122';
+    if (age > 122) {
+      return 'Invalid date of birth';
     }
     return null;
   }
 
   static List<String> collectInvalidFields({
-    required String username,
+    required String firstName,
+    required String lastName,
     required String email,
-    required String phoneNumber,
-    required String password,
-    required String age,
+    String? password,
+    required DateTime? dateOfBirth,
   }) {
     final invalidFields = <String>[];
 
@@ -111,11 +95,13 @@ class RegisterValidators {
       }
     }
 
-    addFieldError(validateUsername(username), 'Username');
+    addFieldError(validateFirstName(firstName), 'First Name');
+    addFieldError(validateLastName(lastName), 'Last Name');
     addFieldError(validateEmail(email), 'Email');
-    addFieldError(validatePhoneNumber(phoneNumber), 'Phone Number');
-    addFieldError(validatePassword(password), 'Password');
-    addFieldError(validateAge(age), 'Age');
+    if (password != null) {
+      addFieldError(validatePassword(password), 'Password');
+    }
+    addFieldError(validateDateOfBirth(dateOfBirth), 'Date of Birth');
 
     return invalidFields;
   }

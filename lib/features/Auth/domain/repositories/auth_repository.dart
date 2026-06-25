@@ -19,4 +19,13 @@ abstract class AuthRepository {
   });
 
   Future<Either<Failure, void>> logout();
+
+  Future<Either<Failure, User>> oauthRegister({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String gender,
+    required String dateOfBirth,
+    required String providerKey,
+  });
 }
