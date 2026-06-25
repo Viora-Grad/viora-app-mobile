@@ -30,15 +30,18 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   late final RegisterBloc _registerBloc;
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _phoneNumberController = TextEditingController();
-  final _ageController = TextEditingController();
 
   Gender _selectedGender = Gender.male;
+  DateTime? _selectedDateOfBirth;
 
-  // This method to securly clear passwords from memory
+  String? _oauthProviderKey;
+
+  bool get _isOAuthRegistration => _oauthProviderKey != null;
+
   void _clearPasswordControllers() {
     _passwordController.clear();
   }
@@ -47,16 +50,33 @@ class _RegisterPageState extends State<RegisterPage> {
   void initState() {
     super.initState();
     _registerBloc = sl<RegisterBloc>();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        final providerKey = extra['oauth_providerKey'] as String?;
+        if (providerKey != null && providerKey.isNotEmpty) {
+          setState(() {
+            _oauthProviderKey = providerKey;
+          });
+          _firstNameController.text =
+              extra['oauth_firstName'] as String? ?? '';
+          _lastNameController.text =
+              extra['oauth_lastName'] as String? ?? '';
+          _emailController.text =
+              extra['oauth_email'] as String? ?? '';
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
     _clearPasswordControllers();
-    _usernameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _phoneNumberController.dispose();
-    _ageController.dispose();
     _registerBloc.close();
     super.dispose();
   }
@@ -69,11 +89,11 @@ class _RegisterPageState extends State<RegisterPage> {
     final isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) {
       final invalidFields = RegisterValidators.collectInvalidFields(
-        username: _usernameController.text,
+        firstName: _firstNameController.text,
+        lastName: _lastNameController.text,
         email: _emailController.text,
-        phoneNumber: _phoneNumberController.text,
-        password: _passwordController.text,
-        age: _ageController.text,
+        password: _isOAuthRegistration ? null : _passwordController.text,
+        dateOfBirth: _selectedDateOfBirth,
       );
       if (invalidFields.isNotEmpty) {
         AppSnackBar.show(
@@ -85,24 +105,42 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    final parsedAge = int.parse(_ageController.text.trim());
+    if (_selectedDateOfBirth == null) {
+      AppSnackBar.show(
+        context,
+        'Please select your date of birth',
+        type: AppSnackBarType.error,
+      );
+      return;
+    }
 
-    context.read<RegisterBloc>().add(
-      RegisterSubmitted(
-        userName: _usernameController.text.trim(),
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-        phoneNumber: _phoneNumberController.text.trim(),
-        gender: _selectedGender,
-        age: parsedAge,
-      ),
-    );
+    if (_isOAuthRegistration) {
+      context.read<RegisterBloc>().add(
+        OAuthRegisterSubmitted(
+          firstName: _firstNameController.text.trim(),
+          lastName: _lastNameController.text.trim(),
+          email: _emailController.text.trim(),
+          gender: _selectedGender,
+          dateOfBirth: _selectedDateOfBirth!,
+          providerKey: _oauthProviderKey!,
+        ),
+      );
+    } else {
+      context.read<RegisterBloc>().add(
+        RegisterSubmitted(
+          firstName: _firstNameController.text.trim(),
+          lastName: _lastNameController.text.trim(),
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+          gender: _selectedGender,
+          dateOfBirth: _selectedDateOfBirth!,
+        ),
+      );
+    }
   }
 
   void _onRegisterStateChanged(BuildContext context, RegisterState state) {
-    if (!mounted) {
-      return;
-    }
+    if (!mounted) return;
 
     if (state.status == RegisterStatus.success) {
       final user = state.user;
@@ -113,13 +151,12 @@ class _RegisterPageState extends State<RegisterPage> {
       );
       if (user != null) {
         context.push(
-          // TODO: Using login route until we have landing page.
           AppRoutes.login,
           extra: {
-            'userName': user.userName,
+            'firstName': user.firstName,
+            'lastName': user.lastName,
             'email': user.email,
             'gender': user.gender.name,
-            'age': user.age,
           },
         );
       }
@@ -159,27 +196,33 @@ class _RegisterPageState extends State<RegisterPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     RegisterFormFields(
-                      usernameController: _usernameController,
+                      firstNameController: _firstNameController,
+                      lastNameController: _lastNameController,
                       emailController: _emailController,
-                      phoneNumberController: _phoneNumberController,
                       passwordController: _passwordController,
-                      ageController: _ageController,
                       selectedGender: _selectedGender,
+                      selectedDateOfBirth: _selectedDateOfBirth,
                       isSubmitting: isSubmitting,
+                      hidePasswordField: _isOAuthRegistration,
                       inputTextStyle: Theme.of(context).textTheme.bodyLarge
                           ?.copyWith(
                             fontWeight: FontWeight.w600,
                             fontSize: _fontText17,
                           ),
-                      usernameValidator: RegisterValidators.validateUsername,
+                      firstNameValidator: RegisterValidators.validateFirstName,
+                      lastNameValidator: RegisterValidators.validateLastName,
                       emailValidator: RegisterValidators.validateEmail,
-                      phoneNumberValidator:
-                          RegisterValidators.validatePhoneNumber,
-                      passwordValidator: RegisterValidators.validatePassword,
-                      ageValidator: RegisterValidators.validateAge,
+                      passwordValidator: _isOAuthRegistration
+                          ? null
+                          : RegisterValidators.validatePassword,
                       onGenderChanged: (value) {
                         setState(() {
                           _selectedGender = value;
+                        });
+                      },
+                      onDateOfBirthChanged: (value) {
+                        setState(() {
+                          _selectedDateOfBirth = value;
                         });
                       },
                     ),

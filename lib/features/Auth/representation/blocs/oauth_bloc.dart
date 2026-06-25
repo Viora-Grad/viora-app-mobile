@@ -30,21 +30,38 @@ class OAuthBloc extends Bloc<OAuthEvent, OAuthState> {
             state.copyWith(
               status: OAuthStatus.initial,
               clearMessage: true,
-              clearToken: true,
+              clearUser: true,
+            ),
+          );
+          return;
+        }
+
+        if (failure is OAuthRequiresRegistrationFailure) {
+          emit(
+            state.copyWith(
+              status: OAuthStatus.needsRegistration,
+              clearMessage: true,
+              registrationProviderKey: failure.providerKey,
+              registrationEmail: failure.email,
+              registrationFirstName: failure.firstName,
+              registrationLastName: failure.lastName,
             ),
           );
           return;
         }
 
         emit(
-          state.copyWith(status: OAuthStatus.failure, message: failure.message),
+          state.copyWith(
+            status: OAuthStatus.failure,
+            message: failure.message,
+          ),
         );
       },
-      (token) => emit(
+      (user) => emit(
         state.copyWith(
           status: OAuthStatus.success,
           clearMessage: true,
-          token: token,
+          user: user,
         ),
       ),
     );

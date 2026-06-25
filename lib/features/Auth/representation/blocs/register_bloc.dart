@@ -1,25 +1,18 @@
 import 'package:bloc/bloc.dart';
+import 'package:dio/dio.dart';
 import 'package:viora_app/core/params/user_parameters.dart';
 import 'package:viora_app/features/auth/domain/usecases/register_usecase.dart';
 import 'register_events.dart';
 import 'register_states.dart';
-import 'package:dio/dio.dart';
-
-// Brief: This is the RegisterBloc, which manages the state of the registration
-// process in the presentation layer. It listens for RegisterSubmitted events,
-// calls the RegisterUsecase to perform the registration logic,
-// and emits RegisterState updates based on the success or failure of the
-// registration attempt. It also handles cancellation of ongoing registration
-// requests when a new one is initiated or when the bloc is closed.
-
 
 class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
   final RegisterUsecase registerUsecase;
-  CancelToken? _cancelToken; // Track active registration request
+  CancelToken? _cancelToken;
   bool _isRegistering = false;
 
   RegisterBloc({required this.registerUsecase}) : super(const RegisterState()) {
     on<RegisterSubmitted>(_onRegisterSubmitted);
+    on<OAuthRegisterSubmitted>(_onOAuthRegisterSubmitted);
     on<RegisterReset>(_onRegisterReset);
   }
 
@@ -27,9 +20,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     RegisterSubmitted event,
     Emitter<RegisterState> emit,
   ) async {
-    if (_isRegistering) {
-      return;
-    }
+    if (_isRegistering) return;
 
     _isRegistering = true;
     _cancelToken = CancelToken();
@@ -41,14 +32,58 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
 
       final result = await registerUsecase(
         RegisterParameters(
-          userName: event.userName,
+          firstName: event.firstName,
+          lastName: event.lastName,
           email: event.email,
           password: event.password,
-          phoneNumber: event.phoneNumber,
           gender: event.gender,
-          age: event.age,
+          dateOfBirth: event.dateOfBirth,
         ),
         cancelToken: _cancelToken,
+      );
+
+      result.fold(
+        (failure) => emit(
+          state.copyWith(
+            status: RegisterStatus.failure,
+            errorMessage: failure.message,
+          ),
+        ),
+        (user) => emit(
+          state.copyWith(
+            status: RegisterStatus.success,
+            clearErrorMessage: true,
+            user: user,
+          ),
+        ),
+      );
+    } finally {
+      _isRegistering = false;
+      _cancelToken = null;
+    }
+  }
+
+  Future<void> _onOAuthRegisterSubmitted(
+    OAuthRegisterSubmitted event,
+    Emitter<RegisterState> emit,
+  ) async {
+    if (_isRegistering) return;
+
+    _isRegistering = true;
+    _cancelToken = CancelToken();
+
+    try {
+      emit(
+        state.copyWith(status: RegisterStatus.loading, clearErrorMessage: true),
+      );
+
+      final result = await registerUsecase.oauthRegister(
+        firstName: event.firstName,
+        lastName: event.lastName,
+        email: event.email,
+        gender: event.gender,
+        dateOfBirth: event.dateOfBirth,
+        providerKey: event.providerKey,
       );
 
       result.fold(
@@ -78,7 +113,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
 
   @override
   Future<void> close() {
-    _cancelToken?.cancel(); // Cancel any active request when bloc is closed
+    _cancelToken?.cancel();
     return super.close();
   }
 }

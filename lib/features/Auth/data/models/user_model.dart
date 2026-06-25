@@ -1,56 +1,42 @@
 import 'package:viora_app/core/enums/gender.dart';
 import 'package:viora_app/features/auth/domain/entities/user.dart';
 
-// Brief: This is the UserModel class, which represents the user data structure
-// used in the data layer. It includes methods for converting to/from JSON
-// and to/from the User entity used in the domain layer.
-
 class UserModel {
   final String id;
-  final String userName;
+  final String firstName;
+  final String lastName;
   final String email;
-  final String? profilePictureUrl;
-  final String phoneNumber;
   final Gender gender;
-  final int age;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime dateOfBirth;
 
   const UserModel({
     required this.id,
-    required this.userName,
+    required this.firstName,
+    required this.lastName,
     required this.email,
-    required this.phoneNumber,
     required this.gender,
-    required this.age,
-    required this.createdAt,
-    required this.updatedAt,
-    this.profilePictureUrl,
+    required this.dateOfBirth,
   });
 
   factory UserModel.fromEntity(User user) {
     return UserModel(
       id: user.id,
-      userName: user.userName,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
-      phoneNumber: user.phoneNumber,
       gender: user.gender,
-      age: user.age,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      dateOfBirth: user.dateOfBirth,
     );
   }
 
   User toEntity() {
     return User(
       id: id,
-      userName: userName,
+      firstName: firstName,
+      lastName: lastName,
       email: email,
-      phoneNumber: phoneNumber,
       gender: gender,
-      age: age,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
+      dateOfBirth: dateOfBirth,
     );
   }
 
@@ -67,38 +53,44 @@ class UserModel {
       if (matched.isNotEmpty) return matched.first;
     }
 
-    return Gender.male;
+    return Gender.unknown;
   }
 
+  /// From backend /me endpoint response:
+  /// { "firstName", "lastName", "email", "dateOfBirth", "gender" }
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id']?.toString() ?? '',
-      userName: json['userName']?.toString() ?? '',
+      firstName: json['firstName']?.toString() ?? '',
+      lastName: json['lastName']?.toString() ?? '',
       email: json['email']?.toString() ?? '',
-      phoneNumber: json['phoneNumber']?.toString() ?? '',
       gender: _parseGender(json['gender']),
-      age: (json['age'] as num?)?.toInt() ?? 0,
-      createdAt:
-          DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
-          DateTime.fromMillisecondsSinceEpoch(0),
-      updatedAt:
-          DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
-          DateTime.fromMillisecondsSinceEpoch(0),
-      profilePictureUrl: json['profilePictureUrl'],
+      dateOfBirth:
+          DateTime.tryParse(json['dateOfBirth']?.toString() ?? '') ??
+          DateTime(2000),
+    );
+  }
+
+  /// From login response (AuthResult) - tokens are stored separately
+  factory UserModel.fromAuthResult(Map<String, dynamic> json) {
+    return UserModel(
+      id: json['userId']?.toString() ?? '',
+      firstName: '',
+      lastName: '',
+      email: '',
+      gender: Gender.unknown,
+      dateOfBirth: DateTime(2000),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'userName': userName,
+      'firstName': firstName,
+      'lastName': lastName,
       'email': email,
-      'phoneNumber': phoneNumber,
       'gender': gender.name,
-      'age': age,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
-      'profilePictureUrl': profilePictureUrl,
+      'dateOfBirth': dateOfBirth.toIso8601String().split('T').first,
     };
   }
 }

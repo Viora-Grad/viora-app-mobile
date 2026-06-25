@@ -28,6 +28,24 @@ class OAuthCancelledFailure extends OAuthFailure {
   const OAuthCancelledFailure([super.message = 'OAuth cancelled by user']);
 }
 
+class OAuthRequiresRegistrationFailure extends Failure {
+  final String providerKey;
+  final String email;
+  final String? firstName;
+  final String? lastName;
+
+  const OAuthRequiresRegistrationFailure({
+    required this.providerKey,
+    required this.email,
+    this.firstName,
+    this.lastName,
+    String message = 'Registration required',
+  }) : super(message);
+
+  @override
+  List<Object> get props => [message, providerKey, email, firstName ?? '', lastName ?? ''];
+}
+
 /// Returned when a local cache/storage operation fails.
 class CacheFailure extends Failure {
   const CacheFailure(super.message);

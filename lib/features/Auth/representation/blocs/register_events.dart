@@ -1,11 +1,5 @@
-import 'package:viora_app/core/enums/gender.dart';
 import 'package:equatable/equatable.dart';
-
-// Brief: This file defines the events for the RegisterBloc, which are used to
-// trigger state changes in the registration process. The events include RegisterSubmitted
-// for when the user submits the registration form, and RegisterReset for resetting
-// the registration state. Each event extends Equatable for value equality, allowing
-// the bloc to efficiently determine when to emit new states based on event changes.
+import 'package:viora_app/core/enums/gender.dart';
 
 sealed class RegisterEvent extends Equatable {
   const RegisterEvent();
@@ -17,28 +11,56 @@ sealed class RegisterEvent extends Equatable {
 final class RegisterSubmitted extends RegisterEvent {
   final String email;
   final String password;
-  final String userName;
-  final String phoneNumber;
-  final int age;
+  final String firstName;
+  final String lastName;
   final Gender gender;
+  final DateTime dateOfBirth;
 
   const RegisterSubmitted({
     required this.email,
     required this.password,
-    required this.userName,
-    required this.phoneNumber,
-    required this.age,
+    required this.firstName,
+    required this.lastName,
     required this.gender,
+    required this.dateOfBirth,
   });
 
   @override
   List<Object?> get props => [
     email,
     password,
-    userName,
-    phoneNumber,
-    age,
+    firstName,
+    lastName,
     gender,
+    dateOfBirth,
+  ];
+}
+
+final class OAuthRegisterSubmitted extends RegisterEvent {
+  final String email;
+  final String firstName;
+  final String lastName;
+  final Gender gender;
+  final DateTime dateOfBirth;
+  final String providerKey;
+
+  const OAuthRegisterSubmitted({
+    required this.email,
+    required this.firstName,
+    required this.lastName,
+    required this.gender,
+    required this.dateOfBirth,
+    required this.providerKey,
+  });
+
+  @override
+  List<Object?> get props => [
+    email,
+    firstName,
+    lastName,
+    gender,
+    dateOfBirth,
+    providerKey,
   ];
 }
 

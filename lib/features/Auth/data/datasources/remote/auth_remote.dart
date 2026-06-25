@@ -12,4 +12,15 @@ abstract class AuthRemoteDataSource {
     RegisterParameters params, {
     CancelToken? cancelToken,
   });
+
+  Future<UserModel> fetchCurrentUser();
+
+  Future<UserModel> oauthRegister({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String gender,
+    required String dateOfBirth,
+    required String providerKey,
+  });
 }

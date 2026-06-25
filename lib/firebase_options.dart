@@ -50,19 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCZLNcfjJNHUzCMnVczoKI3uVRZMmg53_s',
-    appId: '1:171037310820:android:c8efc3373a7e79171e4471',
-    messagingSenderId: '171037310820',
-    projectId: 'viora-app-9bef5',
-    storageBucket: 'viora-app-9bef5.firebasestorage.app',
+    apiKey: 'AIzaSyBE0Yp-Fub1evfDMAjFAY9HeruVZ869_wI',
+    appId: '1:70773419877:android:6dd46543b86d7727d0bb8c',
+    messagingSenderId: '70773419877',
+    projectId: 'viora-app-3d78d',
+    storageBucket: 'viora-app-3d78d.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyD4ucS0E8pSco_d_5UuKUb_qxklY49I0Sw',
-    appId: '1:171037310820:ios:642c3115287118f41e4471',
-    messagingSenderId: '171037310820',
-    projectId: 'viora-app-9bef5',
-    storageBucket: 'viora-app-9bef5.firebasestorage.app',
+    apiKey: 'AIzaSyBbZ6wxLcfd6K17FeYa037lSOYQeHx8vao',
+    appId: '1:70773419877:ios:57915cb6bcfb2601d0bb8c',
+    messagingSenderId: '70773419877',
+    projectId: 'viora-app-3d78d',
+    storageBucket: 'viora-app-3d78d.firebasestorage.app',
     iosBundleId: 'com.example.vioraApp',
   );
 

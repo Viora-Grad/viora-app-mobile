@@ -24,7 +24,7 @@ class DioConsumer extends ApiConsumer {
     dio.options.baseUrl = EndPoints.baseUrl;
     dio.options.connectTimeout = const Duration(seconds: 10);
     dio.options.validateStatus = (status) =>
-        status != null && status >= 200 && status < 500;
+        status != null && status >= 200 && status < 300;
 
     // Add Certificate Pinning Interceptor
     if (kReleaseMode) {
@@ -71,14 +71,19 @@ class DioConsumer extends ApiConsumer {
   }
 
   Future<Options?> _buildOptions({required bool requiresAuth}) async {
-    if (!requiresAuth) return null;
+    if (!requiresAuth) {
+      return Options(contentType: Headers.jsonContentType);
+    }
 
     final token = await secureStorage.read(key: _tokenKey);
     if (token == null || token.isEmpty) {
-      return null;
+      return Options(contentType: Headers.jsonContentType);
     }
 
-    return Options(headers: {'Authorization': 'Bearer $token'});
+    return Options(
+      contentType: Headers.jsonContentType,
+      headers: {'Authorization': 'Bearer $token'},
+    );
   }
 
   // Helper method to handle Dio get requests and exceptions.
@@ -128,6 +133,31 @@ class DioConsumer extends ApiConsumer {
         cancelToken: cancelToken,
       );
       return _normalizeResponse(response.data);
+    } on DioException catch (e) {
+      handleDioException(e);
+    }
+  }
+
+  @override
+  Future<dynamic> postRaw(
+    String url, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    bool isFormData = false,
+    bool requiresAuth = false,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      Response response = await dio.post(
+        url,
+        options: await _buildOptions(requiresAuth: requiresAuth),
+        data: isFormData
+            ? FormData.fromMap(data as Map<String, dynamic>)
+            : data,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+      );
+      return response.data;
     } on DioException catch (e) {
       handleDioException(e);
     }

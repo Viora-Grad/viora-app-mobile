@@ -6,11 +6,6 @@ import 'package:viora_app/core/params/user_parameters.dart';
 import 'package:viora_app/features/auth/domain/entities/user.dart';
 import 'package:viora_app/features/auth/domain/repositories/auth_repository.dart';
 
-// Brief: This is the RegisterUsecase, which is responsible for handling the registration
-// logic in the domain layer. It validates the input parameters and then calls the register method of the AuthRepository.
-// It returns an Either<Failure, User> to handle success and failure cases explicitly,
-// allowing the caller to manage errors effectively in the domain layer.
-
 class RegisterUsecase {
   final AuthRepository repository;
 
@@ -20,74 +15,117 @@ class RegisterUsecase {
     RegisterParameters params, {
     CancelToken? cancelToken,
   }) async {
-    if (params.userName.isEmpty) {
-      return const Left(ValidationFailure('Username cannot be empty'));
+    if (params.firstName.isEmpty) {
+      return const Left(ValidationFailure('First name cannot be empty'));
+    }
+    if (params.firstName.length < 2) {
+      return const Left(ValidationFailure('First name must be at least 2 characters'));
+    }
+
+    if (params.lastName.isEmpty) {
+      return const Left(ValidationFailure('Last name cannot be empty'));
+    }
+    if (params.lastName.length < 2) {
+      return const Left(ValidationFailure('Last name must be at least 2 characters'));
     }
 
     if (params.email.isEmpty) {
       return const Left(ValidationFailure('Email cannot be empty'));
     }
-
-    if (!RegExp(
-      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-    ).hasMatch(params.email)) {
+    if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(params.email)) {
       return const Left(ValidationFailure('Invalid email format'));
     }
 
     if (params.password.isEmpty) {
       return const Left(ValidationFailure('Password cannot be empty'));
     }
-
     if (params.password.length < 8) {
-      return const Left(
-        ValidationFailure('Password must be at least 8 characters long'),
-      );
+      return const Left(ValidationFailure('Password must be at least 8 characters long'));
     }
-
     if (!RegExp(r'[A-Z]').hasMatch(params.password)) {
-      return const Left(
-        ValidationFailure(
-          'Password must contain at least one uppercase letter',
-        ),
-      );
+      return const Left(ValidationFailure('Password must contain at least one uppercase letter'));
     }
-
     if (!RegExp(r'[a-z]').hasMatch(params.password)) {
-      return const Left(
-        ValidationFailure(
-          'Password must contain at least one lowercase letter',
-        ),
-      );
+      return const Left(ValidationFailure('Password must contain at least one lowercase letter'));
     }
-
     if (!RegExp(r'[0-9]').hasMatch(params.password)) {
-      return const Left(
-        ValidationFailure('Password must contain at least one number'),
-      );
-    }
-
-    if (params.phoneNumber.isEmpty) {
-      return const Left(ValidationFailure('Phone number cannot be empty'));
-    }
-
-    if (!RegExp(r'^\+?[0-9]{7,15}$').hasMatch(params.phoneNumber)) {
-      return const Left(ValidationFailure('Invalid phone number format'));
-    }
-
-    if (params.age < 13) {
-      return const Left(
-        ValidationFailure('You must be at least 13 years old to register'),
-      );
-    }
-
-    if (!RegExp(r'^\d+$').hasMatch(params.age.toString())) {
-      return const Left(ValidationFailure('Age must be a valid number'));
+      return const Left(ValidationFailure('Password must contain at least one number'));
     }
 
     if (params.gender != Gender.male && params.gender != Gender.female) {
-      return const Left(ValidationFailure('Invalid gender value'));
+      return const Left(ValidationFailure('Please select a valid gender'));
+    }
+
+    final now = DateTime.now();
+    int age = now.year - params.dateOfBirth.year;
+    if (now.month < params.dateOfBirth.month ||
+        (now.month == params.dateOfBirth.month && now.day < params.dateOfBirth.day)) {
+      age--;
+    }
+    if (age < 13) {
+      return const Left(ValidationFailure('You must be at least 13 years old to register'));
     }
 
     return repository.register(params, cancelToken: cancelToken);
+  }
+
+  Future<Either<Failure, User>> oauthRegister({
+    required String firstName,
+    required String lastName,
+    required String email,
+    required Gender gender,
+    required DateTime dateOfBirth,
+    required String providerKey,
+  }) async {
+    if (firstName.isEmpty) {
+      return const Left(ValidationFailure('First name cannot be empty'));
+    }
+    if (firstName.length < 2) {
+      return const Left(ValidationFailure('First name must be at least 2 characters'));
+    }
+
+    if (lastName.isEmpty) {
+      return const Left(ValidationFailure('Last name cannot be empty'));
+    }
+    if (lastName.length < 2) {
+      return const Left(ValidationFailure('Last name must be at least 2 characters'));
+    }
+
+    if (email.isEmpty) {
+      return const Left(ValidationFailure('Email cannot be empty'));
+    }
+    if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(email)) {
+      return const Left(ValidationFailure('Invalid email format'));
+    }
+
+    if (gender != Gender.male && gender != Gender.female) {
+      return const Left(ValidationFailure('Please select a valid gender'));
+    }
+
+    final now = DateTime.now();
+    int age = now.year - dateOfBirth.year;
+    if (now.month < dateOfBirth.month ||
+        (now.month == dateOfBirth.month && now.day < dateOfBirth.day)) {
+      age--;
+    }
+    if (age < 13) {
+      return const Left(ValidationFailure('You must be at least 13 years old to register'));
+    }
+
+    final dateStr =
+        '${dateOfBirth.year.toString().padLeft(4, '0')}-'
+        '${dateOfBirth.month.toString().padLeft(2, '0')}-'
+        '${dateOfBirth.day.toString().padLeft(2, '0')}';
+
+    final genderStr = gender.name[0].toUpperCase() + gender.name.substring(1);
+
+    return repository.oauthRegister(
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      gender: genderStr,
+      dateOfBirth: dateStr,
+      providerKey: providerKey,
+    );
   }
 }
