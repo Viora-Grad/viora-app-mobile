@@ -16,9 +16,9 @@ class UserRepositoryImpl implements UserRepository {
   UserRepositoryImpl(this.userRemote, this.userLocal);
 
   @override
-  Future<Either<Failure, User>> getUserProfile(String userId) async {
+  Future<Either<Failure, User>> getUserProfile() async {
     try {
-      final userModel = await userRemote.getUserProfile(userId);
+      final userModel = await userRemote.getUserProfile();
       return Right(userModel.toEntity());
     } on ServerException catch (e) {
       return Left(e.toFailure());

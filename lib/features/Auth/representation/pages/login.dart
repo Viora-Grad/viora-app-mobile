@@ -96,12 +96,8 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     if (state.status == LoginStatus.success) {
-      AppSnackBar.show(
-        context,
-        'Logged in successfully',
-        type: AppSnackBarType.success,
-      );
       context.read<LoginBloc>().add(const LoginReset());
+      context.go(AppRoutes.profile);
       return;
     }
 
@@ -119,6 +115,7 @@ class _LoginPageState extends State<LoginPage> {
 
     if (state.status == OAuthStatus.success) {
       context.read<OAuthBloc>().add(const OAuthReset());
+      context.go(AppRoutes.profile);
       return;
     }
 

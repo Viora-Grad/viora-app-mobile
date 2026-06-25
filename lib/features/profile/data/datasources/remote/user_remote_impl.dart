@@ -1,27 +1,32 @@
 import 'package:viora_app/core/api/end_points.dart';
+import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/profile/data/datasources/local/user_local.dart';
 import 'package:viora_app/features/profile/data/datasources/remote/user_remote.dart';
 import 'package:viora_app/features/profile/data/models/user_model.dart';
 import 'package:viora_app/core/api/api_consumer.dart';
 
-// Brief: This is the remote data source implementation for user profile,
-// which defines methods for fetching, updating, and deleting user profile data from a remote server.
-
 class UserRemoteImpl implements UserRemote {
   final ApiConsumer apiConsumer;
   final UserLocal userLocal;
+  final AuthLocalDataSource authLocalDataSource;
   final String profileUrl = EndPoints.profileUrl;
 
-  UserRemoteImpl(this.apiConsumer, this.userLocal);
+  UserRemoteImpl(this.apiConsumer, this.userLocal, this.authLocalDataSource);
 
   @override
-  Future<UserModel> getUserProfile(String userId) async {
+  Future<UserModel> getUserProfile() async {
     final response = await apiConsumer.get(
-      '$profileUrl/$userId',
+      profileUrl,
       requiresAuth: true,
     );
-    final userModel = UserModel.fromJson(response);
-    // Cache the user profile locally
+
+    final storedUser = await authLocalDataSource.getCurrentUser();
+    final userId = storedUser?.id ?? '';
+
+    final userModel = UserModel.fromJson({
+      'id': userId,
+      ...response,
+    });
     await userLocal.cacheUserProfile(userModel);
     return userModel;
   }

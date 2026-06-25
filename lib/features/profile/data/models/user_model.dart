@@ -77,18 +77,30 @@ class UserModel {
   }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    PersonalInfoModel? personalInfo;
+    if (json['personalInfo'] != null) {
+      personalInfo = PersonalInfoModel.fromJson(
+        json['personalInfo'] as Map<String, dynamic>,
+      );
+    } else if (json['firstName'] != null) {
+      personalInfo = PersonalInfoModel(
+        firstName: json['firstName'] as String? ?? '',
+        lastName: json['lastName'] as String? ?? '',
+        dateOfBirth: json['dateOfBirth'] != null
+            ? DateTime.tryParse(json['dateOfBirth'] as String)
+            : null,
+        gender: parseGender(json['gender']),
+      );
+    }
+
     return UserModel(
-      id: json['id'] as String,
-      email: json['email'] as String,
+      id: json['id']?.toString() ?? '',
+      email: json['email'] as String? ?? '',
       avatarUrl: json['avatarUrl'] as String? ?? '',
       age: json['age'] as int? ?? 0,
       gender: parseGender(json['gender']),
       userName: json['userName'] as String?,
-      personalInfo: json['personalInfo'] != null
-          ? PersonalInfoModel.fromJson(
-              json['personalInfo'] as Map<String, dynamic>,
-            )
-          : null,
+      personalInfo: personalInfo,
       joinedAt: json['joinedAt'] != null
           ? DateTime.tryParse(json['joinedAt'] as String)
           : null,

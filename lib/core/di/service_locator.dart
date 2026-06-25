@@ -30,6 +30,12 @@ import 'package:viora_app/features/auth/domain/repositories/oauth_repository.dar
 import 'package:viora_app/features/auth/domain/usecases/sign_in_with_oauth_usecase.dart';
 import 'package:viora_app/features/auth/data/repositories/oauth_repository_impl.dart';
 import 'package:viora_app/features/auth/representation/blocs/oauth_bloc.dart';
+import 'package:viora_app/features/profile/data/datasources/local/user_local.dart';
+import 'package:viora_app/features/profile/data/datasources/local/user_local_impl.dart';
+import 'package:viora_app/features/profile/data/datasources/remote/user_remote.dart';
+import 'package:viora_app/features/profile/data/datasources/remote/user_remote_impl.dart';
+import 'package:viora_app/features/profile/data/repositories/user_repository_impl.dart';
+import 'package:viora_app/features/profile/domain/repositories/user_repository.dart';
 
 final sl = GetIt.instance;
 
@@ -167,6 +173,23 @@ Future<void> dependencyInjection() async {
   if (!sl.isRegistered<OAuthBloc>()) {
     sl.registerFactory<OAuthBloc>(
       () => OAuthBloc(signInWithOAuthUseCase: sl()),
+    );
+  }
+
+  // Profile
+  if (!sl.isRegistered<UserLocal>()) {
+    sl.registerLazySingleton<UserLocal>(() => UserLocalImpl(sl()));
+  }
+
+  if (!sl.isRegistered<UserRemote>()) {
+    sl.registerLazySingleton<UserRemote>(
+      () => UserRemoteImpl(sl(), sl(), sl()),
+    );
+  }
+
+  if (!sl.isRegistered<UserRepository>()) {
+    sl.registerLazySingleton<UserRepository>(
+      () => UserRepositoryImpl(sl(), sl()),
     );
   }
 }

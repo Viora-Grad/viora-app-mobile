@@ -6,7 +6,7 @@ import 'package:viora_app/features/profile/domain/entities/user.dart';
 // the user repository. It includes methods for getting, updating, and deleting user profiles.
 
 abstract class UserRepository {
-  Future<Either<Failure, User>> getUserProfile(String userId);
+  Future<Either<Failure, User>> getUserProfile();
   Future<Either<Failure, User>> updateUserProfile(User user);
   Future<Either<Failure, void>> deleteUserProfile(String userId);
 }

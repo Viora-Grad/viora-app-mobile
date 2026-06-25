@@ -143,24 +143,8 @@ class _RegisterPageState extends State<RegisterPage> {
     if (!mounted) return;
 
     if (state.status == RegisterStatus.success) {
-      final user = state.user;
-      AppSnackBar.show(
-        context,
-        'Registered successfully',
-        type: AppSnackBarType.success,
-      );
-      if (user != null) {
-        context.push(
-          AppRoutes.login,
-          extra: {
-            'firstName': user.firstName,
-            'lastName': user.lastName,
-            'email': user.email,
-            'gender': user.gender.name,
-          },
-        );
-      }
       context.read<RegisterBloc>().add(const RegisterReset());
+      context.go(AppRoutes.profile);
       return;
     }
 
