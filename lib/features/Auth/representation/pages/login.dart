@@ -97,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
 
     if (state.status == LoginStatus.success) {
       context.read<LoginBloc>().add(const LoginReset());
-      context.go(AppRoutes.profile);
+      context.go(AppRoutes.home);
       return;
     }
 
@@ -115,7 +115,7 @@ class _LoginPageState extends State<LoginPage> {
 
     if (state.status == OAuthStatus.success) {
       context.read<OAuthBloc>().add(const OAuthReset());
-      context.go(AppRoutes.profile);
+      context.go(AppRoutes.home);
       return;
     }
 

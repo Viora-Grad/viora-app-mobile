@@ -7,8 +7,7 @@ import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/profile/domain/entities/user.dart';
 import 'package:viora_app/features/profile/domain/repositories/user_repository.dart';
 
-const Color _violetBg = Color(0xFF240D37);
-const Color _violetBgEnd = Color(0xFF1B0B2A);
+const Color _primary = Color(0xFF2F1193);
 const Color _gradientStart = Color(0xFF00D5FF);
 const Color _gradientEnd = Color(0xFF28F0A8);
 
@@ -91,9 +90,8 @@ class _ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
+      backgroundColor: Colors.white,
       body: BlocBuilder<ProfileCubit, _ProfileState>(
         builder: (context, state) {
           if (state.status == _ProfileStatus.loading ||
@@ -120,236 +118,208 @@ class _ProfileView extends StatelessWidget {
             _ => '',
           };
 
-          return Stack(
-              children: [
-                Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          _violetBg,
-                          _violetBg.withValues(alpha: 0.97),
-                          _violetBgEnd,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-                    child: Column(
-                      children: [
-                        _ProfileHeader(
-                          initials: initials,
-                          name: user.name,
-                          email: user.email,
-                        ),
-                        const SizedBox(height: 16),
-                        _AppointmentStats(
-                          showed: 0,
-                          noShow: 0,
-                          cancelled: 0,
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(24),
+          return SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          if (context.canPop()) {
+                            context.pop();
+                          } else {
+                            context.go('/home');
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.surface,
-                            borderRadius: BorderRadius.circular(32),
-                            border: Border.all(
-                              color: theme.colorScheme.onSurface.withValues(
-                                alpha: 0.05,
-                              ),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.20),
-                                blurRadius: 22,
-                                offset: const Offset(0, 14),
-                              ),
-                            ],
+                            color: const Color(0xFFF5F5F9),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (user.age > 0 || genderLabel.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(bottom: 20),
-                                  child: Row(
-                                    children: [
-                                      if (user.age > 0)
-                                        Expanded(
-                                          child: _StatTile(
-                                            icon: Icons.cake_outlined,
-                                            label: 'Age',
-                                            value: '${user.age} years',
-                                          ),
-                                        ),
-                                      if (user.age > 0 && genderLabel.isNotEmpty)
-                                        const SizedBox(width: 12),
-                                      if (genderLabel.isNotEmpty)
-                                        Expanded(
-                                          child: _StatTile(
-                                            icon: Icons.person_outline,
-                                            label: 'Gender',
-                                            value: genderLabel,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              _ActionTile(
-                                icon: Icons.folder_outlined,
-                                label: 'Medical Record',
-                                onTap: () {},
-                              ),
-                              const Divider(height: 1, indent: 56),
-                              _ActionTile(
-                                icon: Icons.location_on_outlined,
-                                label: 'Visited Organizations History',
-                                onTap: () {},
-                              ),
-                              const Divider(height: 1, indent: 56),
-                              _ActionTile(
-                                icon: Icons.lock_outlined,
-                                label: 'Change Password',
-                                onTap: () {},
-                              ),
-                            ],
-                          ),
+                          child: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.black87),
                         ),
-                        const SizedBox(height: 16),
-                        _ActionButton(
-                          label: 'Edit Profile',
-                          icon: Icons.edit_outlined,
-                          onPressed: () => context.push('/edit-profile', extra: user),
-                        ),
-                        const SizedBox(height: 8),
-                        _ActionButton(
-                          label: 'Logout',
-                          icon: Icons.logout,
-                          danger: true,
-                          onPressed: () => _logout(context),
-                        ),
-                        const Spacer(),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            );
+                  const SizedBox(height: 16),
+                  _ProfileHeader(
+                    initials: initials,
+                    name: user.name,
+                    email: user.email,
+                  ),
+                  const SizedBox(height: 20),
+                  _AppointmentStats(
+                    showed: 0,
+                    noShow: 0,
+                    cancelled: 0,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildInfoCard(user, genderLabel),
+                  const SizedBox(height: 16),
+                  _ActionButton(
+                    label: 'Logout',
+                    icon: Icons.logout,
+                    danger: true,
+                    onPressed: () => _logout(context),
+                  ),
+                ],
+              ),
+            ),
+          );
         },
       ),
     );
   }
 
-  Widget _buildSkeleton() {
-    final skeletonColor = Colors.white.withValues(alpha: 0.12);
-    final cardSkeleton = Colors.white.withValues(alpha: 0.08);
-
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  _violetBg,
-                  _violetBg.withValues(alpha: 0.97),
-                  _violetBgEnd,
+  Widget _buildInfoCard(User user, String genderLabel) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE8E8EE)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (user.age > 0 || genderLabel.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Row(
+                children: [
+                  if (user.age > 0)
+                    Expanded(
+                      child: _StatTile(
+                        icon: Icons.cake_outlined,
+                        label: 'Age',
+                        value: '${user.age} years',
+                      ),
+                    ),
+                  if (user.age > 0 && genderLabel.isNotEmpty)
+                    const SizedBox(width: 12),
+                  if (genderLabel.isNotEmpty)
+                    Expanded(
+                      child: _StatTile(
+                        icon: Icons.person_outline,
+                        label: 'Gender',
+                        value: genderLabel,
+                      ),
+                    ),
                 ],
               ),
             ),
+          _ActionTile(
+            icon: Icons.folder_outlined,
+            label: 'Medical Record',
+            onTap: () {},
           ),
-        ),
-        SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-            child: Column(
-              children: [
-                Center(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 12),
-                      _skeletonCircle(80, skeletonColor),
-                      const SizedBox(height: 16),
-                      _skeletonBox(180, 20, skeletonColor),
-                      const SizedBox(height: 8),
-                      _skeletonBox(200, 14, skeletonColor),
-                    ],
-                  ),
+          const Divider(height: 1, indent: 56),
+          _ActionTile(
+            icon: Icons.location_on_outlined,
+            label: 'Visited Organizations History',
+            onTap: () {},
+          ),
+          const Divider(height: 1, indent: 56),
+          _ActionTile(
+            icon: Icons.lock_outlined,
+            label: 'Change Password',
+            onTap: () {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSkeleton() {
+    final skeletonColor = Colors.grey.shade200;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: Column(
+            children: [
+              Center(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 12),
+                    _skeletonCircle(88, skeletonColor),
+                    const SizedBox(height: 16),
+                    _skeletonBox(180, 20, skeletonColor),
+                    const SizedBox(height: 8),
+                    _skeletonBox(200, 14, skeletonColor),
+                  ],
                 ),
-                const SizedBox(height: 32),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(32),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              height: 72,
-                              decoration: BoxDecoration(
-                                color: cardSkeleton,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Container(
-                              height: 72,
-                              decoration: BoxDecoration(
-                                color: cardSkeleton,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      ...List.generate(
-                        3,
-                        (_) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 6),
-                          child: Row(
-                            children: [
-                              _skeletonCircle(44, cardSkeleton),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: _skeletonBox(160, 16, cardSkeleton),
-                              ),
-                            ],
-                          ),
+              ),
+              const SizedBox(height: 28),
+              Row(
+                children: [
+                  Expanded(child: _skeletonBox(double.infinity, 80, skeletonColor)),
+                  const SizedBox(width: 10),
+                  Expanded(child: _skeletonBox(double.infinity, 80, skeletonColor)),
+                  const SizedBox(width: 10),
+                  Expanded(child: _skeletonBox(double.infinity, 80, skeletonColor)),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFE8E8EE)),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _skeletonBox(double.infinity, 72, skeletonColor),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _skeletonBox(double.infinity, 72, skeletonColor),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    ...List.generate(
+                      3,
+                      (_) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Row(
+                          children: [
+                            _skeletonCircle(44, skeletonColor),
+                            const SizedBox(width: 16),
+                            Expanded(child: _skeletonBox(160, 16, skeletonColor)),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 20),
-                Container(
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 16),
+              _skeletonBox(double.infinity, 56, skeletonColor),
+              const SizedBox(height: 12),
+              _skeletonBox(double.infinity, 56, skeletonColor),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }
@@ -382,7 +352,7 @@ class _ProfileHeader extends StatelessWidget {
             child: Text(
               initials,
               style: const TextStyle(
-                color: _violetBg,
+                color: Colors.white,
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
               ),
@@ -393,7 +363,7 @@ class _ProfileHeader extends StatelessWidget {
         Text(
           name,
           style: const TextStyle(
-            color: Colors.white,
+            color: Colors.black,
             fontSize: 22,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.3,
@@ -403,7 +373,7 @@ class _ProfileHeader extends StatelessWidget {
         Text(
           email,
           style: TextStyle(
-            color: Colors.white.withValues(alpha: 0.7),
+            color: Colors.grey.shade500,
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
@@ -459,9 +429,9 @@ class _StatCard extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: 0.25)),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.15),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: color.withValues(alpha: 0.12),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -478,8 +448,8 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(
-              color: Color(0xFFA39AB8),
+            style: TextStyle(
+              color: Colors.grey.shade500,
               fontSize: 11,
               fontWeight: FontWeight.w600,
               letterSpacing: 0.3,
@@ -507,22 +477,22 @@ class _StatTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF240D37).withValues(alpha: 0.04),
-        borderRadius: BorderRadius.circular(16),
+        color: _primary.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: const Color(0xFF240D37)),
+          Icon(icon, size: 20, color: _primary),
           const SizedBox(width: 10),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFFA39AB8),
+                  color: Colors.grey.shade500,
                   letterSpacing: 0.5,
                 ),
               ),
@@ -530,9 +500,9 @@ class _StatTile extends StatelessWidget {
               Text(
                 value,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF240D37),
+                  color: Colors.black87,
                 ),
               ),
             ],
@@ -562,22 +532,22 @@ class _ActionTile extends StatelessWidget {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: const Color(0xFF240D37).withValues(alpha: 0.06),
+          color: _primary.withValues(alpha: 0.06),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: const Color(0xFF240D37), size: 22),
+        child: Icon(icon, color: _primary, size: 22),
       ),
       title: Text(
         label,
         style: const TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 15,
-          color: Color(0xFF240D37),
+          color: Colors.black87,
         ),
       ),
       trailing: Icon(
         Icons.chevron_right,
-        color: Colors.black.withValues(alpha: 0.2),
+        color: Colors.grey.shade400,
       ),
       onTap: onTap,
     );
@@ -599,51 +569,63 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color bg = danger ? const Color(0xFFFFF0F0) : Colors.white;
-    final Color fg = danger ? const Color(0xFFE53935) : _violetBg;
+    if (danger) {
+      return SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: OutlinedButton(
+          onPressed: onPressed,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: const Color(0xFFE53935),
+            side: const BorderSide(color: Color(0xFFFFCDD2)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.logout, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return SizedBox(
       width: double.infinity,
       height: 56,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: danger
-                ? const Color(0xFFFFCDD2)
-                : _violetBg.withValues(alpha: 0.10),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _primary,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
+              ),
             ),
           ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onPressed,
-            borderRadius: BorderRadius.circular(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: fg, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: fg,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                    letterSpacing: 0.2,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );
