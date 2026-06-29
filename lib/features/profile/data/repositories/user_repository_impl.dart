@@ -37,4 +37,22 @@ class UserRepositoryImpl implements UserRepository {
       return Left(handleException(e));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      await userRemote.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(e.toFailure());
+    } catch (e) {
+      return Left(handleException(e));
+    }
+  }
 }

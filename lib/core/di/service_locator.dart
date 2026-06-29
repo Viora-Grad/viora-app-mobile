@@ -9,6 +9,7 @@ import 'package:viora_app/core/api/api_consumer.dart';
 import 'package:viora_app/core/api/auth_interceptor.dart';
 import 'package:viora_app/core/api/dio_consumer.dart';
 import 'package:viora_app/core/database/cache/cache_helper.dart';
+import 'package:viora_app/core/services/location_service.dart';
 import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/auth/data/datasources/local/auth_local_impl.dart';
 import 'package:viora_app/features/auth/data/datasources/remote/auth_remote.dart';
@@ -36,6 +37,14 @@ import 'package:viora_app/features/profile/data/datasources/remote/user_remote.d
 import 'package:viora_app/features/profile/data/datasources/remote/user_remote_impl.dart';
 import 'package:viora_app/features/profile/data/repositories/user_repository_impl.dart';
 import 'package:viora_app/features/profile/domain/repositories/user_repository.dart';
+import 'package:viora_app/features/profile/domain/usecases/change_password_usecase.dart';
+import 'package:viora_app/features/search/data/datasources/remote/search_remote.dart';
+import 'package:viora_app/features/search/data/datasources/remote/search_remote_impl.dart';
+import 'package:viora_app/features/search/data/repositories/search_repository_impl.dart';
+import 'package:viora_app/features/search/domain/repositories/search_repository.dart';
+import 'package:viora_app/features/search/domain/usecases/search_organizations_usecase.dart';
+import 'package:viora_app/features/search/domain/usecases/search_branches_usecase.dart';
+import 'package:viora_app/features/search/representation/bloc/search_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -190,6 +199,65 @@ Future<void> dependencyInjection() async {
   if (!sl.isRegistered<UserRepository>()) {
     sl.registerLazySingleton<UserRepository>(
       () => UserRepositoryImpl(sl(), sl()),
+    );
+  }
+
+  if (!sl.isRegistered<ChangePasswordUseCase>()) {
+    sl.registerLazySingleton<ChangePasswordUseCase>(
+      () => ChangePasswordUseCase(sl()),
+    );
+  }
+
+  // Search
+  if (!sl.isRegistered<LocationService>()) {
+    sl.registerLazySingleton<LocationService>(() => LocationServiceImpl());
+  }
+
+  if (!sl.isRegistered<SearchRemote>()) {
+    sl.registerLazySingleton<SearchRemote>(
+      () => SearchRemoteImpl(sl(), sl()),
+    );
+  }
+
+  if (!sl.isRegistered<SearchRepository>()) {
+    sl.registerLazySingleton<SearchRepository>(
+      () => SearchRepositoryImpl(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<SearchOrganizationsUseCase>()) {
+    sl.registerLazySingleton<SearchOrganizationsUseCase>(
+      () => SearchOrganizationsUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetCountriesUseCase>()) {
+    sl.registerLazySingleton<GetCountriesUseCase>(
+      () => GetCountriesUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetServiceTypesUseCase>()) {
+    sl.registerLazySingleton<GetServiceTypesUseCase>(
+      () => GetServiceTypesUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<SearchBranchesUseCase>()) {
+    sl.registerLazySingleton<SearchBranchesUseCase>(
+      () => SearchBranchesUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<SearchBloc>()) {
+    sl.registerFactory<SearchBloc>(
+      () => SearchBloc(
+        searchBranchesUseCase: sl(),
+        searchOrganizationsUseCase: sl(),
+        getCountriesUseCase: sl(),
+        getServiceTypesUseCase: sl(),
+        locationService: sl(),
+      ),
     );
   }
 }

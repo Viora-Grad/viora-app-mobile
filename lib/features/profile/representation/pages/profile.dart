@@ -157,7 +157,7 @@ class _ProfileView extends StatelessWidget {
                     cancelled: 0,
                   ),
                   const SizedBox(height: 20),
-                  _buildInfoCard(user, genderLabel),
+                  _buildInfoCard(context, user, genderLabel),
                   const SizedBox(height: 16),
                   _ActionButton(
                     label: 'Logout',
@@ -174,7 +174,7 @@ class _ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoCard(User user, String genderLabel) {
+  Widget _buildInfoCard(BuildContext context, User user, String genderLabel) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -234,7 +234,7 @@ class _ProfileView extends StatelessWidget {
           _ActionTile(
             icon: Icons.lock_outlined,
             label: 'Change Password',
-            onTap: () {},
+            onTap: () => context.push('/change-password'),
           ),
         ],
       ),

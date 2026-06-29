@@ -20,7 +20,10 @@ class MyApp extends StatelessWidget {
       title: 'Viora App',
       theme: ThemeData(primarySwatch: Colors.blue),
       routerConfig: appRouter,
-      
+      builder: (context, child) => GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: child!,
+      ),
     );
   }
 }

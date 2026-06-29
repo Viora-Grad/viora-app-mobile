@@ -5,6 +5,7 @@ import 'package:viora_app/core/di/service_locator.dart';
 import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/core/widgets/bottom_nav_bar.dart';
 import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/search/domain/usecases/search_organizations_usecase.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
@@ -21,6 +22,28 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
+  late final HomeBloc _homeBloc;
+  String _userName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _homeBloc = HomeBloc(
+      authLocal: sl<AuthLocalDataSource>(),
+      searchOrganizationsUseCase: sl<SearchOrganizationsUseCase>(),
+      getCountriesUseCase: sl<GetCountriesUseCase>(),
+      getServiceTypesUseCase: sl<GetServiceTypesUseCase>(),
+    )
+      ..add(LoadHomeDataEvent())
+      ..add(const LoadFilterOptionsEvent());
+
+    _homeBloc.stream.listen((state) {
+      if (!mounted) return;
+      if (state is HomeLoaded && state.userName != _userName) {
+        setState(() => _userName = state.userName);
+      }
+    });
+  }
 
   void _onNavTap(int index) {
     if (index == _currentIndex) return;
@@ -29,13 +52,10 @@ class _HomePageState extends State<HomePage> {
       case 0:
         context.go(AppRoutes.home);
       case 1:
-        // TODO: Navigate to Bookings
         break;
       case 2:
-        // TODO: Navigate to Vivi
         break;
       case 3:
-        // TODO: Navigate to Wallet
         break;
       case 4:
         context.go(AppRoutes.profile);
@@ -43,41 +63,43 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void dispose() {
+    _homeBloc.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => HomeBloc(authLocal: sl<AuthLocalDataSource>())..add(LoadHomeDataEvent()),
+    return BlocProvider.value(
+      value: _homeBloc,
       child: Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(
-          child: BlocBuilder<HomeBloc, HomeState>(
-            builder: (context, state) {
-              if (state is HomeLoading || state is HomeInitial) {
-                return const Center(child: CircularProgressIndicator(color: Color(0xFF2F1193)));
-              }
-
-              if (state is HomeLoaded) {
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeader(context, state.userName),
-                      const SizedBox(height: 24),
-                      _buildSearchBar(),
-                      const SizedBox(height: 20),
-                      const AiBanner(),
-                      const SizedBox(height: 28),
-                      const PopularSpecialties(),
-                      const SizedBox(height: 28),
-                      const HealthDashboard(),
-                      const SizedBox(height: 16),
-                    ],
-                  ),
-                );
-              }
-
-              return const Center(child: Text('Something went wrong.'));
-            },
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0, vertical: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(context),
+                    const SizedBox(height: 24),
+                    _buildSearchBar(),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: BlocBuilder<HomeBloc, HomeState>(
+                  builder: (context, state) {
+                    if (state is HomeLoaded) {
+                      return _buildMainContent();
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ),
+            ],
           ),
         ),
         bottomNavigationBar: BottomNavBar(
@@ -88,8 +110,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildHeader(BuildContext context, String userName) {
+  Widget _buildHeader(BuildContext context) {
     final greeting = _getGreeting();
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -98,12 +121,18 @@ class _HomePageState extends State<HomePage> {
           children: [
             Text(
               '$greeting,',
-              style: const TextStyle(fontSize: 16, color: Colors.grey, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 4),
             Text(
-              userName.isNotEmpty ? userName : 'Guest',
-              style: const TextStyle(fontSize: 26, color: Colors.black, fontWeight: FontWeight.bold),
+              _userName.isNotEmpty ? _userName : 'Guest',
+              style: const TextStyle(
+                  fontSize: 26,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -119,7 +148,8 @@ class _HomePageState extends State<HomePage> {
                 alignment: Alignment.topRight,
                 backgroundColor: Colors.red,
                 smallSize: 8,
-                child: Icon(Icons.notifications_none_outlined, color: Colors.black, size: 26),
+                child: Icon(Icons.notifications_none_outlined,
+                    color: Colors.black, size: 26),
               ),
             ),
             const SizedBox(width: 12),
@@ -145,21 +175,58 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildSearchBar() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F3FC),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: const TextField(
-        decoration: InputDecoration(
-          icon: Icon(Icons.search, color: Color(0xFF4A37A0), size: 24),
-          hintText: 'Find doctors, clinics, salons...',
-          hintStyle: TextStyle(color: Color(0xFF9E94C5), fontSize: 16),
-          border: InputBorder.none,
-          suffixIcon: Icon(Icons.tune, color: Color(0xFF4A37A0)),
+    return GestureDetector(
+      onTap: () => context.push('/search'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF5F3FC),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF2F1193).withValues(alpha: 0.06),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.search, color: Color(0xFF4A37A0), size: 24),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                'Search providers...',
+                style: TextStyle(
+                  color: Color(0xFF9E94C5),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            const Icon(Icons.tune, color: Color(0xFF4A37A0)),
+          ],
         ),
       ),
     );
   }
+
+  Widget _buildMainContent() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 4),
+          const AiBanner(),
+          const SizedBox(height: 28),
+          const PopularSpecialties(),
+          const SizedBox(height: 28),
+          const HealthDashboard(),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
 }

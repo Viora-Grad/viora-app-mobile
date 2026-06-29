@@ -36,4 +36,19 @@ class UserRemoteImpl implements UserRemote {
     await apiConsumer.delete('$profileUrl/$userId', requiresAuth: true);
     await userLocal.clearCachedUserProfile();
   }
+
+  @override
+  Future<dynamic> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    return await apiConsumer.postRaw(
+      EndPoints.changePasswordUrl,
+      data: {
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      },
+      requiresAuth: true,
+    );
+  }
 }

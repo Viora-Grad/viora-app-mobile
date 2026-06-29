@@ -22,13 +22,17 @@ class LoginValidators {
     if (trimmed.length < 8) {
       return 'Min 8 characters';
     }
+    if (trimmed.length > 100) {
+      return 'Max 100 characters';
+    }
 
     final hasLowercase = RegExp(r'[a-z]').hasMatch(trimmed);
     final hasUppercase = RegExp(r'[A-Z]').hasMatch(trimmed);
     final hasNumber = RegExp(r'\d').hasMatch(trimmed);
+    final hasSpecial = RegExp(r'[^a-zA-Z0-9]').hasMatch(trimmed);
 
-    if (!hasLowercase || !hasUppercase || !hasNumber) {
-      return 'Use upper, lower, and number';
+    if (!hasLowercase || !hasUppercase || !hasNumber || !hasSpecial) {
+      return 'Use upper, lower, number, and symbol';
     }
 
     return null;

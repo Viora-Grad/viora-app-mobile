@@ -1,9 +1,15 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:viora_app/core/di/service_locator.dart';
 import 'package:viora_app/features/auth/representation/pages/login.dart';
 import 'package:viora_app/features/auth/representation/pages/register.dart';
+import 'package:viora_app/features/home/representation/pages/all_specialties_page.dart';
 import 'package:viora_app/features/home/representation/pages/home_page.dart';
+import 'package:viora_app/features/profile/representation/pages/change_password_page.dart';
 import 'package:viora_app/features/profile/representation/pages/profile.dart';
+import 'package:viora_app/features/search/representation/bloc/search_bloc.dart';
+import 'package:viora_app/features/search/representation/bloc/search_event.dart';
+import 'package:viora_app/features/search/representation/pages/search_page.dart';
 import 'package:viora_app/features/splash/representation/blocs/splash_bloc.dart';
 import 'package:viora_app/features/splash/representation/blocs/splash_events.dart';
 import 'package:viora_app/features/splash/representation/pages/splash.dart';
@@ -14,6 +20,9 @@ class AppRoutes {
   static const register = '/register';
   static const home = '/home';
   static const profile = '/profile';
+  static const search = '/search';
+  static const specialties = '/specialties';
+  static const changePassword = '/change-password';
 }
 
 final appRouter = GoRouter(
@@ -41,6 +50,24 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.profile,
       builder: (context, state) => const ProfilePage(),
+    ),
+    GoRoute(
+      path: AppRoutes.changePassword,
+      builder: (context, state) => const ChangePasswordPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.search,
+      builder: (context, state) {
+        final query = state.uri.queryParameters['q'];
+        return BlocProvider(
+          create: (_) => sl<SearchBloc>()..add(const LoadFilterOptions()),
+          child: SearchPage(initialQuery: query),
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.specialties,
+      builder: (context, state) => const AllSpecialtiesPage(),
     ),
   ],
 );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class PopularSpecialties extends StatelessWidget {
   const PopularSpecialties({super.key});
@@ -6,10 +7,10 @@ class PopularSpecialties extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final specialties = [
-      {'icon': Icons.back_hand, 'label': 'Ortho'},
-      {'icon': Icons.favorite, 'label': 'Cardio'},
-      {'icon': Icons.face, 'label': 'Derma'},
-      {'icon': Icons.psychology, 'label': 'Mental'},
+      {'icon': Icons.back_hand, 'label': 'Orthopedics'},
+      {'icon': Icons.favorite, 'label': 'Cardiology'},
+      {'icon': Icons.face, 'label': 'Dermatology'},
+      {'icon': Icons.psychology, 'label': 'Psychiatry'},
     ];
 
     return Column(
@@ -22,7 +23,7 @@ class PopularSpecialties extends StatelessWidget {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () => context.push('/specialties'),
               child: const Text(
                 'See All',
                 style: TextStyle(color: Color(0xFF2F1193), fontWeight: FontWeight.bold, fontSize: 15),
@@ -34,30 +35,33 @@ class PopularSpecialties extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: specialties.map((s) {
-            return Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0ECF9),
-                    shape: BoxShape.circle,
+            return GestureDetector(
+              onTap: () => context.push('/search?q=${s['label']}'),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF0ECF9),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      s['icon'] as IconData,
+                      color: const Color(0xFF2F1193),
+                      size: 28,
+                    ),
                   ),
-                  child: Icon(
-                    s['icon'] as IconData,
-                    color: const Color(0xFF2F1193),
-                    size: 28,
+                  const SizedBox(height: 8),
+                  Text(
+                    s['label'] as String,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  s['label'] as String,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
+                ],
+              ),
             );
           }).toList(),
         ),
