@@ -243,7 +243,7 @@ class _AllSpecialtiesPageState extends State<AllSpecialtiesPage> {
       itemBuilder: (context, index) {
         final specialty = _filteredSpecialties[index];
         return GestureDetector(
-          onTap: () => context.push('/search?q=$specialty'),
+          onTap: () => context.push('/branch-search', extra: specialty),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

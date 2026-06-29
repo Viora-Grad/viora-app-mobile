@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viora_app/core/services/location_service.dart';
 import 'package:viora_app/features/search/domain/usecases/search_branches_usecase.dart';
@@ -130,6 +131,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     SearchBranches event,
     Emitter<SearchState> emit,
   ) async {
+    debugPrint('[SearchBloc] SearchBranches event received — '
+        'lat=${event.latitude}, lng=${event.longitude}, '
+        'dist=${event.distanceWithinMeters}, services=${event.servicesFilter}, '
+        'minRating=${event.minimumRating}, isOpen=${event.isCurrentlyOpen}, '
+        'orderBy=${event.orderBy}, page=${event.page}');
     emit(const SearchLoading());
 
     final result = await searchBranchesUseCase(
@@ -146,14 +152,19 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     );
 
     result.fold(
-      (failure) => emit(SearchError(failure.message)),
+      (failure) {
+        debugPrint('[SearchBloc] ❌ SearchBranches FAILED — ${failure.message}');
+        emit(SearchError(failure.message));
+      },
       (paginated) {
         if (paginated.items.isEmpty) {
+          debugPrint('[SearchBloc] SearchBranches returned 0 results');
           emit(SearchEmpty(
             countries: _countries,
             serviceTypes: _serviceTypes,
           ));
         } else {
+          debugPrint('[SearchBloc] ✅ SearchBranches loaded ${paginated.items.length} items (total: ${paginated.totalCount})');
           emit(SearchBranchesLoaded(
             branches: paginated.items,
             page: paginated.page,
@@ -178,7 +189,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     Emitter<SearchState> emit,
   ) async {
     final currentState = state;
+    debugPrint('[SearchBloc] LoadMoreBranches — current state: ${currentState.runtimeType}');
     if (currentState is SearchBranchesLoaded && currentState.hasNextPage) {
+      debugPrint('[SearchBloc] Loading page ${currentState.page + 1}...');
       emit(SearchBranchesLoadingMore(
         branches: currentState.branches,
         page: currentState.page,
@@ -208,8 +221,12 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       );
 
       result.fold(
-        (failure) => emit(SearchError(failure.message)),
+        (failure) {
+          debugPrint('[SearchBloc] ❌ LoadMoreBranches FAILED — ${failure.message}');
+          emit(SearchError(failure.message));
+        },
         (paginated) {
+          debugPrint('[SearchBloc] ✅ LoadMoreBranches loaded ${paginated.items.length} more items (total: ${paginated.totalCount})');
           emit(SearchBranchesLoaded(
             branches: [
               ...currentState.branches,

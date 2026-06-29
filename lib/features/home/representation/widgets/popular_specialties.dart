@@ -36,7 +36,7 @@ class PopularSpecialties extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: specialties.map((s) {
             return GestureDetector(
-              onTap: () => context.push('/search?q=${s['label']}'),
+              onTap: () => context.push('/branch-search', extra: s['label']),
               child: Column(
                 children: [
                   Container(

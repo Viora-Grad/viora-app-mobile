@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:viora_app/core/api/end_points.dart';
 import 'package:viora_app/features/search/data/datasources/remote/search_remote.dart';
@@ -103,17 +104,27 @@ class SearchRemoteImpl implements SearchRemote {
       queryParameters['isCurrentlyOpen'] = isCurrentlyOpen;
     }
 
+    debugPrint('[SearchRemote] ===== searchBranches REQUEST =====');
+    debugPrint('[SearchRemote] URL: GET ${EndPoints.branchesUrl}');
+    debugPrint('[SearchRemote] Query params: $queryParameters');
+
     final response = await dio.get(
       EndPoints.branchesUrl,
       queryParameters: queryParameters,
       options: await _buildOptions(requiresAuth: false),
     );
 
+    debugPrint('[SearchRemote] ✅ Response status: ${response.statusCode}');
+    debugPrint('[SearchRemote] Response data (first 500 chars): ${response.data.toString().length > 500 ? response.data.toString().substring(0, 500) : response.data}');
+
     final data = response.data;
     if (data is Map<String, dynamic>) {
-      return PaginatedBranchesModel.fromJson(data);
+      final model = PaginatedBranchesModel.fromJson(data);
+      debugPrint('[SearchRemote] Parsed ${model.items.length} branches (total: ${model.totalCount})');
+      return model;
     }
 
+    debugPrint('[SearchRemote] ❌ Unexpected response format — data type: ${data.runtimeType}');
     throw Exception('Unexpected response format');
   }
 

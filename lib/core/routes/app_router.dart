@@ -9,6 +9,7 @@ import 'package:viora_app/features/profile/representation/pages/change_password_
 import 'package:viora_app/features/profile/representation/pages/profile.dart';
 import 'package:viora_app/features/search/representation/bloc/search_bloc.dart';
 import 'package:viora_app/features/search/representation/bloc/search_event.dart';
+import 'package:viora_app/features/search/representation/pages/branch_search_page.dart';
 import 'package:viora_app/features/search/representation/pages/search_page.dart';
 import 'package:viora_app/features/splash/representation/blocs/splash_bloc.dart';
 import 'package:viora_app/features/splash/representation/blocs/splash_events.dart';
@@ -21,6 +22,7 @@ class AppRoutes {
   static const home = '/home';
   static const profile = '/profile';
   static const search = '/search';
+  static const branchSearch = '/branch-search';
   static const specialties = '/specialties';
   static const changePassword = '/change-password';
 }
@@ -62,6 +64,16 @@ final appRouter = GoRouter(
         return BlocProvider(
           create: (_) => sl<SearchBloc>()..add(const LoadFilterOptions()),
           child: SearchPage(initialQuery: query),
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.branchSearch,
+      builder: (context, state) {
+        final specialty = state.extra as String? ?? '';
+        return BlocProvider(
+          create: (_) => sl<SearchBloc>(),
+          child: BranchSearchPage(specialty: specialty),
         );
       },
     ),
