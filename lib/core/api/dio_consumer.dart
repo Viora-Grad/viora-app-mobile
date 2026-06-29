@@ -86,6 +86,11 @@ class DioConsumer extends ApiConsumer {
     );
   }
 
+  String _truncate(dynamic value, {int max = 500}) {
+    final s = value.toString();
+    return s.length > max ? '${s.substring(0, max)}...' : s;
+  }
+
   // Helper method to handle Dio get requests and exceptions.
   @override
   Future<Map<String, dynamic>> get(
@@ -96,6 +101,10 @@ class DioConsumer extends ApiConsumer {
     bool requiresAuth = false,
     CancelToken? cancelToken,
   }) async {
+    debugPrint('[DioConsumer] >>> GET $url');
+    debugPrint('[DioConsumer]     data: ${_truncate(data)}');
+    debugPrint('[DioConsumer]     query: $queryParameters');
+    debugPrint('[DioConsumer]     auth: $requiresAuth');
     try {
       Response response = await dio.get(
         url,
@@ -106,6 +115,8 @@ class DioConsumer extends ApiConsumer {
         queryParameters: queryParameters,
         cancelToken: cancelToken,
       );
+      debugPrint('[DioConsumer] <<< GET $url -> ${response.statusCode}');
+      debugPrint('[DioConsumer]     body: ${_truncate(response.data)}');
       return _normalizeResponse(response.data);
     } on DioException catch (e) {
       handleDioException(e);
@@ -122,6 +133,10 @@ class DioConsumer extends ApiConsumer {
     bool requiresAuth = false,
     CancelToken? cancelToken,
   }) async {
+    debugPrint('[DioConsumer] >>> POST $url');
+    debugPrint('[DioConsumer]     data: ${_truncate(data)}');
+    debugPrint('[DioConsumer]     query: $queryParameters');
+    debugPrint('[DioConsumer]     auth: $requiresAuth');
     try {
       Response response = await dio.post(
         url,
@@ -132,7 +147,40 @@ class DioConsumer extends ApiConsumer {
         queryParameters: queryParameters,
         cancelToken: cancelToken,
       );
+      debugPrint('[DioConsumer] <<< POST $url -> ${response.statusCode}');
+      debugPrint('[DioConsumer]     body: ${_truncate(response.data)}');
       return _normalizeResponse(response.data);
+    } on DioException catch (e) {
+      handleDioException(e);
+    }
+  }
+
+  @override
+  Future<dynamic> getRaw(
+    String url, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    bool isFormData = false,
+    bool requiresAuth = false,
+    CancelToken? cancelToken,
+  }) async {
+    debugPrint('[DioConsumer] >>> GET (raw) $url');
+    debugPrint('[DioConsumer]     data: ${_truncate(data)}');
+    debugPrint('[DioConsumer]     query: $queryParameters');
+    debugPrint('[DioConsumer]     auth: $requiresAuth');
+    try {
+      Response response = await dio.get(
+        url,
+        options: await _buildOptions(requiresAuth: requiresAuth),
+        data: isFormData
+            ? FormData.fromMap(data as Map<String, dynamic>)
+            : data,
+        queryParameters: queryParameters,
+        cancelToken: cancelToken,
+      );
+      debugPrint('[DioConsumer] <<< GET (raw) $url -> ${response.statusCode}');
+      debugPrint('[DioConsumer]     body: ${_truncate(response.data)}');
+      return response.data;
     } on DioException catch (e) {
       handleDioException(e);
     }
@@ -147,6 +195,9 @@ class DioConsumer extends ApiConsumer {
     bool requiresAuth = false,
     CancelToken? cancelToken,
   }) async {
+    debugPrint('[DioConsumer] >>> POST (raw) $url');
+    debugPrint('[DioConsumer]     data: ${_truncate(data)}');
+    debugPrint('[DioConsumer]     auth: $requiresAuth');
     try {
       Response response = await dio.post(
         url,
@@ -157,6 +208,8 @@ class DioConsumer extends ApiConsumer {
         queryParameters: queryParameters,
         cancelToken: cancelToken,
       );
+      debugPrint('[DioConsumer] <<< POST (raw) $url -> ${response.statusCode}');
+      debugPrint('[DioConsumer]     body: ${_truncate(response.data)}');
       return response.data;
     } on DioException catch (e) {
       handleDioException(e);
@@ -173,6 +226,9 @@ class DioConsumer extends ApiConsumer {
     bool requiresAuth = false,
     CancelToken? cancelToken,
   }) async {
+    debugPrint('[DioConsumer] >>> PUT $url');
+    debugPrint('[DioConsumer]     data: ${_truncate(data)}');
+    debugPrint('[DioConsumer]     auth: $requiresAuth');
     try {
       Response response = await dio.put(
         url,
@@ -183,6 +239,8 @@ class DioConsumer extends ApiConsumer {
         queryParameters: queryParameters,
         cancelToken: cancelToken,
       );
+      debugPrint('[DioConsumer] <<< PUT $url -> ${response.statusCode}');
+      debugPrint('[DioConsumer]     body: ${_truncate(response.data)}');
       return _normalizeResponse(response.data);
     } on DioException catch (e) {
       handleDioException(e);
@@ -199,6 +257,9 @@ class DioConsumer extends ApiConsumer {
     bool requiresAuth = false,
     CancelToken? cancelToken,
   }) async {
+    debugPrint('[DioConsumer] >>> PATCH $url');
+    debugPrint('[DioConsumer]     data: ${_truncate(data)}');
+    debugPrint('[DioConsumer]     auth: $requiresAuth');
     try {
       Response response = await dio.patch(
         url,
@@ -209,6 +270,8 @@ class DioConsumer extends ApiConsumer {
         queryParameters: queryParameters,
         cancelToken: cancelToken,
       );
+      debugPrint('[DioConsumer] <<< PATCH $url -> ${response.statusCode}');
+      debugPrint('[DioConsumer]     body: ${_truncate(response.data)}');
       return _normalizeResponse(response.data);
     } on DioException catch (e) {
       handleDioException(e);
@@ -225,6 +288,9 @@ class DioConsumer extends ApiConsumer {
     bool requiresAuth = false,
     CancelToken? cancelToken,
   }) async {
+    debugPrint('[DioConsumer] >>> DELETE $url');
+    debugPrint('[DioConsumer]     data: ${_truncate(data)}');
+    debugPrint('[DioConsumer]     auth: $requiresAuth');
     try {
       Response response = await dio.delete(
         url,
@@ -235,6 +301,8 @@ class DioConsumer extends ApiConsumer {
         queryParameters: queryParameters,
         cancelToken: cancelToken,
       );
+      debugPrint('[DioConsumer] <<< DELETE $url -> ${response.statusCode}');
+      debugPrint('[DioConsumer]     body: ${_truncate(response.data)}');
       return _normalizeResponse(response.data);
     } on DioException catch (e) {
       handleDioException(e);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:viora_app/core/functions/service_type_mapper.dart';
 import 'package:viora_app/features/search/domain/entities/branch.dart';
 import 'package:viora_app/features/search/representation/bloc/search_bloc.dart';
 import 'package:viora_app/features/search/representation/bloc/search_event.dart';
@@ -153,7 +154,7 @@ class _BranchSearchPageState extends State<BranchSearchPage>
           latitude: _latitude,
           longitude: _longitude,
           distanceWithinMeters: hasLocation ? _radiusMeters : null,
-          servicesFilter: [widget.specialty],
+          servicesFilter: [mapServiceType(widget.specialty)],
           minimumRating: _minRating,
           orderBy: _orderBy != null ? [_orderBy!] : null,
           isCurrentlyOpen: _isOpenNow ? true : null,
@@ -892,8 +893,8 @@ class _BranchSearchPageState extends State<BranchSearchPage>
                           size: 48, color: Color(0xFFD0D0D0)),
                     ),
                     const SizedBox(height: 20),
-                    const Text(
-                      'No branches found',
+                    Text(
+                      'No nearby branches',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -902,7 +903,7 @@ class _BranchSearchPageState extends State<BranchSearchPage>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Try increasing the radius\nor adjusting filters',
+                      'There are no near branches for ${widget.specialty} around you within ${_radiusMeters >= 1000 ? '${(_radiusMeters / 1000).toStringAsFixed(1)} km' : '${_radiusMeters.toInt()} m'}.\nTry increasing the radius or adjusting filters.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,

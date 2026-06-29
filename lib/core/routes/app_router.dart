@@ -14,6 +14,7 @@ import 'package:viora_app/features/search/representation/pages/search_page.dart'
 import 'package:viora_app/features/splash/representation/blocs/splash_bloc.dart';
 import 'package:viora_app/features/splash/representation/blocs/splash_events.dart';
 import 'package:viora_app/features/splash/representation/pages/splash.dart';
+import 'package:viora_app/features/vivi/representation/pages/ai_chat_page.dart';
 
 class AppRoutes {
   static const splash = '/';
@@ -25,6 +26,7 @@ class AppRoutes {
   static const branchSearch = '/branch-search';
   static const specialties = '/specialties';
   static const changePassword = '/change-password';
+  static const aiChat = '/ai-chat';
 }
 
 final appRouter = GoRouter(
@@ -80,6 +82,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.specialties,
       builder: (context, state) => const AllSpecialtiesPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.aiChat,
+      builder: (context, state) => const AiChatPage(),
     ),
   ],
 );

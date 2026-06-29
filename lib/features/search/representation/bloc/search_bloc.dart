@@ -159,9 +159,19 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       (paginated) {
         if (paginated.items.isEmpty) {
           debugPrint('[SearchBloc] SearchBranches returned 0 results');
-          emit(SearchEmpty(
-            countries: _countries,
-            serviceTypes: _serviceTypes,
+          emit(SearchBranchesLoaded(
+            branches: [],
+            page: paginated.page,
+            totalCount: 0,
+            totalPages: 0,
+            hasNextPage: false,
+            latitude: event.latitude,
+            longitude: event.longitude,
+            distanceWithinMeters: event.distanceWithinMeters,
+            servicesFilter: event.servicesFilter,
+            minimumRating: event.minimumRating,
+            orderBy: event.orderBy,
+            isCurrentlyOpen: event.isCurrentlyOpen,
           ));
         } else {
           debugPrint('[SearchBloc] ✅ SearchBranches loaded ${paginated.items.length} items (total: ${paginated.totalCount})');

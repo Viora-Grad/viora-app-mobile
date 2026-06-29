@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:viora_app/core/routes/app_router.dart';
 
 class AiBanner extends StatelessWidget {
   const AiBanner({super.key});
@@ -37,7 +39,7 @@ class AiBanner extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          'Ask Viora AI',
+                          'Ask Vivi',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -74,9 +76,7 @@ class AiBanner extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           GestureDetector(
-            onTap: () {
-              // TODO: Navigate to Vivi AI chat screen
-            },
+            onTap: () => context.push(AppRoutes.aiChat),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(

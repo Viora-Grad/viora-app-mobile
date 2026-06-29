@@ -38,7 +38,9 @@ class BranchModel {
           ? DateTime.parse(json['openedSince'] as String)
           : DateTime.now(),
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
-      status: json['status'] as String? ?? 'Active',
+      status: json['status'] is int
+          ? (json['status'] as int).toString()
+          : (json['status'] as String? ?? 'Active'),
       address: json['address'] as String? ?? '',
       latitude: coordinates != null
           ? (coordinates['latitude'] as num?)?.toDouble()

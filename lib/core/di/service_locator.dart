@@ -45,6 +45,15 @@ import 'package:viora_app/features/search/domain/repositories/search_repository.
 import 'package:viora_app/features/search/domain/usecases/search_organizations_usecase.dart';
 import 'package:viora_app/features/search/domain/usecases/search_branches_usecase.dart';
 import 'package:viora_app/features/search/representation/bloc/search_bloc.dart';
+import 'package:viora_app/features/vivi/data/datasources/remote/ai_chat_remote.dart';
+import 'package:viora_app/features/vivi/data/datasources/remote/ai_chat_remote_impl.dart';
+import 'package:viora_app/features/vivi/data/repositories/ai_chat_repository_impl.dart';
+import 'package:viora_app/features/vivi/domain/repositories/ai_chat_repository.dart';
+import 'package:viora_app/features/vivi/domain/usecases/get_session_history_usecase.dart';
+import 'package:viora_app/features/vivi/domain/usecases/get_sessions_usecase.dart';
+import 'package:viora_app/features/vivi/domain/usecases/send_message_usecase.dart';
+import 'package:viora_app/features/vivi/representation/blocs/chat/chat_bloc.dart';
+import 'package:viora_app/features/vivi/representation/blocs/sessions/sessions_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -258,6 +267,49 @@ Future<void> dependencyInjection() async {
         getServiceTypesUseCase: sl(),
         locationService: sl(),
       ),
+    );
+  }
+
+  // AI Chat
+  if (!sl.isRegistered<AiChatRemote>()) {
+    sl.registerLazySingleton<AiChatRemote>(
+      () => AiChatRemoteImpl(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<AiChatRepository>()) {
+    sl.registerLazySingleton<AiChatRepository>(
+      () => AiChatRepositoryImpl(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<SendMessageUseCase>()) {
+    sl.registerLazySingleton<SendMessageUseCase>(
+      () => SendMessageUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetSessionsUseCase>()) {
+    sl.registerLazySingleton<GetSessionsUseCase>(
+      () => GetSessionsUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetSessionHistoryUseCase>()) {
+    sl.registerLazySingleton<GetSessionHistoryUseCase>(
+      () => GetSessionHistoryUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<ChatBloc>()) {
+    sl.registerFactory<ChatBloc>(
+      () => ChatBloc(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<SessionsBloc>()) {
+    sl.registerFactory<SessionsBloc>(
+      () => SessionsBloc(sl(), sl()),
     );
   }
 }

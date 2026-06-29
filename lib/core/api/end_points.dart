@@ -20,6 +20,10 @@ class EndPoints {
   static const String branchesUrl = '$baseUrl/api/Branches';
   static const String countriesUrl = '$baseUrl/api/Countries';
   static const String serviceTypesUrl = '$baseUrl/api/ServiceTypes';
+
+  // AI Chat
+  static const String aiChatUrl = '$baseUrl/api/ai/chats';
+  static const String aiSessionsUrl = '$baseUrl/api/ai/sessions';
 }
 
 class ApiKey {

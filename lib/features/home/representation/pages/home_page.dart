@@ -24,6 +24,7 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   late final HomeBloc _homeBloc;
   String _userName = '';
+  GoRouter? _router;
 
   @override
   void initState() {
@@ -45,6 +46,22 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_router == null) {
+      _router = GoRouter.of(context);
+      _router!.routerDelegate.addListener(_onRouteChanged);
+    }
+  }
+
+  void _onRouteChanged() {
+    final location = _router!.routerDelegate.currentConfiguration.uri.toString();
+    if (location == AppRoutes.home && _currentIndex != 0) {
+      setState(() => _currentIndex = 0);
+    }
+  }
+
   void _onNavTap(int index) {
     if (index == _currentIndex) return;
     setState(() => _currentIndex = index);
@@ -54,6 +71,7 @@ class _HomePageState extends State<HomePage> {
       case 1:
         break;
       case 2:
+        context.push(AppRoutes.aiChat);
         break;
       case 3:
         break;
@@ -64,6 +82,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    _router?.routerDelegate.removeListener(_onRouteChanged);
     _homeBloc.close();
     super.dispose();
   }
