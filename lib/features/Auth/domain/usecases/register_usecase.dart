@@ -42,6 +42,9 @@ class RegisterUsecase {
     if (params.password.length < 8) {
       return const Left(ValidationFailure('Password must be at least 8 characters long'));
     }
+    if (params.password.length > 100) {
+      return const Left(ValidationFailure('Password must not exceed 100 characters'));
+    }
     if (!RegExp(r'[A-Z]').hasMatch(params.password)) {
       return const Left(ValidationFailure('Password must contain at least one uppercase letter'));
     }
@@ -50,6 +53,9 @@ class RegisterUsecase {
     }
     if (!RegExp(r'[0-9]').hasMatch(params.password)) {
       return const Left(ValidationFailure('Password must contain at least one number'));
+    }
+    if (!RegExp(r'[^a-zA-Z0-9]').hasMatch(params.password)) {
+      return const Left(ValidationFailure('Password must contain at least one special character'));
     }
 
     if (params.gender != Gender.male && params.gender != Gender.female) {

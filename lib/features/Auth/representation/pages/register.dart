@@ -144,7 +144,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     if (state.status == RegisterStatus.success) {
       context.read<RegisterBloc>().add(const RegisterReset());
-      context.go(AppRoutes.profile);
+      context.go(AppRoutes.home);
       return;
     }
 

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:viora_app/core/errors/error_model.dart';
 import 'package:viora_app/core/errors/exceptions.dart';
 import 'package:viora_app/core/errors/failure.dart';
@@ -9,6 +10,15 @@ import 'package:viora_app/core/errors/failure.dart';
 ///
 /// Call this inside a `catch (DioException e)` block in remote data sources.
 Never handleDioException(DioException e) {
+  debugPrint('[ErrorHandler] ===== DioException =====');
+  debugPrint('[ErrorHandler] Type: ${e.type}');
+  debugPrint('[ErrorHandler] Message: ${e.message}');
+  debugPrint('[ErrorHandler] Status code: ${e.response?.statusCode}');
+  debugPrint('[ErrorHandler] Response body: ${e.response?.data}');
+  debugPrint('[ErrorHandler] Request URI: ${e.requestOptions.uri}');
+  debugPrint('[ErrorHandler] Request method: ${e.requestOptions.method}');
+  debugPrint('[ErrorHandler] Request body: ${e.requestOptions.data}');
+  debugPrint('[ErrorHandler] Request headers: ${e.requestOptions.headers}');
   ErrorModel unavailableErrorModel([int statusCode = 503]) => ErrorModel(
     statusCode: statusCode,
     errorMessage:

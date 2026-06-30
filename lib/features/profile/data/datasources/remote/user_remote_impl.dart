@@ -32,21 +32,23 @@ class UserRemoteImpl implements UserRemote {
   }
 
   @override
-  Future<UserModel?> updateUserProfile(UserModel user) async {
-    await apiConsumer.put(
-      '$profileUrl/${user.id}',
-      data: user.toJson(),
-      requiresAuth: true,
-    );
-    // Update the cached user profile Locally
-    await userLocal.cacheUserProfile(user);
-    return user;
+  Future<void> deleteUserProfile(String userId) async {
+    await apiConsumer.delete('$profileUrl/$userId', requiresAuth: true);
+    await userLocal.clearCachedUserProfile();
   }
 
   @override
-  Future<void> deleteUserProfile(String userId) async {
-    await apiConsumer.delete('$profileUrl/$userId', requiresAuth: true);
-    // Clear the cached user profile locally
-    await userLocal.clearCachedUserProfile();
+  Future<dynamic> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    return await apiConsumer.postRaw(
+      EndPoints.changePasswordUrl,
+      data: {
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      },
+      requiresAuth: true,
+    );
   }
 }

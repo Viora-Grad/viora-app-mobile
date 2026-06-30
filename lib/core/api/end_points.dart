@@ -13,6 +13,17 @@ class EndPoints {
 
   // Profile
   static const String profileUrl = '$baseUrl/api/auth/me';
+  static const String changePasswordUrl = '$baseUrl/api/auth/change-password';
+
+  // Search / Organizations
+  static const String organizationsUrl = '$baseUrl/api/Organizations';
+  static const String branchesUrl = '$baseUrl/api/Branches';
+  static const String countriesUrl = '$baseUrl/api/Countries';
+  static const String serviceTypesUrl = '$baseUrl/api/ServiceTypes';
+
+  // AI Chat
+  static const String aiChatUrl = '$baseUrl/api/ai/chats';
+  static const String aiSessionsUrl = '$baseUrl/api/ai/sessions';
 }
 
 class ApiKey {

@@ -21,6 +21,10 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(title: const Text('Viora Production Home Page')),
         body: const Center(child: Text('Welcome to Viora Production App!')),
       ),
+      builder: (context, child) => GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: child!,
+      ),
     );
   }
 }
