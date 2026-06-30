@@ -112,10 +112,24 @@ class _ActionChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push(
-        AppRoutes.branchSearch,
-        extra: action.specialty,
-      ),
+      onTap: () {
+        if (action.isOrgSearch) {
+          context.push(
+            AppRoutes.search,
+            extra: {
+              'query': action.orgName,
+              'country': action.country,
+              'serviceType': action.serviceType,
+              'minRating': action.minRating,
+            },
+          );
+        } else {
+          context.push(
+            AppRoutes.branchSearch,
+            extra: action.specialty,
+          );
+        }
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
@@ -132,7 +146,11 @@ class _ActionChip extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.search, size: 16, color: Colors.white),
+            Icon(
+              action.isOrgSearch ? Icons.business : Icons.search,
+              size: 16,
+              color: Colors.white,
+            ),
             const SizedBox(width: 6),
             Text(
               action.label,
