@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 const double _buttonHeight56 = 56.0;
 const double _borderRadius16 = 16.0;
-const double _disabledAlpha35 = 0.35;
 const double _shadowBlur18 = 18.0;
 const double _shadowOffsetY10 = 10.0;
 const double _loaderSize24 = 24.0;
@@ -17,8 +16,7 @@ class LoginSubmitButton extends StatelessWidget {
     super.key,
   });
 
-  static const Color _gradientStart = Color(0xFF00D5FF);
-  static const Color _gradientEnd = Color(0xFF28F0A8);
+  static const Color _primary = Color(0xFF2F1193);
 
   final bool isSubmitting;
   final VoidCallback onPressed;
@@ -32,20 +30,15 @@ class LoginSubmitButton extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(_borderRadius16),
-          gradient: LinearGradient(
-            colors: isEnabled
-                ? const [_gradientStart, _gradientEnd]
-                : [
-                    _gradientStart.withValues(alpha: _disabledAlpha35),
-                    _gradientEnd.withValues(alpha: _disabledAlpha35),
-                  ],
-          ),
+          color: isEnabled
+              ? _primary
+              : _primary.withValues(alpha: 0.35),
           boxShadow: isEnabled
-              ? const [
+              ? [
                   BoxShadow(
-                    color: Color(0x3300D5FF),
+                    color: _primary.withValues(alpha: 0.20),
                     blurRadius: _shadowBlur18,
-                    offset: Offset(0, _shadowOffsetY10),
+                    offset: const Offset(0, _shadowOffsetY10),
                   ),
                 ]
               : null,

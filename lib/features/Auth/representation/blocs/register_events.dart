@@ -15,6 +15,8 @@ final class RegisterSubmitted extends RegisterEvent {
   final String lastName;
   final Gender gender;
   final DateTime dateOfBirth;
+  final String? userName;
+  final String? phoneNumber;
 
   const RegisterSubmitted({
     required this.email,
@@ -23,6 +25,8 @@ final class RegisterSubmitted extends RegisterEvent {
     required this.lastName,
     required this.gender,
     required this.dateOfBirth,
+    this.userName,
+    this.phoneNumber,
   });
 
   @override
@@ -33,6 +37,8 @@ final class RegisterSubmitted extends RegisterEvent {
     lastName,
     gender,
     dateOfBirth,
+    userName,
+    phoneNumber,
   ];
 }
 
@@ -43,6 +49,8 @@ final class OAuthRegisterSubmitted extends RegisterEvent {
   final Gender gender;
   final DateTime dateOfBirth;
   final String providerKey;
+  final String? userName;
+  final String? phoneNumber;
 
   const OAuthRegisterSubmitted({
     required this.email,
@@ -51,6 +59,8 @@ final class OAuthRegisterSubmitted extends RegisterEvent {
     required this.gender,
     required this.dateOfBirth,
     required this.providerKey,
+    this.userName,
+    this.phoneNumber,
   });
 
   @override
@@ -61,6 +71,8 @@ final class OAuthRegisterSubmitted extends RegisterEvent {
     gender,
     dateOfBirth,
     providerKey,
+    userName,
+    phoneNumber,
   ];
 }
 

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/features/search/domain/entities/organization.dart';
 import 'package:viora_app/features/search/representation/bloc/search_bloc.dart';
 import 'package:viora_app/features/search/representation/bloc/search_event.dart';
@@ -81,8 +82,6 @@ class _SearchPageState extends State<SearchPage>
           serviceType: widget.initialServiceType,
           minimumRating: widget.initialMinRating ?? 0,
         ));
-      } else {
-        _performSearch();
       }
       _focusNode.requestFocus();
     });
@@ -208,7 +207,7 @@ class _SearchPageState extends State<SearchPage>
                     setState(() {});
                     _debounce?.cancel();
                     if (value.isEmpty) {
-                      _performSearch();
+                      context.read<SearchBloc>().add(const ClearSearch());
                     } else {
                       _debounce =
                           Timer(const Duration(milliseconds: 400), () {
@@ -218,26 +217,15 @@ class _SearchPageState extends State<SearchPage>
                   },
                 ),
               ),
-              if (_searchController.text.isNotEmpty)
-                GestureDetector(
-                  onTap: () {
-                    _searchController.clear();
-                    _performSearch();
-                    setState(() {});
-                  },
-                  child: const Icon(Icons.close,
-                      color: Color(0xFF9E94C5), size: 20),
-                )
-              else
-                GestureDetector(
-                  onTap: () => _showFilterSheet(context),
-                  child: _activeFilterCount > 0
-                      ? Badge(
-                          label: Text('$_activeFilterCount'),
-                          child: const Icon(Icons.tune, color: _accent),
-                        )
-                      : const Icon(Icons.tune, color: _accent),
-                ),
+              GestureDetector(
+                onTap: () => _showFilterSheet(context),
+                child: _activeFilterCount > 0
+                    ? Badge(
+                        label: Text('$_activeFilterCount'),
+                        child: const Icon(Icons.tune, color: _accent),
+                      )
+                    : const Icon(Icons.tune, color: _accent),
+              ),
             ],
           ),
         ),
@@ -783,33 +771,35 @@ class _SearchPageState extends State<SearchPage>
           ),
         );
       },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE8E8EE)),
-          boxShadow: [
-            BoxShadow(
-              color: _primary.withValues(alpha: 0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
+      child: GestureDetector(
+        onTap: () => context.push(
+          '${AppRoutes.organizationDetail}?id=${org.id}&rating=${org.ratingOutOfTen}&ratingsCount=${org.ratingsCount}',
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE8E8EE)),
+            boxShadow: [
+              BoxShadow(
+                color: _primary.withValues(alpha: 0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
               children: [
                 Container(
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF00D5FF), Color(0xFF28F0A8)],
-                    ),
+                    color: const Color(0xFF2F1193),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Center(
@@ -913,6 +903,7 @@ class _SearchPageState extends State<SearchPage>
           ],
         ),
       ),
+    ),
     );
   }
 }

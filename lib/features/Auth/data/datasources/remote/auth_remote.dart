@@ -22,5 +22,15 @@ abstract class AuthRemoteDataSource {
     required String gender,
     required String dateOfBirth,
     required String providerKey,
+    String? userName,
+    String? phoneNumber,
+  });
+
+  Future<void> forgetPassword(String email);
+
+  Future<void> confirmForgetPassword({
+    required String email,
+    required String otp,
+    required String newPassword,
   });
 }

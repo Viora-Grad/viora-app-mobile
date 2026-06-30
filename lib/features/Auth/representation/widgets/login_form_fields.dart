@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:viora_app/features/auth/representation/widgets/register_password_field.dart';
+import 'package:viora_app/features/auth/representation/widgets/touched_form_field.dart';
 
 const double _spacing16 = 16.0;
 
@@ -26,13 +27,13 @@ class LoginFormFields extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TextFormField(
+        TouchedFormField(
           controller: emailController,
+          label: 'Email',
           enabled: !isSubmitting,
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.next,
           style: inputTextStyle,
-          decoration: const InputDecoration(labelText: 'Email'),
           validator: emailValidator,
         ),
         const SizedBox(height: _spacing16),

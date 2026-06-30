@@ -38,6 +38,14 @@ import 'package:viora_app/features/profile/data/datasources/remote/user_remote_i
 import 'package:viora_app/features/profile/data/repositories/user_repository_impl.dart';
 import 'package:viora_app/features/profile/domain/repositories/user_repository.dart';
 import 'package:viora_app/features/profile/domain/usecases/change_password_usecase.dart';
+import 'package:viora_app/features/organization/data/datasources/local/saved_organizations_local.dart';
+import 'package:viora_app/features/organization/data/datasources/local/saved_organizations_local_impl.dart';
+import 'package:viora_app/features/organization/data/datasources/remote/organization_remote.dart';
+import 'package:viora_app/features/organization/data/datasources/remote/organization_remote_impl.dart';
+import 'package:viora_app/features/organization/data/repositories/organization_repository_impl.dart';
+import 'package:viora_app/features/organization/domain/repositories/organization_repository.dart';
+import 'package:viora_app/features/organization/domain/usecases/get_organization_details_usecase.dart';
+import 'package:viora_app/features/organization/representation/bloc/organization_bloc.dart';
 import 'package:viora_app/features/search/data/datasources/remote/search_remote.dart';
 import 'package:viora_app/features/search/data/datasources/remote/search_remote_impl.dart';
 import 'package:viora_app/features/search/data/repositories/search_repository_impl.dart';
@@ -310,6 +318,37 @@ Future<void> dependencyInjection() async {
   if (!sl.isRegistered<SessionsBloc>()) {
     sl.registerFactory<SessionsBloc>(
       () => SessionsBloc(sl(), sl()),
+    );
+  }
+
+  // Organization Details
+  if (!sl.isRegistered<SavedOrganizationsLocal>()) {
+    sl.registerLazySingleton<SavedOrganizationsLocal>(
+      () => SavedOrganizationsLocalImpl(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<OrganizationRemote>()) {
+    sl.registerLazySingleton<OrganizationRemote>(
+      () => OrganizationRemoteImpl(sl(), sl()),
+    );
+  }
+
+  if (!sl.isRegistered<OrganizationRepository>()) {
+    sl.registerLazySingleton<OrganizationRepository>(
+      () => OrganizationRepositoryImpl(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetOrganizationDetailsUseCase>()) {
+    sl.registerLazySingleton<GetOrganizationDetailsUseCase>(
+      () => GetOrganizationDetailsUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<OrganizationBloc>()) {
+    sl.registerFactory<OrganizationBloc>(
+      () => OrganizationBloc(getOrganizationDetailsUseCase: sl()),
     );
   }
 }

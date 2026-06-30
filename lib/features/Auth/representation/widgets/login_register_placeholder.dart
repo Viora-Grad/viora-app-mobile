@@ -7,15 +7,13 @@ class LoginRegisterPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
+        const Text(
           "Don't have an account? ",
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onPrimary.withValues(alpha: 0.88),
+          style: TextStyle(
+            color: Color(0xFF6B7280),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -26,11 +24,11 @@ class LoginRegisterPlaceholder extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 2),
             child: Text(
               'Register',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onPrimary,
+              style: const TextStyle(
+                color: Color(0xFF2F1193),
                 fontWeight: FontWeight.w700,
                 decoration: TextDecoration.underline,
-                decorationColor: theme.colorScheme.onPrimary,
+                decorationColor: Color(0xFF2F1193),
               ),
             ),
           ),

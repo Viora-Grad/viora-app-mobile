@@ -15,6 +15,10 @@ class EndPoints {
   static const String profileUrl = '$baseUrl/api/auth/me';
   static const String changePasswordUrl = '$baseUrl/api/auth/change-password';
 
+  // Password Reset
+  static const String forgetPasswordUrl = '$baseUrl/api/auth/forget-password';
+  static const String confirmForgetPasswordUrl = '$baseUrl/api/auth/confirm-forget-password';
+
   // Search / Organizations
   static const String organizationsUrl = '$baseUrl/api/Organizations';
   static const String branchesUrl = '$baseUrl/api/Branches';

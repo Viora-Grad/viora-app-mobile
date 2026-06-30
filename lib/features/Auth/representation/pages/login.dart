@@ -181,6 +181,21 @@ class _LoginPageState extends State<LoginPage> {
                         emailValidator: LoginValidators.validateEmail,
                         passwordValidator: LoginValidators.validatePassword,
                       ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () => context.push(AppRoutes.forgotPassword),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            foregroundColor: const Color(0xFF2F1193),
+                            textStyle: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                          ),
+                          child: const Text('Forgot Password?'),
+                        ),
+                      ),
                       const SizedBox(height: _spacing24),
                       LoginSubmitButton(
                         isSubmitting: isSubmitting,

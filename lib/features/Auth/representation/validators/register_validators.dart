@@ -85,6 +85,22 @@ class RegisterValidators {
     return null;
   }
 
+  static String? validateUserName(String? value) {
+    final trimmed = value?.trim() ?? '';
+    if (trimmed.isEmpty) return null;
+    if (trimmed.length < 3) return 'Min 3 characters';
+    if (trimmed.length > 50) return 'Max 50 characters';
+    if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(trimmed)) return 'Letters, numbers, underscore only';
+    return null;
+  }
+
+  static String? validatePhoneNumber(String? value) {
+    final trimmed = value?.trim() ?? '';
+    if (trimmed.isEmpty) return null;
+    if (!RegExp(r'^\+?[0-9\s\-\(\)]{7,15}$').hasMatch(trimmed)) return 'Enter a valid phone number';
+    return null;
+  }
+
   static List<String> collectInvalidFields({
     required String firstName,
     required String lastName,
