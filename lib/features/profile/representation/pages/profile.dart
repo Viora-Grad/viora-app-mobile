@@ -11,8 +11,6 @@ const _fieldNames = ['Username', 'Phone Number'];
 const _fieldIcons = [Icons.person, Icons.phone];
 
 const Color _primary = Color(0xFF2F1193);
-const Color _gradientStart = Color(0xFF00D5FF);
-const Color _gradientEnd = Color(0xFF28F0A8);
 
 enum _ProfileStatus { initial, loading, success, failure }
 
@@ -251,25 +249,54 @@ class _ProfileView extends StatelessWidget {
                 ],
               ),
             ),
-          _ActionTile(
-            icon: Icons.folder_outlined,
-            label: 'Medical Record',
-            onTap: () {},
-          ),
-          const Divider(height: 1, indent: 56),
-          _ActionTile(
-            icon: Icons.location_on_outlined,
-            label: 'Visited Organizations History',
-            onTap: () {},
-          ),
-          const Divider(height: 1, indent: 56),
-          _ActionTile(
-            icon: Icons.lock_outlined,
-            label: 'Change Password',
-            onTap: () => context.push('/change-password'),
-          ),
+          const SizedBox(height: 8),
+          _buildGrid([
+            _GridItemData(
+              icon: Icons.folder_outlined,
+              label: 'Medical Record',
+              onTap: () {},
+            ),
+            _GridItemData(
+              icon: Icons.location_on_outlined,
+              label: 'Visited',
+              onTap: () {},
+            ),
+            _GridItemData(
+              icon: Icons.bookmark_outline_rounded,
+              label: 'Saved',
+              onTap: () => context.push('/saved-organizations'),
+            ),
+            _GridItemData(
+              icon: Icons.lock_outlined,
+              label: 'Change Password',
+              onTap: () => context.push('/change-password'),
+            ),
+          ]),
         ],
       ),
+    );
+  }
+
+  Widget _buildGrid(List<_GridItemData> items) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final gap = 12.0;
+        final childWidth = (constraints.maxWidth - gap) / 2;
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: items.map((item) {
+            return SizedBox(
+              width: childWidth,
+              child: _GridCard(
+                icon: item.icon,
+                label: item.label,
+                onTap: item.onTap,
+              ),
+            );
+          }).toList(),
+        );
+      },
     );
   }
 
@@ -411,9 +438,7 @@ class _ProfileHeader extends StatelessWidget {
           height: 88,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [_gradientStart, _gradientEnd],
-            ),
+            color: _primary,
           ),
           child: Center(
             child: Text(
@@ -508,18 +533,17 @@ class _StatCard extends StatelessWidget {
             value.toString(),
             style: TextStyle(
               color: color,
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
+              fontSize: 26,
+              fontWeight: FontWeight.w900,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: TextStyle(
-              color: Colors.grey.shade500,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.3,
+            style: const TextStyle(
+              color: Colors.black87,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -580,8 +604,20 @@ class _StatTile extends StatelessWidget {
   }
 }
 
-class _ActionTile extends StatelessWidget {
-  const _ActionTile({
+class _GridItemData {
+  const _GridItemData({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+}
+
+class _GridCard extends StatelessWidget {
+  const _GridCard({
     required this.icon,
     required this.label,
     required this.onTap,
@@ -593,30 +629,45 @@ class _ActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      leading: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          color: _primary.withValues(alpha: 0.06),
-          shape: BoxShape.circle,
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      elevation: 0,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFEEEAF7)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: _primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: _primary, size: 26),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
         ),
-        child: Icon(icon, color: _primary, size: 22),
       ),
-      title: Text(
-        label,
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 15,
-          color: Colors.black87,
-        ),
-      ),
-      trailing: Icon(
-        Icons.chevron_right,
-        color: Colors.grey.shade400,
-      ),
-      onTap: onTap,
     );
   }
 }

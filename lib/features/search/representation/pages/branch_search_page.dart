@@ -906,9 +906,7 @@ class _BranchSearchPageState extends State<BranchSearchPage>
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF00D5FF), Color(0xFF28F0A8)],
-                    ),
+                    color: const Color(0xFF2F1193),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Center(

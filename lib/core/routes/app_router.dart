@@ -6,6 +6,9 @@ import 'package:viora_app/features/auth/representation/pages/login.dart';
 import 'package:viora_app/features/auth/representation/pages/register.dart';
 import 'package:viora_app/features/home/representation/pages/all_specialties_page.dart';
 import 'package:viora_app/features/home/representation/pages/home_page.dart';
+import 'package:viora_app/features/organization/representation/bloc/organization_bloc.dart';
+import 'package:viora_app/features/organization/representation/pages/organization_detail_page.dart';
+import 'package:viora_app/features/organization/representation/pages/saved_organizations_page.dart';
 import 'package:viora_app/features/profile/representation/pages/change_password_page.dart';
 import 'package:viora_app/features/profile/representation/pages/profile.dart';
 import 'package:viora_app/features/search/representation/bloc/search_bloc.dart';
@@ -29,6 +32,8 @@ class AppRoutes {
   static const changePassword = '/change-password';
   static const forgotPassword = '/forgot-password';
   static const aiChat = '/ai-chat';
+  static const organizationDetail = '/organization';
+  static const savedOrganizations = '/saved-organizations';
 }
 
 final appRouter = GoRouter(
@@ -98,6 +103,27 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.aiChat,
       builder: (context, state) => const AiChatPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.organizationDetail,
+      builder: (context, state) {
+        final params = state.uri.queryParameters;
+        final orgId = params['id'] ?? state.extra as String? ?? '';
+        final rating = params['rating'] != null ? double.tryParse(params['rating']!) : null;
+        final ratingsCount = params['ratingsCount'] != null ? int.tryParse(params['ratingsCount']!) : null;
+        return BlocProvider(
+          create: (_) => sl<OrganizationBloc>(),
+          child: OrganizationDetailPage(
+            organizationId: orgId,
+            initialRating: rating,
+            initialRatingsCount: ratingsCount,
+          ),
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.savedOrganizations,
+      builder: (context, state) => const SavedOrganizationsPage(),
     ),
   ],
 );
