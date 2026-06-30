@@ -82,6 +82,8 @@ class RegisterUsecase {
     required Gender gender,
     required DateTime dateOfBirth,
     required String providerKey,
+    String? userName,
+    String? phoneNumber,
   }) async {
     if (firstName.isEmpty) {
       return const Left(ValidationFailure('First name cannot be empty'));
@@ -132,6 +134,8 @@ class RegisterUsecase {
       gender: genderStr,
       dateOfBirth: dateStr,
       providerKey: providerKey,
+      userName: userName,
+      phoneNumber: phoneNumber,
     );
   }
 }

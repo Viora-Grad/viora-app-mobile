@@ -14,6 +14,8 @@ class RegisterParameters {
   final String password;
   final Gender gender;
   final DateTime dateOfBirth;
+  final String? userName;
+  final String? phoneNumber;
   RegisterParameters({
     required this.firstName,
     required this.lastName,
@@ -21,5 +23,7 @@ class RegisterParameters {
     required this.password,
     required this.gender,
     required this.dateOfBirth,
+    this.userName,
+    this.phoneNumber,
   });
 }

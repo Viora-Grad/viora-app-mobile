@@ -11,6 +11,8 @@ class AuthLocalImpl implements AuthLocalDataSource {
   static const _refreshTokenKey = 'refresh_token';
   static const _userKey = 'user_data';
   static const _googleIdTokenKey = 'google_id_token';
+  static const _userNameKey = 'user_name';
+  static const _phoneNumberKey = 'phone_number';
 
   AuthLocalImpl({required this.secureStorage});
 
@@ -60,12 +62,44 @@ class AuthLocalImpl implements AuthLocalDataSource {
   }
 
   @override
+  Future<void> saveUserName(String userName) async {
+    await secureStorage.write(key: _userNameKey, value: userName);
+  }
+
+  @override
+  Future<String?> getUserName() {
+    return secureStorage.read(key: _userNameKey);
+  }
+
+  @override
+  Future<void> clearUserName() {
+    return secureStorage.delete(key: _userNameKey);
+  }
+
+  @override
+  Future<void> savePhoneNumber(String phoneNumber) async {
+    await secureStorage.write(key: _phoneNumberKey, value: phoneNumber);
+  }
+
+  @override
+  Future<String?> getPhoneNumber() {
+    return secureStorage.read(key: _phoneNumberKey);
+  }
+
+  @override
+  Future<void> clearPhoneNumber() {
+    return secureStorage.delete(key: _phoneNumberKey);
+  }
+
+  @override
   Future<void> logout() async {
     await Future.wait([
       clearUserToken(),
       clearRefreshToken(),
       clearUser(),
       clearGoogleIdToken(),
+      clearUserName(),
+      clearPhoneNumber(),
     ]);
   }
 

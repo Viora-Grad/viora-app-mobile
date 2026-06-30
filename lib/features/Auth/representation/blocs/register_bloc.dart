@@ -38,6 +38,8 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
           password: event.password,
           gender: event.gender,
           dateOfBirth: event.dateOfBirth,
+          userName: event.userName,
+          phoneNumber: event.phoneNumber,
         ),
         cancelToken: _cancelToken,
       );
@@ -84,6 +86,8 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
         gender: event.gender,
         dateOfBirth: event.dateOfBirth,
         providerKey: event.providerKey,
+        userName: event.userName,
+        phoneNumber: event.phoneNumber,
       );
 
       result.fold(

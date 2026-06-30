@@ -7,6 +7,9 @@ import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/profile/domain/entities/user.dart';
 import 'package:viora_app/features/profile/domain/repositories/user_repository.dart';
 
+const _fieldNames = ['Username', 'Phone Number'];
+const _fieldIcons = [Icons.person, Icons.phone];
+
 const Color _primary = Color(0xFF2F1193);
 const Color _gradientStart = Color(0xFF00D5FF);
 const Color _gradientEnd = Color(0xFF28F0A8);
@@ -17,30 +20,55 @@ class _ProfileState {
   final _ProfileStatus status;
   final User? user;
   final String? error;
+  final String? userName;
+  final String? phoneNumber;
 
-  _ProfileState._({required this.status, this.user, this.error});
+  _ProfileState._({
+    required this.status,
+    this.user,
+    this.error,
+    this.userName,
+    this.phoneNumber,
+  });
 
   factory _ProfileState.initial() =>
       _ProfileState._(status: _ProfileStatus.initial);
   factory _ProfileState.loading() =>
       _ProfileState._(status: _ProfileStatus.loading);
-  factory _ProfileState.success(User user) =>
-      _ProfileState._(status: _ProfileStatus.success, user: user);
+  factory _ProfileState.success({
+    required User user,
+    String? userName,
+    String? phoneNumber,
+  }) =>
+      _ProfileState._(
+        status: _ProfileStatus.success,
+        user: user,
+        userName: userName,
+        phoneNumber: phoneNumber,
+      );
   factory _ProfileState.failure(String error) =>
       _ProfileState._(status: _ProfileStatus.failure, error: error);
 }
 
 class ProfileCubit extends Cubit<_ProfileState> {
   final UserRepository userRepository;
+  final AuthLocalDataSource authLocal;
 
-  ProfileCubit(this.userRepository) : super(_ProfileState.initial());
+  ProfileCubit(this.userRepository, this.authLocal)
+      : super(_ProfileState.initial());
 
   Future<void> loadProfile() async {
     emit(_ProfileState.loading());
     final result = await userRepository.getUserProfile();
+    final userName = await authLocal.getUserName();
+    final phoneNumber = await authLocal.getPhoneNumber();
     result.fold(
       (failure) => emit(_ProfileState.failure(failure.message)),
-      (user) => emit(_ProfileState.success(user)),
+      (user) => emit(_ProfileState.success(
+        user: user,
+        userName: userName,
+        phoneNumber: phoneNumber,
+      )),
     );
   }
 }
@@ -51,8 +79,9 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userRepository = sl<UserRepository>();
+    final authLocal = sl<AuthLocalDataSource>();
     return BlocProvider<ProfileCubit>(
-      create: (_) => ProfileCubit(userRepository)..loadProfile(),
+      create: (_) => ProfileCubit(userRepository, authLocal)..loadProfile(),
       child: const _ProfileView(),
     );
   }
@@ -159,6 +188,9 @@ class _ProfileView extends StatelessWidget {
                   const SizedBox(height: 20),
                   _buildInfoCard(context, user, genderLabel),
                   const SizedBox(height: 16),
+                  if (state.userName != null || state.phoneNumber != null)
+                    _buildExtraInfoCard(context, state.userName, state.phoneNumber),
+                  const SizedBox(height: 16),
                   _ActionButton(
                     label: 'Logout',
                     icon: Icons.logout,
@@ -236,6 +268,41 @@ class _ProfileView extends StatelessWidget {
             label: 'Change Password',
             onTap: () => context.push('/change-password'),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildExtraInfoCard(
+      BuildContext context, String? userName, String? phoneNumber) {
+    final values = [userName, phoneNumber];
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE8E8EE)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (int i = 0; i < _fieldNames.length; i++)
+            if (values[i] != null && values[i]!.isNotEmpty) ...[
+              if (i > 0) const Divider(height: 1, indent: 56),
+              _InfoTile(
+                icon: _fieldIcons[i],
+                label: _fieldNames[i],
+                value: values[i]!,
+              ),
+            ],
         ],
       ),
     );
@@ -550,6 +617,62 @@ class _ActionTile extends StatelessWidget {
         color: Colors.grey.shade400,
       ),
       onTap: onTap,
+    );
+  }
+}
+
+class _InfoTile extends StatelessWidget {
+  const _InfoTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: _primary.withValues(alpha: 0.06),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: _primary, size: 22),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

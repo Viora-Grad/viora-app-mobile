@@ -27,5 +27,7 @@ abstract class AuthRepository {
     required String gender,
     required String dateOfBirth,
     required String providerKey,
+    String? userName,
+    String? phoneNumber,
   });
 }

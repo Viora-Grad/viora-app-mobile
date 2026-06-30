@@ -8,8 +8,7 @@ class PrimaryStepButton extends StatelessWidget {
     required this.onPressed,
   });
 
-  static const Color _primaryGradientStart = Color(0xFF00D5FF);
-  static const Color _primaryGradientEnd = Color(0xFF28F0A8);
+  static const Color _primary = Color(0xFF2F1193);
 
   final String label;
   final IconData icon;
@@ -22,20 +21,15 @@ class PrimaryStepButton extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        gradient: LinearGradient(
-          colors: isEnabled
-              ? const [_primaryGradientStart, _primaryGradientEnd]
-              : [
-                  _primaryGradientStart.withValues(alpha: 0.35),
-                  _primaryGradientEnd.withValues(alpha: 0.35),
-                ],
-        ),
+        color: isEnabled
+            ? _primary
+            : _primary.withValues(alpha: 0.35),
         boxShadow: isEnabled
-            ? const [
+            ? [
                 BoxShadow(
-                  color: Color(0x3300D5FF),
+                  color: _primary.withValues(alpha: 0.20),
                   blurRadius: 18,
-                  offset: Offset(0, 10),
+                  offset: const Offset(0, 10),
                 ),
               ]
             : null,

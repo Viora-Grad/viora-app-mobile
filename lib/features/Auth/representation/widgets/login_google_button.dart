@@ -44,15 +44,15 @@ class LoginGoogleButton extends StatelessWidget {
         ),
         style: OutlinedButton.styleFrom(
           side: BorderSide(
-            color: Theme.of(context).colorScheme.primary.withValues(
-                  alpha: isEnabled ? 1 : _disabledAlpha40,
-                ),
+            color: const Color(0xFFE8E8EE).withValues(
+              alpha: isEnabled ? 1 : _disabledAlpha40,
+            ),
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(_borderRadius16),
           ),
-          foregroundColor: Theme.of(context).colorScheme.onSurface,
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          foregroundColor: Colors.black87,
+          backgroundColor: Colors.transparent,
         ),
       ),
     );

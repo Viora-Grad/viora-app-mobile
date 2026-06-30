@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:viora_app/core/di/service_locator.dart';
+import 'package:viora_app/features/auth/representation/pages/forgot_password_page.dart';
 import 'package:viora_app/features/auth/representation/pages/login.dart';
 import 'package:viora_app/features/auth/representation/pages/register.dart';
 import 'package:viora_app/features/home/representation/pages/all_specialties_page.dart';
@@ -26,6 +27,7 @@ class AppRoutes {
   static const branchSearch = '/branch-search';
   static const specialties = '/specialties';
   static const changePassword = '/change-password';
+  static const forgotPassword = '/forgot-password';
   static const aiChat = '/ai-chat';
 }
 
@@ -58,6 +60,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.changePassword,
       builder: (context, state) => const ChangePasswordPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.forgotPassword,
+      builder: (context, state) => const ForgotPasswordPage(),
     ),
     GoRoute(
       path: AppRoutes.search,

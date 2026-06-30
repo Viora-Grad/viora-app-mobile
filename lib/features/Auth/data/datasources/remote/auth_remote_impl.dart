@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:viora_app/core/api/api_consumer.dart';
 import 'package:viora_app/core/api/end_points.dart';
@@ -29,6 +31,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String gender,
     required String dateOfBirth,
     required String providerKey,
+    String? userName,
+    String? phoneNumber,
   }) async {
     await _apiConsumer.postRaw(
       EndPoints.googleOAuthRegisterUrl,
@@ -39,6 +43,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'gender': gender,
         'email': email,
         'providerKey': providerKey,
+        if (userName != null) 'userName': userName,
+        if (phoneNumber != null) 'phoneNumber': phoneNumber,
       },
     );
 
@@ -64,6 +70,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       await _authLocalDataSource.saveRefreshToken(refreshToken);
     }
     await _authLocalDataSource.clearGoogleIdToken();
+
+    if (userName != null) {
+      await _authLocalDataSource.saveUserName(userName);
+    }
+    if (phoneNumber != null) {
+      await _authLocalDataSource.savePhoneNumber(phoneNumber);
+    }
 
     final userResponse = await _apiConsumer.get(
       EndPoints.meUrl,
@@ -136,13 +149,48 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         'gender': params.gender.name[0].toUpperCase() + params.gender.name.substring(1),
         'email': params.email,
         'password': params.password,
+        if (params.userName != null) 'userName': params.userName,
+        if (params.phoneNumber != null) 'phoneNumber': params.phoneNumber,
       },
       cancelToken: cancelToken,
     );
 
     // 2. Auto-login to get JWT and redirect as logged in
-    return await login(
+    final user = await login(
       LoginParameters(email: params.email, password: params.password),
+    );
+
+    if (params.userName != null) {
+      await _authLocalDataSource.saveUserName(params.userName!);
+    }
+    if (params.phoneNumber != null) {
+      await _authLocalDataSource.savePhoneNumber(params.phoneNumber!);
+    }
+
+    return user;
+  }
+
+  @override
+  Future<void> forgetPassword(String email) async {
+    await _apiConsumer.postRaw(
+      EndPoints.forgetPasswordUrl,
+      data: jsonEncode(email),
+    );
+  }
+
+  @override
+  Future<void> confirmForgetPassword({
+    required String email,
+    required String otp,
+    required String newPassword,
+  }) async {
+    await _apiConsumer.post(
+      EndPoints.confirmForgetPasswordUrl,
+      data: {
+        'email': email,
+        'otp': otp,
+        'newPassword': newPassword,
+      },
     );
   }
 }

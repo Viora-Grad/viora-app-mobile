@@ -18,4 +18,12 @@ abstract class AuthLocalDataSource {
   Future<void> saveGoogleIdToken(String token);
   Future<String?> getGoogleIdToken();
   Future<void> clearGoogleIdToken();
+
+  Future<void> saveUserName(String userName);
+  Future<String?> getUserName();
+  Future<void> clearUserName();
+
+  Future<void> savePhoneNumber(String phoneNumber);
+  Future<String?> getPhoneNumber();
+  Future<void> clearPhoneNumber();
 }

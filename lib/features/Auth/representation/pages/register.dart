@@ -34,6 +34,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _userNameController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
 
   Gender _selectedGender = Gender.male;
   DateTime? _selectedDateOfBirth;
@@ -77,6 +79,8 @@ class _RegisterPageState extends State<RegisterPage> {
     _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _userNameController.dispose();
+    _phoneNumberController.dispose();
     _registerBloc.close();
     super.dispose();
   }
@@ -114,6 +118,9 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
+    final userName = _userNameController.text.trim();
+    final phoneNumber = _phoneNumberController.text.trim();
+
     if (_isOAuthRegistration) {
       context.read<RegisterBloc>().add(
         OAuthRegisterSubmitted(
@@ -123,6 +130,8 @@ class _RegisterPageState extends State<RegisterPage> {
           gender: _selectedGender,
           dateOfBirth: _selectedDateOfBirth!,
           providerKey: _oauthProviderKey!,
+          userName: userName.isNotEmpty ? userName : null,
+          phoneNumber: phoneNumber.isNotEmpty ? phoneNumber : null,
         ),
       );
     } else {
@@ -134,6 +143,8 @@ class _RegisterPageState extends State<RegisterPage> {
           password: _passwordController.text.trim(),
           gender: _selectedGender,
           dateOfBirth: _selectedDateOfBirth!,
+          userName: userName.isNotEmpty ? userName : null,
+          phoneNumber: phoneNumber.isNotEmpty ? phoneNumber : null,
         ),
       );
     }
@@ -184,6 +195,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       lastNameController: _lastNameController,
                       emailController: _emailController,
                       passwordController: _passwordController,
+                      userNameController: _userNameController,
+                      phoneNumberController: _phoneNumberController,
                       selectedGender: _selectedGender,
                       selectedDateOfBirth: _selectedDateOfBirth,
                       isSubmitting: isSubmitting,
@@ -199,6 +212,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       passwordValidator: _isOAuthRegistration
                           ? null
                           : RegisterValidators.validatePassword,
+                      userNameValidator: RegisterValidators.validateUserName,
+                      phoneNumberValidator: RegisterValidators.validatePhoneNumber,
                       onGenderChanged: (value) {
                         setState(() {
                           _selectedGender = value;

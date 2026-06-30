@@ -67,6 +67,8 @@ class AuthRepositoryImpl implements AuthRepository {
     required String gender,
     required String dateOfBirth,
     required String providerKey,
+    String? userName,
+    String? phoneNumber,
   }) async {
     try {
       final userModel = await remoteDataSource.oauthRegister(
@@ -76,6 +78,8 @@ class AuthRepositoryImpl implements AuthRepository {
         gender: gender,
         dateOfBirth: dateOfBirth,
         providerKey: providerKey,
+        userName: userName,
+        phoneNumber: phoneNumber,
       );
       await localDataSource.saveUser(userModel);
       return Right(userModel.toEntity());
