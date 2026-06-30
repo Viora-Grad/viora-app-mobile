@@ -170,90 +170,6 @@ class _BranchSearchPageState extends State<BranchSearchPage>
     }
   }
 
-  void _showRadiusPicker() {
-    const radii = [100, 200, 500, 1000, 2000, 5000];
-    showModalBottomSheet<void>(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Search Radius',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 16),
-              ...List.generate(radii.length, (i) {
-                final r = radii[i];
-                final isSelected = _radiusMeters == r;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pop(ctx);
-                      setState(() => _radiusMeters = r.toDouble());
-                      _search();
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? _primary.withValues(alpha: 0.08)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isSelected
-                              ? _primary.withValues(alpha: 0.3)
-                              : Colors.grey.shade200,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            isSelected
-                                ? Icons.radio_button_checked
-                                : Icons.radio_button_off,
-                            size: 20,
-                            color:
-                                isSelected ? _primary : Colors.grey.shade400,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            r >= 1000
-                                ? '${(r / 1000).toStringAsFixed(0)} km'
-                                : '$r m',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: isSelected
-                                  ? _primary
-                                  : Colors.grey.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   void _onFiltersChanged() {
     _search();
   }
@@ -269,7 +185,6 @@ class _BranchSearchPageState extends State<BranchSearchPage>
             children: [
               _buildHeader(),
               _buildFilterToggle(),
-              _buildSortBar(),
               if (_showFilters) _buildFiltersPanel(),
               Expanded(child: _buildBody()),
             ],
@@ -322,110 +237,68 @@ class _BranchSearchPageState extends State<BranchSearchPage>
               ],
             ),
           ),
-          if (_latitude != null) ...[
-            GestureDetector(
-              onTap: _showRadiusPicker,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: _bg,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.location_on,
-                        size: 16, color: _primary.withValues(alpha: 0.7)),
-                    const SizedBox(width: 4),
-                    Text(
-                      _radiusMeters >= 1000
-                          ? '${(_radiusMeters / 1000).toStringAsFixed(1)}km'
-                          : '${_radiusMeters.toInt()}m',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: _primary.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    const SizedBox(width: 2),
-                    Icon(Icons.expand_more,
-                        size: 14, color: _primary.withValues(alpha: 0.5)),
-                  ],
-                ),
-              ),
-            ),
-          ],
+
         ],
       ),
     );
   }
 
   Widget _buildFilterToggle() {
-    final hasSearchState = context.read<SearchBloc>().state is SearchBranchesLoaded;
-    if (!hasSearchState && !_showFilters) return const SizedBox.shrink();
+    final hasFiltersActive = _minRating > 0 || _isOpenNow || _orderBy != null || _radiusMeters != 500;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
-          if (_showFilters)
-            GestureDetector(
-              onTap: () => setState(() => _showFilters = false),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: _primary,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.filter_list_off, size: 16, color: Colors.white),
-                    SizedBox(width: 4),
-                    Text(
-                      'Hide Filters',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
+          GestureDetector(
+            onTap: () => setState(() => _showFilters = !_showFilters),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+              decoration: BoxDecoration(
+                color: _showFilters ? _primary : _bg,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: _showFilters ? _primary : _primary.withValues(alpha: 0.2),
                 ),
               ),
-            )
-          else
-            GestureDetector(
-              onTap: () => setState(() => _showFilters = true),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: _bg,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: _primary.withValues(alpha: 0.2)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.tune, size: 16, color: _primary.withValues(alpha: 0.7)),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Filters',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: _primary.withValues(alpha: 0.7),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    _showFilters ? Icons.filter_list_off : Icons.tune,
+                    size: 16,
+                    color: _showFilters ? Colors.white : _primary.withValues(alpha: 0.7),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    _showFilters ? 'Hide Filters' : 'Filters',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: _showFilters ? Colors.white : _primary.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  if (hasFiltersActive && !_showFilters) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFF6B6B),
+                        shape: BoxShape.circle,
                       ),
                     ),
                   ],
-                ),
+                ],
               ),
             ),
+          ),
           const SizedBox(width: 8),
           GestureDetector(
             onTap: _getLocationAndSearch,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
               decoration: BoxDecoration(
                 color: _bg,
                 borderRadius: BorderRadius.circular(20),
@@ -435,11 +308,11 @@ class _BranchSearchPageState extends State<BranchSearchPage>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.my_location, size: 16, color: _primary.withValues(alpha: 0.7)),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 6),
                   Text(
                     'Refresh',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: _primary.withValues(alpha: 0.7),
                     ),
@@ -448,34 +321,6 @@ class _BranchSearchPageState extends State<BranchSearchPage>
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSortBar() {
-    final hasSearchState = context.read<SearchBloc>().state is SearchBranchesLoaded;
-    if (!hasSearchState && !_showFilters) return const SizedBox.shrink();
-
-    final isDistance = _orderBy == null || _orderBy == 'distance';
-    final isRating = _orderBy == 'rating';
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-      child: Row(
-        children: [
-          Text(
-            'Sort: ',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey.shade500,
-            ),
-          ),
-          const SizedBox(width: 6),
-          _buildSortChip('Distance', isDistance),
-          const SizedBox(width: 6),
-          _buildSortChip('Rating', isRating),
         ],
       ),
     );
@@ -514,12 +359,19 @@ class _BranchSearchPageState extends State<BranchSearchPage>
                   });
                   _onFiltersChanged();
                 },
-                child: const Text(
-                  'Reset',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: _primary,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: _primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'Reset',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: _primary,
+                    ),
                   ),
                 ),
               ),
@@ -527,11 +379,11 @@ class _BranchSearchPageState extends State<BranchSearchPage>
           ),
           const SizedBox(height: 16),
           _buildRadiusSlider(),
-          const SizedBox(height: 12),
+          const Divider(height: 24),
           _buildRatingSlider(),
-          const SizedBox(height: 12),
+          const Divider(height: 24),
           _buildOpenNowToggle(),
-          const SizedBox(height: 12),
+          const Divider(height: 24),
           _buildSortOptions(),
         ],
       ),
@@ -702,6 +554,9 @@ class _BranchSearchPageState extends State<BranchSearchPage>
   }
 
   Widget _buildSortOptions() {
+    final isDistance = _orderBy == null || _orderBy == 'distance';
+    final isRating = _orderBy == 'rating';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -714,11 +569,11 @@ class _BranchSearchPageState extends State<BranchSearchPage>
           ),
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
+        Row(
           children: [
-            _buildSortChip('Distance', _orderBy == null || _orderBy == 'distance'),
-            _buildSortChip('Rating', _orderBy == 'rating'),
+            _buildSortChip('Distance', isDistance),
+            const SizedBox(width: 8),
+            _buildSortChip('Rating', isRating),
           ],
         ),
       ],
@@ -733,8 +588,9 @@ class _BranchSearchPageState extends State<BranchSearchPage>
         });
         _onFiltersChanged();
       },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
         decoration: BoxDecoration(
           color: isSelected ? _primary : Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -877,60 +733,59 @@ class _BranchSearchPageState extends State<BranchSearchPage>
 
         if (state is SearchBranchesLoaded) {
           if (state.branches.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: _bg,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.search_off,
-                          size: 48, color: Color(0xFFD0D0D0)),
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.08),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: _bg,
+                      shape: BoxShape.circle,
                     ),
-                    const SizedBox(height: 20),
-                    Text(
-                      'No nearby branches',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black38,
+                    child: const Icon(Icons.search_off,
+                        size: 48, color: Color(0xFFD0D0D0)),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'No nearby branches',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black38,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'There are no near branches for ${widget.specialty} around you within ${_radiusMeters >= 1000 ? '${(_radiusMeters / 1000).toStringAsFixed(1)} km' : '${_radiusMeters.toInt()} m'}.\nTry increasing the radius or adjusting filters.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade400,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _radiusMeters = 5000;
+                        _showFilters = true;
+                      });
+                      _onFiltersChanged();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _bg,
+                      foregroundColor: _primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'There are no near branches for ${widget.specialty} around you within ${_radiusMeters >= 1000 ? '${(_radiusMeters / 1000).toStringAsFixed(1)} km' : '${_radiusMeters.toInt()} m'}.\nTry increasing the radius or adjusting filters.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade400,
-                        height: 1.4,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          _radiusMeters = 5000;
-                          _showFilters = true;
-                        });
-                        _onFiltersChanged();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _bg,
-                        foregroundColor: _primary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text('Expand to 5 km'),
-                    ),
-                  ],
-                ),
+                    child: const Text('Expand to 5 km'),
+                  ),
+                ],
               ),
             );
           }

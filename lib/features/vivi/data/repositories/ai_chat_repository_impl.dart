@@ -27,6 +27,7 @@ class AiChatRepositoryImpl extends AiChatRepository {
         role: 'assistant',
         content: response.response,
         index: 0,
+        actions: response.actions,
       );
       return Right(SendMessageResult(
         aiMessage: aiMessage,
