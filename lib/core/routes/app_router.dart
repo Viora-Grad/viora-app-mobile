@@ -63,9 +63,15 @@ final appRouter = GoRouter(
       path: AppRoutes.search,
       builder: (context, state) {
         final query = state.uri.queryParameters['q'];
+        final extra = state.extra as Map<String, dynamic>?;
         return BlocProvider(
           create: (_) => sl<SearchBloc>()..add(const LoadFilterOptions()),
-          child: SearchPage(initialQuery: query),
+          child: SearchPage(
+            initialQuery: query ?? extra?['query'] as String?,
+            initialCountry: extra?['country'] as String?,
+            initialServiceType: extra?['serviceType'] as String?,
+            initialMinRating: extra?['minRating'] as double?,
+          ),
         );
       },
     ),
