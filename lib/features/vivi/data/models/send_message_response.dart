@@ -15,10 +15,18 @@ class SendMessageResponse {
 
   factory SendMessageResponse.fromJson(Map<String, dynamic> json) {
     final actions = (json['actions'] as List<dynamic>?)
-            ?.map((a) => AiAction(
-                  label: a['label'] as String,
-                  specialty: a['specialty'] as String,
-                ))
+            ?.map((a) {
+              final actionType = a['actionType'] as String? ?? 'specialty';
+              return AiAction(
+                label: a['label'] as String,
+                actionType: actionType,
+                specialty: a['specialty'] as String? ?? '',
+                orgName: a['orgName'] as String?,
+                country: a['country'] as String?,
+                serviceType: a['serviceType'] as String?,
+                minRating: (a['minRating'] as num?)?.toDouble(),
+              );
+            })
             .toList() ??
         [];
 

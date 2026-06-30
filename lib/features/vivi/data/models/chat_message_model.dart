@@ -11,10 +11,18 @@ class ChatMessageModel extends ChatMessage {
 
   factory ChatMessageModel.fromJson(Map<String, dynamic> json) {
     final actions = (json['actions'] as List<dynamic>?)
-            ?.map((a) => AiAction(
-                  label: a['label'] as String,
-                  specialty: a['specialty'] as String,
-                ))
+            ?.map((a) {
+              final actionType = a['actionType'] as String? ?? 'specialty';
+              return AiAction(
+                label: a['label'] as String,
+                actionType: actionType,
+                specialty: a['specialty'] as String? ?? '',
+                orgName: a['orgName'] as String?,
+                country: a['country'] as String?,
+                serviceType: a['serviceType'] as String?,
+                minRating: (a['minRating'] as num?)?.toDouble(),
+              );
+            })
             .toList() ??
         [];
 
@@ -32,7 +40,15 @@ class ChatMessageModel extends ChatMessage {
         'index': index,
         if (actions.isNotEmpty)
           'actions': actions
-              .map((a) => {'label': a.label, 'specialty': a.specialty})
+              .map((a) => {
+                    'label': a.label,
+                    'actionType': a.actionType,
+                    'specialty': a.specialty,
+                    if (a.orgName != null) 'orgName': a.orgName,
+                    if (a.country != null) 'country': a.country,
+                    if (a.serviceType != null) 'serviceType': a.serviceType,
+                    if (a.minRating != null) 'minRating': a.minRating,
+                  })
               .toList(),
       };
 

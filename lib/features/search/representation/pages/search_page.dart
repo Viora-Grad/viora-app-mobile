@@ -13,8 +13,17 @@ const Color _bg = Color(0xFFF5F3FC);
 
 class SearchPage extends StatefulWidget {
   final String? initialQuery;
+  final String? initialCountry;
+  final String? initialServiceType;
+  final double? initialMinRating;
 
-  const SearchPage({super.key, this.initialQuery});
+  const SearchPage({
+    super.key,
+    this.initialQuery,
+    this.initialCountry,
+    this.initialServiceType,
+    this.initialMinRating,
+  });
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -59,7 +68,22 @@ class _SearchPageState extends State<SearchPage>
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _performSearch();
+      final hasInitialFilters = widget.initialCountry != null ||
+          widget.initialServiceType != null ||
+          (widget.initialMinRating ?? 0) > 0;
+      if (hasInitialFilters) {
+        final bloc = context.read<SearchBloc>();
+        bloc.add(SearchOrganizations(
+          query: _searchController.text.trim().isEmpty
+              ? null
+              : _searchController.text.trim(),
+          country: widget.initialCountry,
+          serviceType: widget.initialServiceType,
+          minimumRating: widget.initialMinRating ?? 0,
+        ));
+      } else {
+        _performSearch();
+      }
       _focusNode.requestFocus();
     });
   }
