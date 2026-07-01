@@ -30,18 +30,16 @@ class BranchModel {
   factory BranchModel.fromJson(Map<String, dynamic> json) {
     final coordinates = json['coordinates'] as Map<String, dynamic>?;
     return BranchModel(
-      branchId: json['branchId'] as String? ?? '',
-      organizationId: json['organizationId'] as String? ?? '',
-      organizationName: json['organizationName'] as String? ?? '',
+      branchId: json['branchId']?.toString() ?? '',
+      organizationId: json['organizationId']?.toString() ?? '',
+      organizationName: json['organizationName']?.toString() ?? '',
       isOpen: json['isOpen'] as bool? ?? false,
       openedSince: json['openedSince'] != null
-          ? DateTime.parse(json['openedSince'] as String)
+          ? DateTime.parse(json['openedSince'].toString())
           : DateTime.now(),
       rating: (json['rating'] as num?)?.toDouble() ?? 0.0,
-      status: json['status'] is int
-          ? (json['status'] as int).toString()
-          : (json['status'] as String? ?? 'Active'),
-      address: json['address'] as String? ?? '',
+      status: json['status']?.toString() ?? 'Active',
+      address: json['address']?.toString() ?? '',
       latitude: coordinates != null
           ? (coordinates['latitude'] as num?)?.toDouble()
           : null,
@@ -86,11 +84,11 @@ class CoverImageModel {
 
   factory CoverImageModel.fromJson(Map<String, dynamic> json) {
     return CoverImageModel(
-      id: json['id'] as String? ?? '',
-      contentType: json['contentType'] as String? ?? '',
-      fileName: json['fileName'] as String? ?? '',
+      id: json['id']?.toString() ?? '',
+      contentType: json['contentType']?.toString() ?? '',
+      fileName: json['fileName']?.toString() ?? '',
       createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
+          ? DateTime.parse(json['createdAt'].toString())
           : DateTime.now(),
     );
   }

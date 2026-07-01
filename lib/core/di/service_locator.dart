@@ -44,6 +44,8 @@ import 'package:viora_app/features/organization/data/datasources/remote/organiza
 import 'package:viora_app/features/organization/data/datasources/remote/organization_remote_impl.dart';
 import 'package:viora_app/features/organization/data/repositories/organization_repository_impl.dart';
 import 'package:viora_app/features/organization/domain/repositories/organization_repository.dart';
+import 'package:viora_app/features/organization/domain/usecases/get_branch_details_usecase.dart';
+import 'package:viora_app/features/organization/domain/usecases/get_branch_schedule_usecase.dart';
 import 'package:viora_app/features/organization/domain/usecases/get_organization_details_usecase.dart';
 import 'package:viora_app/features/organization/representation/bloc/organization_bloc.dart';
 import 'package:viora_app/features/search/data/datasources/remote/search_remote.dart';
@@ -346,9 +348,25 @@ Future<void> dependencyInjection() async {
     );
   }
 
+  if (!sl.isRegistered<GetBranchDetailsUseCase>()) {
+    sl.registerLazySingleton<GetBranchDetailsUseCase>(
+      () => GetBranchDetailsUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetBranchScheduleUseCase>()) {
+    sl.registerLazySingleton<GetBranchScheduleUseCase>(
+      () => GetBranchScheduleUseCase(sl()),
+    );
+  }
+
   if (!sl.isRegistered<OrganizationBloc>()) {
     sl.registerFactory<OrganizationBloc>(
-      () => OrganizationBloc(getOrganizationDetailsUseCase: sl()),
+      () => OrganizationBloc(
+        getOrganizationDetailsUseCase: sl(),
+        getBranchDetailsUseCase: sl(),
+        getBranchScheduleUseCase: sl(),
+      ),
     );
   }
 }
