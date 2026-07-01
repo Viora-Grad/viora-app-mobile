@@ -11,6 +11,7 @@ import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
 import '../widgets/ai_banner.dart';
 import '../widgets/health_dashboard.dart';
+import '../widgets/medical_record_banner.dart';
 import '../widgets/popular_specialties.dart';
 
 class HomePage extends StatefulWidget {
@@ -241,6 +242,8 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 28),
           const PopularSpecialties(),
           const SizedBox(height: 28),
+          const MedicalRecordBanner(),
+          const SizedBox(height: 24),
           const HealthDashboard(),
           const SizedBox(height: 16),
         ],

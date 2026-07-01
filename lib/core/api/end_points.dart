@@ -31,6 +31,10 @@ class EndPoints {
   // AI Chat
   static const String aiChatUrl = '$baseUrl/api/ai/chats';
   static const String aiSessionsUrl = '$baseUrl/api/ai/sessions';
+
+  // Customer / Medical Record
+  static const String customerCreateUrl = '$baseUrl/create';
+  static const String medicalRecordUrl = '$baseUrl/api/customer/medicalrecord';
 }
 
 class ApiKey {

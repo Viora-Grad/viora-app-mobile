@@ -37,6 +37,22 @@ class _SavedOrganizationsPageState extends State<SavedOrganizationsPage> {
     }
   }
 
+  Future<void> _removeOrg(SavedOrganization org) async {
+    await _savedLocal.toggleSaved(
+      id: org.id,
+      name: org.name,
+      logoId: org.logoId,
+    );
+    if (!mounted) return;
+    setState(() => _savedOrgs.removeWhere((o) => o.id == org.id));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Removed from bookmarks'),
+        backgroundColor: const Color(0xFF28F0A8),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -206,6 +222,19 @@ class _SavedOrganizationsPageState extends State<SavedOrganizationsPage> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                GestureDetector(
+                  onTap: () => _removeOrg(org),
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F5F9),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(Icons.close_rounded,
+                        size: 18, color: Colors.grey.shade500),
+                  ),
+                ),
+                const SizedBox(width: 4),
                 Icon(Icons.chevron_right_rounded,
                     size: 22, color: Colors.grey.shade400),
               ],

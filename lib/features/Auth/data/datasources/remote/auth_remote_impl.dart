@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:viora_app/core/api/api_consumer.dart';
 import 'package:viora_app/core/api/end_points.dart';
+import 'package:viora_app/core/errors/exceptions.dart';
 import 'package:viora_app/core/params/user_parameters.dart';
 import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/auth/data/datasources/remote/auth_remote.dart';
@@ -89,6 +90,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     });
 
     await _authLocalDataSource.saveUser(user);
+
+    await createCustomerProfile(
+      userName: userName,
+      phoneNumber: phoneNumber,
+      email: email,
+    );
+
     return user;
   }
 
@@ -167,7 +175,53 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       await _authLocalDataSource.savePhoneNumber(params.phoneNumber!);
     }
 
+    await createCustomerProfile(
+      userName: params.userName,
+      phoneNumber: params.phoneNumber,
+      email: params.email,
+    );
+
     return user;
+  }
+
+  @override
+  Future<void> createCustomerProfile({
+    String? userName,
+    String? phoneNumber,
+    String? email,
+  }) async {
+    final data = <String, dynamic>{};
+    if (userName != null) data['userName'] = userName;
+    if (email != null) data['Emails'] = [email];
+    if (phoneNumber != null) data['PhoneNumbers'] = [phoneNumber];
+
+    try {
+      await _apiConsumer.post(
+        EndPoints.customerCreateUrl,
+        data: data,
+        requiresAuth: true,
+      );
+    } on ServerException catch (e) {
+      if (e.errorModel.statusCode != 409) rethrow;
+    }
+
+    final refreshToken = await _authLocalDataSource.getRefreshToken();
+    if (refreshToken != null && refreshToken.isNotEmpty) {
+      try {
+        final response = await _apiConsumer.post(
+          EndPoints.refreshUrl,
+          data: {'refreshToken': refreshToken},
+        );
+        final newToken = response['accessToken'] as String?;
+        final newRefresh = response['refreshToken'] as String?;
+        if (newToken != null) {
+          await _authLocalDataSource.saveUserToken(newToken);
+        }
+        if (newRefresh != null) {
+          await _authLocalDataSource.saveRefreshToken(newRefresh);
+        }
+      } catch (_) {}
+    }
   }
 
   @override

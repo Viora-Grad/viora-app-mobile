@@ -35,9 +35,17 @@ import 'package:viora_app/features/profile/data/datasources/local/user_local.dar
 import 'package:viora_app/features/profile/data/datasources/local/user_local_impl.dart';
 import 'package:viora_app/features/profile/data/datasources/remote/user_remote.dart';
 import 'package:viora_app/features/profile/data/datasources/remote/user_remote_impl.dart';
+import 'package:viora_app/features/profile/data/datasources/remote/medical_record_remote.dart';
+import 'package:viora_app/features/profile/data/datasources/remote/medical_record_remote_impl.dart';
 import 'package:viora_app/features/profile/data/repositories/user_repository_impl.dart';
+import 'package:viora_app/features/profile/data/repositories/medical_record_repository_impl.dart';
 import 'package:viora_app/features/profile/domain/repositories/user_repository.dart';
+import 'package:viora_app/features/profile/domain/repositories/medical_record_repository.dart';
 import 'package:viora_app/features/profile/domain/usecases/change_password_usecase.dart';
+import 'package:viora_app/features/profile/domain/usecases/get_medical_record_usecase.dart';
+import 'package:viora_app/features/profile/domain/usecases/create_medical_record_usecase.dart';
+import 'package:viora_app/features/profile/domain/usecases/update_medical_record_usecase.dart';
+import 'package:viora_app/features/profile/representation/blocs/medical_record/medical_record_bloc.dart';
 import 'package:viora_app/features/organization/data/datasources/local/saved_organizations_local.dart';
 import 'package:viora_app/features/organization/data/datasources/local/saved_organizations_local_impl.dart';
 import 'package:viora_app/features/organization/data/datasources/remote/organization_remote.dart';
@@ -224,6 +232,47 @@ Future<void> dependencyInjection() async {
   if (!sl.isRegistered<ChangePasswordUseCase>()) {
     sl.registerLazySingleton<ChangePasswordUseCase>(
       () => ChangePasswordUseCase(sl()),
+    );
+  }
+
+  // Medical Record
+  if (!sl.isRegistered<MedicalRecordRemote>()) {
+    sl.registerLazySingleton<MedicalRecordRemote>(
+      () => MedicalRecordRemoteImpl(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<MedicalRecordRepository>()) {
+    sl.registerLazySingleton<MedicalRecordRepository>(
+      () => MedicalRecordRepositoryImpl(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetMedicalRecordUseCase>()) {
+    sl.registerLazySingleton<GetMedicalRecordUseCase>(
+      () => GetMedicalRecordUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<CreateMedicalRecordUseCase>()) {
+    sl.registerLazySingleton<CreateMedicalRecordUseCase>(
+      () => CreateMedicalRecordUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<UpdateMedicalRecordUseCase>()) {
+    sl.registerLazySingleton<UpdateMedicalRecordUseCase>(
+      () => UpdateMedicalRecordUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<MedicalRecordBloc>()) {
+    sl.registerLazySingleton<MedicalRecordBloc>(
+      () => MedicalRecordBloc(
+        getMedicalRecord: sl<GetMedicalRecordUseCase>(),
+        createMedicalRecord: sl<CreateMedicalRecordUseCase>(),
+        updateMedicalRecord: sl<UpdateMedicalRecordUseCase>(),
+      ),
     );
   }
 
