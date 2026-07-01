@@ -15,3 +15,21 @@ class GetOrganizationDetail extends OrganizationEvent {
   @override
   List<Object?> get props => [organizationId];
 }
+
+class GetBranchDetail extends OrganizationEvent {
+  final String branchId;
+
+  const GetBranchDetail({required this.branchId});
+
+  @override
+  List<Object?> get props => [branchId];
+}
+
+class GetBranchSchedule extends OrganizationEvent {
+  final String branchId;
+
+  const GetBranchSchedule({required this.branchId});
+
+  @override
+  List<Object?> get props => [branchId];
+}

@@ -29,26 +29,26 @@ class OrganizationDetailModel {
 
   factory OrganizationDetailModel.fromJson(Map<String, dynamic> json) {
     return OrganizationDetailModel(
-      id: json['id'] as String? ?? '',
-      name: json['name'] as String? ?? '',
-      about: json['about'] as String? ?? '',
-      country: json['country'] as String? ?? '',
-      countryCode: json['countryCode'] as String? ?? '',
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      about: json['about']?.toString() ?? '',
+      country: json['country']?.toString() ?? '',
+      countryCode: json['countryCode']?.toString() ?? '',
       servicesProvided: (json['servicesProvided'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
           [],
-      serviceDescription: json['serviceDescription'] as String? ?? '',
-      contactEmail: json['contactEmail'] as String? ?? '',
+      serviceDescription: json['serviceDescription']?.toString() ?? '',
+      contactEmail: json['contactEmail']?.toString() ?? '',
       joinedOnUtc: json['joinedOnUtc'] != null
-          ? DateTime.parse(json['joinedOnUtc'] as String)
+          ? DateTime.parse(json['joinedOnUtc'].toString())
           : DateTime.now(),
       branches: (json['branches'] as List<dynamic>?)
               ?.map((e) =>
                   MinimalBranchModel.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
-      subDomain: json['subDomain'] as String? ?? '',
+      subDomain: json['subDomain']?.toString() ?? '',
     );
   }
 
@@ -84,11 +84,11 @@ class MinimalBranchModel {
 
   factory MinimalBranchModel.fromJson(Map<String, dynamic> json) {
     return MinimalBranchModel(
-      id: json['id'] as String? ?? '',
-      imageId: json['imageId'] as String?,
-      address: json['address'] as String? ?? '',
+      id: json['id']?.toString() ?? '',
+      imageId: json['imageId']?.toString(),
+      address: json['address']?.toString() ?? '',
       openedSinceUtc: json['openedSinceUtc'] != null
-          ? DateTime.parse(json['openedSinceUtc'] as String)
+          ? DateTime.parse(json['openedSinceUtc'].toString())
           : DateTime.now(),
     );
   }

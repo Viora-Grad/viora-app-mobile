@@ -7,6 +7,7 @@ import 'package:viora_app/features/auth/representation/pages/register.dart';
 import 'package:viora_app/features/home/representation/pages/all_specialties_page.dart';
 import 'package:viora_app/features/home/representation/pages/home_page.dart';
 import 'package:viora_app/features/organization/representation/bloc/organization_bloc.dart';
+import 'package:viora_app/features/organization/representation/pages/branch_detail_page.dart';
 import 'package:viora_app/features/organization/representation/pages/organization_detail_page.dart';
 import 'package:viora_app/features/organization/representation/pages/saved_organizations_page.dart';
 import 'package:viora_app/features/profile/representation/pages/change_password_page.dart';
@@ -33,6 +34,7 @@ class AppRoutes {
   static const forgotPassword = '/forgot-password';
   static const aiChat = '/ai-chat';
   static const organizationDetail = '/organization';
+  static const branchDetail = '/branch-detail';
   static const savedOrganizations = '/saved-organizations';
 }
 
@@ -118,6 +120,17 @@ final appRouter = GoRouter(
             initialRating: rating,
             initialRatingsCount: ratingsCount,
           ),
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.branchDetail,
+      builder: (context, state) {
+        final params = state.uri.queryParameters;
+        final branchId = params['id'] ?? state.extra as String? ?? '';
+        return BlocProvider.value(
+          value: sl<OrganizationBloc>(),
+          child: BranchDetailPage(branchId: branchId),
         );
       },
     ),

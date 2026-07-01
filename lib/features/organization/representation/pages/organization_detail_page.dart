@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:viora_app/core/di/service_locator.dart';
+import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/features/organization/data/datasources/local/saved_organizations_local.dart';
 import 'package:viora_app/features/organization/domain/entities/organization_detail.dart';
 import 'package:viora_app/features/organization/representation/bloc/organization_bloc.dart';
@@ -369,52 +370,8 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage>
                   ),
                 ],
               ],
-              if (org.subDomain.isNotEmpty &&
-                  widget.initialRating == null) ...[
-                const SizedBox(width: 12),
-                Container(
-                  width: 4,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Icon(Icons.language_outlined,
-                    size: 16, color: Colors.grey.shade400),
-                const SizedBox(width: 4),
-                Text(
-                  org.subDomain,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade500,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
             ],
           ),
-          if (org.subDomain.isNotEmpty && widget.initialRating != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.language_outlined,
-                      size: 14, color: Colors.grey.shade400),
-                  const SizedBox(width: 4),
-                  Text(
-                    org.subDomain,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade500,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
         ],
       ),
     );
@@ -669,17 +626,6 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage>
                     }
                   },
                 ),
-                if (org.subDomain.isNotEmpty) ...[
-                  const Divider(height: 24),
-                  _buildContactRow(
-                    Icons.language_outlined,
-                    'Website',
-                    org.subDomain,
-                    () {
-                      _showSnackBar('Website: ${org.subDomain}');
-                    },
-                  ),
-                ],
               ],
             ),
           ),
@@ -793,7 +739,9 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage>
         ),
         child: InkWell(
           onTap: () {
-            _showSnackBar('Branch details coming soon');
+            context.push(
+              '${AppRoutes.branchDetail}?id=${branch.id}',
+            );
           },
           borderRadius: BorderRadius.circular(12),
           child: Row(
