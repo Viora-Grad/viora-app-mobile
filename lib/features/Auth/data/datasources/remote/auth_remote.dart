@@ -33,4 +33,10 @@ abstract class AuthRemoteDataSource {
     required String otp,
     required String newPassword,
   });
+
+  Future<void> createCustomerProfile({
+    String? userName,
+    String? phoneNumber,
+    String? email,
+  });
 }

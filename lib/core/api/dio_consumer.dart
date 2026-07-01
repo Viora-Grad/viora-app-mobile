@@ -53,6 +53,8 @@ class DioConsumer extends ApiConsumer {
   }
 
   Map<String, dynamic> _normalizeResponse(dynamic data) {
+    if (data == null) return {};
+
     if (data is Map<String, dynamic>) {
       return data;
     }

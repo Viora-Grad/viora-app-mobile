@@ -86,7 +86,7 @@ class ProfilePage extends StatelessWidget {
 }
 
 class _ProfileView extends StatelessWidget {
-  const _ProfileView({super.key});
+  const _ProfileView();
 
   Future<void> _logout(BuildContext context) async {
     final authLocal = sl<AuthLocalDataSource>();
@@ -254,7 +254,14 @@ class _ProfileView extends StatelessWidget {
             _GridItemData(
               icon: Icons.folder_outlined,
               label: 'Medical Record',
-              onTap: () {},
+              onTap: () async {
+                final msg = await context.push<String>('/medical-record');
+                if (msg != null && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(msg), backgroundColor: const Color(0xFF28F0A8)),
+                  );
+                }
+              },
             ),
             _GridItemData(
               icon: Icons.location_on_outlined,
