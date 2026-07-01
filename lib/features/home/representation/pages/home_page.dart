@@ -75,6 +75,7 @@ class _HomePageState extends State<HomePage> {
         context.push(AppRoutes.aiChat);
         break;
       case 3:
+        context.push(AppRoutes.wellness);
         break;
       case 4:
         context.go(AppRoutes.profile);
