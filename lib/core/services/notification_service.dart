@@ -154,6 +154,8 @@ class NotificationServiceImpl implements NotificationService {
         _nextInstanceOf(slot.hour, slot.minute),
         details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
       );
     }
