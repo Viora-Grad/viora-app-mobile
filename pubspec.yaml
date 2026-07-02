@@ -93,6 +93,10 @@ flutter:
     - assets/animations/
     - assets/json/
 
+dependency_overrides:
+  flutter_local_notifications:
+    path: packages/flutter_local_notifications
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
