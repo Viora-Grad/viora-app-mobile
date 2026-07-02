@@ -1,4 +1,5 @@
 import 'package:data_connection_checker_tv/data_connection_checker.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -72,6 +73,12 @@ import 'package:viora_app/features/vivi/domain/usecases/get_sessions_usecase.dar
 import 'package:viora_app/features/vivi/domain/usecases/send_message_usecase.dart';
 import 'package:viora_app/features/vivi/representation/blocs/chat/chat_bloc.dart';
 import 'package:viora_app/features/vivi/representation/blocs/sessions/sessions_bloc.dart';
+import 'package:viora_app/core/services/notification_service.dart';
+import 'package:viora_app/features/wellness/data/wellness_local.dart';
+import 'package:viora_app/features/wellness/data/wellness_local_impl.dart';
+import 'package:viora_app/features/wellness/presentation/cubits/sleep_cubit.dart';
+import 'package:viora_app/features/wellness/presentation/cubits/water_reminder_cubit.dart';
+import 'package:viora_app/features/wellness/presentation/cubits/workout_reminder_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -417,5 +424,38 @@ Future<void> dependencyInjection() async {
         getBranchScheduleUseCase: sl(),
       ),
     );
+  }
+
+  // Wellness
+  if (!sl.isRegistered<FlutterLocalNotificationsPlugin>()) {
+    sl.registerLazySingleton<FlutterLocalNotificationsPlugin>(
+      () => FlutterLocalNotificationsPlugin(),
+    );
+  }
+
+  if (!sl.isRegistered<NotificationService>()) {
+    sl.registerLazySingleton<NotificationService>(
+      () => NotificationServiceImpl(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<WellnessLocal>()) {
+    sl.registerLazySingleton<WellnessLocal>(() => WellnessLocalImpl(sl()));
+  }
+
+  if (!sl.isRegistered<WaterReminderCubit>()) {
+    sl.registerFactory<WaterReminderCubit>(
+      () => WaterReminderCubit(sl(), sl()),
+    );
+  }
+
+  if (!sl.isRegistered<WorkoutReminderCubit>()) {
+    sl.registerFactory<WorkoutReminderCubit>(
+      () => WorkoutReminderCubit(sl(), sl()),
+    );
+  }
+
+  if (!sl.isRegistered<SleepCubit>()) {
+    sl.registerFactory<SleepCubit>(() => SleepCubit(sl()));
   }
 }

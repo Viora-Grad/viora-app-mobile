@@ -50,6 +50,11 @@ dependencies:
   geolocator: ^14.0.0
   flutter_map: ^7.0.2
   latlong2: ^0.9.1
+  # Wellness features: local scheduled reminders (water/workout)
+  # 17+ required: 15.x fails to compile against Android 14+ SDK (bigLargeIcon).
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.9.4
+  flutter_timezone: ^3.0.1
 
 dev_dependencies:
   flutter_test:
@@ -88,6 +93,10 @@ flutter:
     - assets/images/
     - assets/animations/
     - assets/json/
+
+dependency_overrides:
+  flutter_local_notifications:
+    path: packages/flutter_local_notifications
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

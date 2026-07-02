@@ -21,7 +21,7 @@ class BottomNavBar extends StatelessWidget {
         BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.calendar_month_outlined), label: 'Bookings'),
         BottomNavigationBarItem(icon: Icon(Icons.psychology), label: 'Vivi'),
-        BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet_outlined), label: 'Wallet'),
+        BottomNavigationBarItem(icon: Icon(Icons.spa_outlined), label: 'Wellness'),
         BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
       ],
     );

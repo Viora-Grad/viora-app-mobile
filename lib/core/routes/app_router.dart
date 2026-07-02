@@ -21,6 +21,11 @@ import 'package:viora_app/features/splash/representation/blocs/splash_bloc.dart'
 import 'package:viora_app/features/splash/representation/blocs/splash_events.dart';
 import 'package:viora_app/features/splash/representation/pages/splash.dart';
 import 'package:viora_app/features/vivi/representation/pages/ai_chat_page.dart';
+import 'package:viora_app/features/wellness/presentation/pages/bmi_calculator_page.dart';
+import 'package:viora_app/features/wellness/presentation/pages/sleep_tracker_page.dart';
+import 'package:viora_app/features/wellness/presentation/pages/water_reminder_page.dart';
+import 'package:viora_app/features/wellness/presentation/pages/wellness_hub_page.dart';
+import 'package:viora_app/features/wellness/presentation/pages/workout_reminder_page.dart';
 
 class AppRoutes {
   static const splash = '/';
@@ -38,6 +43,11 @@ class AppRoutes {
   static const branchDetail = '/branch-detail';
   static const savedOrganizations = '/saved-organizations';
   static const medicalRecord = '/medical-record';
+  static const wellness = '/wellness';
+  static const waterReminder = '/wellness/water';
+  static const workoutReminder = '/wellness/workout';
+  static const bmiCalculator = '/wellness/bmi';
+  static const sleepTracker = '/wellness/sleep';
 }
 
 final appRouter = GoRouter(
@@ -145,6 +155,26 @@ final appRouter = GoRouter(
       builder: (context, state) {
         return MedicalRecordPage(existingRecord: state.extra as dynamic);
       },
+    ),
+    GoRoute(
+      path: AppRoutes.wellness,
+      builder: (context, state) => const WellnessHubPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.waterReminder,
+      builder: (context, state) => const WaterReminderPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.workoutReminder,
+      builder: (context, state) => const WorkoutReminderPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.bmiCalculator,
+      builder: (context, state) => const BmiCalculatorPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.sleepTracker,
+      builder: (context, state) => const SleepTrackerPage(),
     ),
   ],
 );
