@@ -30,11 +30,15 @@ const _serviceIcons = {
 class ServiceCard extends StatelessWidget {
   final Service service;
   final int index;
+  final String branchId;
+  final VoidCallback? onTap;
 
   const ServiceCard({
     super.key,
     required this.service,
     required this.index,
+    this.branchId = '',
+    this.onTap,
   });
 
   @override
@@ -74,6 +78,7 @@ class ServiceCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           child: InkWell(
             borderRadius: BorderRadius.circular(16),
+            onTap: onTap,
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(

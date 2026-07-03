@@ -85,6 +85,13 @@ import 'package:viora_app/features/service/data/repositories/service_repository_
 import 'package:viora_app/features/service/domain/repositories/service_repository.dart';
 import 'package:viora_app/features/service/domain/usecases/get_services_by_branch_usecase.dart';
 import 'package:viora_app/features/service/representation/bloc/service_bloc.dart';
+import 'package:viora_app/features/staff/data/datasources/remote/staff_remote.dart';
+import 'package:viora_app/features/staff/data/datasources/remote/staff_remote_impl.dart';
+import 'package:viora_app/features/staff/data/repositories/staff_repository_impl.dart';
+import 'package:viora_app/features/staff/domain/repositories/staff_repository.dart';
+import 'package:viora_app/features/staff/domain/usecases/get_staff_by_branch_service.dart';
+import 'package:viora_app/features/staff/domain/usecases/get_staff_schedule.dart';
+import 'package:viora_app/features/staff/representation/bloc/staff_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -487,6 +494,40 @@ Future<void> dependencyInjection() async {
   if (!sl.isRegistered<ServiceBloc>()) {
     sl.registerFactory<ServiceBloc>(
       () => ServiceBloc(getServicesByBranchUseCase: sl()),
+    );
+  }
+
+  // Staff / Doctors
+  if (!sl.isRegistered<StaffRemoteDataSource>()) {
+    sl.registerLazySingleton<StaffRemoteDataSource>(
+      () => StaffRemoteDataSourceImpl(sl(), sl()),
+    );
+  }
+
+  if (!sl.isRegistered<StaffRepository>()) {
+    sl.registerLazySingleton<StaffRepository>(
+      () => StaffRepositoryImpl(sl(), sl(), sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetStaffByBranchServiceUseCase>()) {
+    sl.registerLazySingleton<GetStaffByBranchServiceUseCase>(
+      () => GetStaffByBranchServiceUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetStaffScheduleUseCase>()) {
+    sl.registerLazySingleton<GetStaffScheduleUseCase>(
+      () => GetStaffScheduleUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<StaffBloc>()) {
+    sl.registerFactory<StaffBloc>(
+      () => StaffBloc(
+        getStaffByBranchService: sl(),
+        getStaffSchedule: sl(),
+      ),
     );
   }
 }
