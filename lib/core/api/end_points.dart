@@ -1,6 +1,6 @@
 class EndPoints {
   // Android emulator -> host machine
-  static const String baseUrl = 'http://10.0.2.2:5000';
+  static const String baseUrl = 'http://10.0.2.2:8080';
 
   // Auth
   static const String loginUrl = '$baseUrl/api/auth/login';
@@ -31,6 +31,10 @@ class EndPoints {
   // AI Chat
   static const String aiChatUrl = '$baseUrl/api/ai/chats';
   static const String aiSessionsUrl = '$baseUrl/api/ai/sessions';
+
+  // Services
+  static String servicesByBranchUrl(String branchId) =>
+      '$baseUrl/api/branch/$branchId/services';
 
   // Customer / Medical Record
   static const String customerCreateUrl = '$baseUrl/create';
