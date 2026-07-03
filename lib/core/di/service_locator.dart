@@ -79,6 +79,12 @@ import 'package:viora_app/features/wellness/data/wellness_local_impl.dart';
 import 'package:viora_app/features/wellness/presentation/cubits/sleep_cubit.dart';
 import 'package:viora_app/features/wellness/presentation/cubits/water_reminder_cubit.dart';
 import 'package:viora_app/features/wellness/presentation/cubits/workout_reminder_cubit.dart';
+import 'package:viora_app/features/service/data/datasources/remote/service_remote.dart';
+import 'package:viora_app/features/service/data/datasources/remote/service_remote_impl.dart';
+import 'package:viora_app/features/service/data/repositories/service_repository_impl.dart';
+import 'package:viora_app/features/service/domain/repositories/service_repository.dart';
+import 'package:viora_app/features/service/domain/usecases/get_services_by_branch_usecase.dart';
+import 'package:viora_app/features/service/representation/bloc/service_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -457,5 +463,30 @@ Future<void> dependencyInjection() async {
 
   if (!sl.isRegistered<SleepCubit>()) {
     sl.registerFactory<SleepCubit>(() => SleepCubit(sl()));
+  }
+
+  // Service Listing
+  if (!sl.isRegistered<ServiceRemoteDataSource>()) {
+    sl.registerLazySingleton<ServiceRemoteDataSource>(
+      () => ServiceRemoteDataSourceImpl(sl(), sl()),
+    );
+  }
+
+  if (!sl.isRegistered<ServiceRepository>()) {
+    sl.registerLazySingleton<ServiceRepository>(
+      () => ServiceRepositoryImpl(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetServicesByBranchUseCase>()) {
+    sl.registerLazySingleton<GetServicesByBranchUseCase>(
+      () => GetServicesByBranchUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<ServiceBloc>()) {
+    sl.registerFactory<ServiceBloc>(
+      () => ServiceBloc(getServicesByBranchUseCase: sl()),
+    );
   }
 }

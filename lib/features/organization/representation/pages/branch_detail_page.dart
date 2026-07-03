@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/features/organization/domain/entities/branch_detail.dart';
 import 'package:viora_app/features/organization/domain/entities/branch_schedule.dart';
 import 'package:viora_app/features/organization/representation/bloc/organization_bloc.dart';
@@ -149,7 +150,7 @@ class _BranchDetailPageState extends State<BranchDetailPage>
         opacity: _fadeAnimation,
         child: BlocBuilder<OrganizationBloc, OrganizationState>(
           builder: (context, state) {
-            if (state is OrganizationLoading) {
+            if (state is OrganizationInitial || state is OrganizationLoading) {
               return _buildLoading();
             }
             if (state is OrganizationError) {
@@ -158,7 +159,7 @@ class _BranchDetailPageState extends State<BranchDetailPage>
             if (state is BranchDetailLoaded) {
               return _buildContent(state.branch, state.schedule);
             }
-            return const SizedBox.shrink();
+            return _buildLoading();
           },
         ),
       ),
@@ -749,6 +750,40 @@ class _BranchDetailPageState extends State<BranchDetailPage>
                                         ),
                                       ),
                                     ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  GestureDetector(
+                                    onTap: () {
+                                      context.push(
+                                        '${AppRoutes.serviceListing}?branchId=${branch.id}&type=$service',
+                                      );
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 14, vertical: 10),
+                                      decoration: BoxDecoration(
+                                        color: color.withValues(alpha: 0.08),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                            color: color.withValues(alpha: 0.2)),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.arrow_forward_ios_rounded,
+                                              size: 14, color: color),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            'View Services',
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w700,
+                                              color: color,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),

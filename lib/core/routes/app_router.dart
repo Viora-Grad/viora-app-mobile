@@ -24,6 +24,7 @@ import 'package:viora_app/features/vivi/representation/pages/ai_chat_page.dart';
 import 'package:viora_app/features/wellness/presentation/pages/bmi_calculator_page.dart';
 import 'package:viora_app/features/wellness/presentation/pages/sleep_tracker_page.dart';
 import 'package:viora_app/features/wellness/presentation/pages/water_reminder_page.dart';
+import 'package:viora_app/features/service/representation/pages/service_listing_page.dart';
 import 'package:viora_app/features/wellness/presentation/pages/wellness_hub_page.dart';
 import 'package:viora_app/features/wellness/presentation/pages/workout_reminder_page.dart';
 
@@ -48,6 +49,7 @@ class AppRoutes {
   static const workoutReminder = '/wellness/workout';
   static const bmiCalculator = '/wellness/bmi';
   static const sleepTracker = '/wellness/sleep';
+  static const serviceListing = '/services';
 }
 
 final appRouter = GoRouter(
@@ -175,6 +177,18 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.sleepTracker,
       builder: (context, state) => const SleepTrackerPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.serviceListing,
+      builder: (context, state) {
+        final params = state.uri.queryParameters;
+        final branchId = params['branchId'] ?? '';
+        final serviceType = params['type'] ?? '';
+        return ServiceListingPage(
+          branchId: branchId,
+          serviceType: serviceType,
+        );
+      },
     ),
   ],
 );
