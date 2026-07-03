@@ -25,6 +25,7 @@ import 'package:viora_app/features/wellness/presentation/pages/bmi_calculator_pa
 import 'package:viora_app/features/wellness/presentation/pages/sleep_tracker_page.dart';
 import 'package:viora_app/features/wellness/presentation/pages/water_reminder_page.dart';
 import 'package:viora_app/features/service/representation/pages/service_listing_page.dart';
+import 'package:viora_app/features/staff/representation/pages/staff_listing_page.dart';
 import 'package:viora_app/features/wellness/presentation/pages/wellness_hub_page.dart';
 import 'package:viora_app/features/wellness/presentation/pages/workout_reminder_page.dart';
 
@@ -50,6 +51,7 @@ class AppRoutes {
   static const bmiCalculator = '/wellness/bmi';
   static const sleepTracker = '/wellness/sleep';
   static const serviceListing = '/services';
+  static const staffListing = '/staff';
 }
 
 final appRouter = GoRouter(
@@ -187,6 +189,20 @@ final appRouter = GoRouter(
         return ServiceListingPage(
           branchId: branchId,
           serviceType: serviceType,
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.staffListing,
+      builder: (context, state) {
+        final params = state.uri.queryParameters;
+        final branchId = params['branchId'] ?? '';
+        final serviceId = params['serviceId'] ?? '';
+        final serviceName = params['serviceName'] ?? 'Doctors';
+        return StaffListingPage(
+          branchId: branchId,
+          serviceId: serviceId,
+          serviceName: Uri.decodeComponent(serviceName),
         );
       },
     ),

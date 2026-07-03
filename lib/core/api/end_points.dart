@@ -36,6 +36,13 @@ class EndPoints {
   static String servicesByBranchUrl(String branchId) =>
       '$baseUrl/api/branch/$branchId/services';
 
+  // Staff / Doctors
+  static String staffByBranchServiceUrl(String branchId, String serviceId) =>
+      '$baseUrl/api/staffs/branches/$branchId/services/$serviceId';
+
+  static String branchScheduleUrl(String branchId) =>
+      '$baseUrl/api/schedule/$branchId';
+
   // Customer / Medical Record
   static const String customerCreateUrl = '$baseUrl/create';
   static const String medicalRecordUrl = '$baseUrl/api/customer/medicalrecord';
