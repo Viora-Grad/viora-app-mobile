@@ -92,6 +92,13 @@ import 'package:viora_app/features/staff/domain/repositories/staff_repository.da
 import 'package:viora_app/features/staff/domain/usecases/get_staff_by_branch_service.dart';
 import 'package:viora_app/features/staff/domain/usecases/get_staff_schedule.dart';
 import 'package:viora_app/features/staff/representation/bloc/staff_bloc.dart';
+import 'package:viora_app/features/appointments/data/datasources/remote/appointment_remote.dart';
+import 'package:viora_app/features/appointments/data/datasources/remote/appointment_remote_impl.dart';
+import 'package:viora_app/features/appointments/data/repositories/appointment_repository_impl.dart';
+import 'package:viora_app/features/appointments/domain/repositories/appointment_repository.dart';
+import 'package:viora_app/features/appointments/domain/usecases/book_appointment.dart';
+import 'package:viora_app/features/appointments/domain/usecases/get_available_slots.dart';
+import 'package:viora_app/features/appointments/representation/bloc/appointment_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -527,6 +534,40 @@ Future<void> dependencyInjection() async {
       () => StaffBloc(
         getStaffByBranchService: sl(),
         getStaffSchedule: sl(),
+      ),
+    );
+  }
+
+  // Appointments
+  if (!sl.isRegistered<AppointmentRemoteDataSource>()) {
+    sl.registerLazySingleton<AppointmentRemoteDataSource>(
+      () => AppointmentRemoteDataSourceImpl(sl(), sl()),
+    );
+  }
+
+  if (!sl.isRegistered<AppointmentRepository>()) {
+    sl.registerLazySingleton<AppointmentRepository>(
+      () => AppointmentRepositoryImpl(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetAvailableSlotsUseCase>()) {
+    sl.registerLazySingleton<GetAvailableSlotsUseCase>(
+      () => GetAvailableSlotsUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<BookAppointmentUseCase>()) {
+    sl.registerLazySingleton<BookAppointmentUseCase>(
+      () => BookAppointmentUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<AppointmentBloc>()) {
+    sl.registerFactory<AppointmentBloc>(
+      () => AppointmentBloc(
+        getAvailableSlots: sl(),
+        bookAppointment: sl(),
       ),
     );
   }

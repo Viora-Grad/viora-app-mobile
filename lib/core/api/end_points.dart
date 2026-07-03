@@ -43,6 +43,15 @@ class EndPoints {
   static String branchScheduleUrl(String branchId) =>
       '$baseUrl/api/schedule/$branchId';
 
+  // Appointments
+  static String staffScheduleUrl(String branchId, String staffId) =>
+      '$baseUrl/api/branch/$branchId/schedule/staff/$staffId';
+
+  static String doctorAppointmentsUrl(String doctorId) =>
+      '$baseUrl/doctors/$doctorId';
+
+  static const String createAppointmentUrl = '$baseUrl/api/appointments';
+
   // Customer / Medical Record
   static const String customerCreateUrl = '$baseUrl/create';
   static const String medicalRecordUrl = '$baseUrl/api/customer/medicalrecord';

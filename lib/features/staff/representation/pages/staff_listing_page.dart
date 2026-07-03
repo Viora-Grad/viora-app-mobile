@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:viora_app/core/di/service_locator.dart';
+import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/features/staff/representation/bloc/staff_bloc.dart';
 import 'package:viora_app/features/staff/representation/bloc/staff_event.dart';
 import 'package:viora_app/features/staff/representation/bloc/staff_state.dart';
@@ -17,12 +18,16 @@ class StaffListingPage extends StatefulWidget {
   final String branchId;
   final String serviceId;
   final String serviceName;
+  final int serviceDuration;
+  final double serviceCost;
 
   const StaffListingPage({
     super.key,
     required this.branchId,
     required this.serviceId,
     required this.serviceName,
+    this.serviceDuration = 30,
+    this.serviceCost = 0,
   });
 
   @override
@@ -247,9 +252,20 @@ class _StaffListingPageState extends State<StaffListingPage>
       physics: const BouncingScrollPhysics(),
       itemCount: state.staff.length,
       itemBuilder: (context, index) {
+        final staff = state.staff[index];
         return StaffCard(
-          staff: state.staff[index],
+          staff: staff,
           index: index,
+          onTap: () => context.push(
+            '${AppRoutes.bookAppointment}'
+            '?staffId=${staff.id}'
+            '&staffName=${Uri.encodeComponent(staff.fullName)}'
+            '&serviceId=${widget.serviceId}'
+            '&serviceName=${Uri.encodeComponent(widget.serviceName)}'
+            '&branchId=${widget.branchId}'
+            '&serviceDuration=${widget.serviceDuration}'
+            '&serviceCost=${widget.serviceCost}',
+          ),
         );
       },
     );
