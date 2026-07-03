@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viora_app/core/di/service_locator.dart';
+import 'package:viora_app/core/widgets/app_snackbar.dart';
 import 'package:viora_app/features/wellness/domain/sleep_advice.dart';
 import 'package:viora_app/features/wellness/domain/sleep_entry.dart';
+import 'package:viora_app/features/wellness/domain/sleep_suggestion.dart';
 import 'package:viora_app/features/wellness/presentation/cubits/sleep_cubit.dart';
 
 const _primary = Color(0xFF2F1193);
@@ -67,6 +69,22 @@ class _SleepTrackerView extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
             children: [
+              if (state.suggestion != null) ...[
+                _SuggestionCard(
+                  suggestion: state.suggestion!,
+                  onAccept: () {
+                    context.read<SleepCubit>().acceptSuggestion();
+                    AppSnackBar.show(
+                      context,
+                      'Sleep logged. Sweet dreams counted! 🌙',
+                      type: AppSnackBarType.success,
+                    );
+                  },
+                  onDismiss: () =>
+                      context.read<SleepCubit>().dismissSuggestion(),
+                ),
+                const SizedBox(height: 24),
+              ],
               _AdviceCard(advice: state.advice),
               const SizedBox(height: 24),
               const Text(
@@ -128,6 +146,111 @@ class _SleepTrackerView extends StatelessWidget {
 
 class WellnessSleepLimit {
   static const int max = 30;
+}
+
+class _SuggestionCard extends StatelessWidget {
+  final SleepSuggestion suggestion;
+  final VoidCallback onAccept;
+  final VoidCallback onDismiss;
+
+  const _SuggestionCard({
+    required this.suggestion,
+    required this.onAccept,
+    required this.onDismiss,
+  });
+
+  String _clock(DateTime d) {
+    final period = d.hour < 12 ? 'AM' : 'PM';
+    final h = d.hour % 12 == 0 ? 12 : d.hour % 12;
+    final m = d.minute.toString().padLeft(2, '0');
+    return '$h:$m $period';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final d = suggestion.duration;
+    final durationLabel = '${d.inHours}h ${d.inMinutes % 60}m';
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: _accent.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _accent.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: _accent.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.nights_stay_rounded, color: _accent),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Text(
+                  'Did you just sleep?',
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Your phone was idle for $durationLabel — from '
+            '${_clock(suggestion.start)} to ${_clock(suggestion.end)}. '
+            'Want to log this as sleep?',
+            style: const TextStyle(fontSize: 14, height: 1.4, color: Colors.black87),
+          ),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: onAccept,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Yes, log it',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: onDismiss,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _primary,
+                    side: const BorderSide(color: Color(0xFFDDDDE5)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'No, thanks',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _AdviceCard extends StatelessWidget {

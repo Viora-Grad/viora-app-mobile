@@ -14,4 +14,14 @@ abstract class WellnessLocal {
   Future<List<SleepEntry>> getSleepEntries();
   Future<List<SleepEntry>> addSleepEntry(SleepEntry entry);
   Future<List<SleepEntry>> deleteSleepEntry(String id);
+
+  /// Records the moment the app was last put in the background — used to
+  /// estimate how long the phone stayed idle (a possible sleep window).
+  Future<void> setLastBackgrounded(DateTime time);
+  Future<DateTime?> getLastBackgrounded();
+
+  /// Remembers the start of the last idle window the user already answered on
+  /// (logged or dismissed), so the same suggestion isn't shown again.
+  Future<void> setHandledSuggestionStart(DateTime start);
+  Future<DateTime?> getHandledSuggestionStart();
 }
