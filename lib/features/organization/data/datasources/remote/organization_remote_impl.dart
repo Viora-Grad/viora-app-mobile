@@ -61,6 +61,9 @@ class OrganizationRemoteImpl implements OrganizationRemote {
 
       throw Exception('Unexpected response format');
     } on DioException catch (e) {
+      if (e.response?.statusCode == 404 || e.response?.statusCode == 409) {
+        return [];
+      }
       handleDioException(e);
     }
   }

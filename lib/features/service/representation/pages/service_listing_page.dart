@@ -343,7 +343,12 @@ class _ServiceListingPageState extends State<ServiceListingPage>
           index: index,
           branchId: widget.branchId,
           onTap: () => context.push(
-            '${AppRoutes.staffListing}?branchId=${widget.branchId}&serviceId=${service.id}&serviceName=${Uri.encodeComponent(service.name)}',
+            '${AppRoutes.staffListing}'
+            '?branchId=${widget.branchId}'
+            '&serviceId=${service.id}'
+            '&serviceName=${Uri.encodeComponent(service.name)}'
+            '&serviceDuration=${service.durationMinutes}'
+            '&serviceCost=${service.cost}',
           ),
         );
       },

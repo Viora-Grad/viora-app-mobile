@@ -9,11 +9,13 @@ const Color _border = Color(0xFFC8E6DE);
 class StaffCard extends StatelessWidget {
   final Staff staff;
   final int index;
+  final VoidCallback? onTap;
 
   const StaffCard({
     super.key,
     required this.staff,
     required this.index,
+    this.onTap,
   });
 
   @override
@@ -31,7 +33,13 @@ class StaffCard extends StatelessWidget {
           ),
         );
       },
-      child: Container(
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap,
+          child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
           color: Colors.white,
@@ -65,6 +73,8 @@ class StaffCard extends StatelessWidget {
             ],
           ),
         ),
+        ),
+      ),
       ),
     );
   }

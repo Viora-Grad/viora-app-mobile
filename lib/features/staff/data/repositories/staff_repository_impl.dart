@@ -76,6 +76,9 @@ class StaffRepositoryImpl implements StaffRepository {
       }
       return Right(shifts);
     } on DioException catch (e) {
+      if (e.response?.statusCode == 404 || e.response?.statusCode == 409) {
+        return const Right([]);
+      }
       return Left(handleException(e));
     } catch (e) {
       return Left(handleException(e));

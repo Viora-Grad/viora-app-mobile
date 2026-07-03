@@ -25,6 +25,8 @@ import 'package:viora_app/features/wellness/presentation/pages/bmi_calculator_pa
 import 'package:viora_app/features/wellness/presentation/pages/sleep_tracker_page.dart';
 import 'package:viora_app/features/wellness/presentation/pages/water_reminder_page.dart';
 import 'package:viora_app/features/service/representation/pages/service_listing_page.dart';
+import 'package:viora_app/features/appointments/representation/bloc/appointment_bloc.dart';
+import 'package:viora_app/features/appointments/representation/pages/appointment_booking_page.dart';
 import 'package:viora_app/features/staff/representation/pages/staff_listing_page.dart';
 import 'package:viora_app/features/wellness/presentation/pages/wellness_hub_page.dart';
 import 'package:viora_app/features/wellness/presentation/pages/workout_reminder_page.dart';
@@ -52,6 +54,7 @@ class AppRoutes {
   static const sleepTracker = '/wellness/sleep';
   static const serviceListing = '/services';
   static const staffListing = '/staff';
+  static const bookAppointment = '/book-appointment';
 }
 
 final appRouter = GoRouter(
@@ -199,10 +202,45 @@ final appRouter = GoRouter(
         final branchId = params['branchId'] ?? '';
         final serviceId = params['serviceId'] ?? '';
         final serviceName = params['serviceName'] ?? 'Doctors';
+        final serviceDuration =
+            int.tryParse(params['serviceDuration'] ?? '') ?? 30;
+        final serviceCost =
+            double.tryParse(params['serviceCost'] ?? '') ?? 0;
         return StaffListingPage(
           branchId: branchId,
           serviceId: serviceId,
           serviceName: Uri.decodeComponent(serviceName),
+          serviceDuration: serviceDuration,
+          serviceCost: serviceCost,
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.bookAppointment,
+      builder: (context, state) {
+        final params = state.uri.queryParameters;
+        final staffId = params['staffId'] ?? '';
+        final staffName =
+            Uri.decodeComponent(params['staffName'] ?? 'Doctor');
+        final serviceId = params['serviceId'] ?? '';
+        final serviceName =
+            Uri.decodeComponent(params['serviceName'] ?? 'Service');
+        final branchId = params['branchId'] ?? '';
+        final serviceDuration =
+            int.tryParse(params['serviceDuration'] ?? '') ?? 30;
+        final serviceCost =
+            double.tryParse(params['serviceCost'] ?? '') ?? 0;
+        return BlocProvider(
+          create: (_) => sl<AppointmentBloc>(),
+          child: AppointmentBookingPage(
+            staffId: staffId,
+            staffName: staffName,
+            serviceId: serviceId,
+            serviceName: serviceName,
+            branchId: branchId,
+            serviceDurationMinutes: serviceDuration,
+            serviceCost: serviceCost,
+          ),
         );
       },
     ),
