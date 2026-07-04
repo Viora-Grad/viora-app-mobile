@@ -13,6 +13,7 @@ class BookAppointmentUseCase {
     required String branchId,
     required DateTime reservationDate,
     required int durationMinutes,
+    required String paymentMethod,
   }) async {
     if (serviceId.isEmpty) {
       return const Left(ValidationFailure('Service ID is required'));
@@ -23,6 +24,9 @@ class BookAppointmentUseCase {
     if (branchId.isEmpty) {
       return const Left(ValidationFailure('Branch ID is required'));
     }
+    if (paymentMethod.isEmpty) {
+      return const Left(ValidationFailure('Payment method is required'));
+    }
 
     return repository.createAppointment(
       serviceId: serviceId,
@@ -30,6 +34,7 @@ class BookAppointmentUseCase {
       branchId: branchId,
       reservationDate: reservationDate,
       durationMinutes: durationMinutes,
+      paymentMethod: paymentMethod,
     );
   }
 }

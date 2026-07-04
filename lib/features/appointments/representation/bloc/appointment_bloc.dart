@@ -71,6 +71,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       branchId: event.branchId,
       reservationDate: current.selectedSlot!.startTime,
       durationMinutes: event.durationMinutes,
+      paymentMethod: event.paymentMethod,
     );
 
     result.fold(

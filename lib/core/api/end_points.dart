@@ -55,6 +55,14 @@ class EndPoints {
   // Customer / Medical Record
   static const String customerCreateUrl = '$baseUrl/create';
   static const String medicalRecordUrl = '$baseUrl/api/customer/medicalrecord';
+
+  // Wallet
+  static const String walletCustomerUrl = '$baseUrl/api/wallets/customer';
+  static const String walletRechargeUrl = '$baseUrl/api/wallets/customer/recharge';
+  static String walletBranchUrl(String branchId) =>
+      '$baseUrl/api/wallets/branch/$branchId';
+  static String walletBranchCheckoutUrl(String branchId) =>
+      '$baseUrl/api/wallets/branch/$branchId/checkout';
 }
 
 class ApiKey {

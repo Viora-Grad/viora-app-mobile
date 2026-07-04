@@ -99,6 +99,14 @@ import 'package:viora_app/features/appointments/domain/repositories/appointment_
 import 'package:viora_app/features/appointments/domain/usecases/book_appointment.dart';
 import 'package:viora_app/features/appointments/domain/usecases/get_available_slots.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_bloc.dart';
+import 'package:viora_app/features/wallet/data/datasources/wallet_remote.dart';
+import 'package:viora_app/features/wallet/data/datasources/wallet_remote_impl.dart';
+import 'package:viora_app/features/wallet/data/repositories/wallet_repository_impl.dart';
+import 'package:viora_app/features/wallet/domain/repositories/wallet_repository.dart';
+import 'package:viora_app/features/wallet/domain/usecases/get_wallet_usecase.dart';
+import 'package:viora_app/features/wallet/domain/usecases/open_wallet_usecase.dart';
+import 'package:viora_app/features/wallet/domain/usecases/recharge_wallet_usecase.dart';
+import 'package:viora_app/features/wallet/presentation/bloc/wallet_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -568,6 +576,47 @@ Future<void> dependencyInjection() async {
       () => AppointmentBloc(
         getAvailableSlots: sl(),
         bookAppointment: sl(),
+      ),
+    );
+  }
+
+  // Wallet
+  if (!sl.isRegistered<WalletRemoteDataSource>()) {
+    sl.registerLazySingleton<WalletRemoteDataSource>(
+      () => WalletRemoteDataSourceImpl(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<WalletRepository>()) {
+    sl.registerLazySingleton<WalletRepository>(
+      () => WalletRepositoryImpl(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetWalletUseCase>()) {
+    sl.registerLazySingleton<GetWalletUseCase>(
+      () => GetWalletUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<OpenWalletUseCase>()) {
+    sl.registerLazySingleton<OpenWalletUseCase>(
+      () => OpenWalletUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<RechargeWalletUseCase>()) {
+    sl.registerLazySingleton<RechargeWalletUseCase>(
+      () => RechargeWalletUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<WalletBloc>()) {
+    sl.registerFactory<WalletBloc>(
+      () => WalletBloc(
+        getWalletUseCase: sl(),
+        openWalletUseCase: sl(),
+        rechargeWalletUseCase: sl(),
       ),
     );
   }

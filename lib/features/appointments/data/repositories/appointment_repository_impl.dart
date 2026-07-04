@@ -45,6 +45,7 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
     required String branchId,
     required DateTime reservationDate,
     required int durationMinutes,
+    required String paymentMethod,
   }) async {
     try {
       await remoteDataSource.createAppointment(
@@ -53,7 +54,7 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
         branchId: branchId,
         reservationDate: reservationDate,
         durationMinutes: durationMinutes,
-        paymentMethod: 'Cash',
+        paymentMethod: paymentMethod,
         createdBy: 'Customer',
         requestPlatform: 'Mobile',
       );
