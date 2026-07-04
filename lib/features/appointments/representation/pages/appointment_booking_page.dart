@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:viora_app/core/di/service_locator.dart';
+import 'package:viora_app/core/errors/failure.dart';
+import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_bloc.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_event.dart';
@@ -9,6 +11,8 @@ import 'package:viora_app/features/appointments/representation/bloc/appointment_
 import 'package:viora_app/features/appointments/domain/entities/available_slot.dart';
 import 'package:viora_app/features/appointments/representation/widgets/day_picker.dart';
 import 'package:viora_app/features/appointments/representation/widgets/time_slot_grid.dart';
+import 'package:viora_app/features/wallet/domain/repositories/wallet_repository.dart';
+import 'package:viora_app/features/wallet/presentation/pages/payment_method_sheet.dart';
 
 const Color _primary = Color(0xFF0D7C66);
 const Color _accent = Color(0xFF14A085);
@@ -48,6 +52,8 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
   late final Animation<double> _fadeAnimation;
   late DateTime _selectedDate;
   String _userName = '';
+  String _selectedPaymentMethod = 'Cash';
+  double? _walletBalance;
 
   @override
   void initState() {
@@ -64,6 +70,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
     _fadeController.forward();
     _loadUserName();
     _loadSlots();
+    _loadWalletBalance();
   }
 
   Future<void> _loadUserName() async {
@@ -78,6 +85,36 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
       setState(() => _userName = '${user.firstName} ${user.lastName}'.trim());
     }
   }
+
+  Future<void> _loadWalletBalance() async {
+    try {
+      final repo = sl<WalletRepository>();
+      final result = await repo.getWallet();
+
+      final failure = result.fold<Failure?>((f) => f, (_) => null);
+      if (failure == null) {
+        final wallet = result.fold((_) => null, (w) => w);
+        if (mounted && wallet != null) {
+          setState(() => _walletBalance = wallet.balance);
+        }
+        return;
+      }
+
+      if (failure is ServerFailure && failure.statusCode == 404) {
+        await repo.openWallet();
+        final retry = await repo.getWallet();
+        retry.fold(
+          (_) => null,
+          (wallet) {
+            if (mounted) setState(() => _walletBalance = wallet.balance);
+          },
+        );
+      }
+    } catch (_) {}
+  }
+
+
+
 
   void _loadSlots() {
     context.read<AppointmentBloc>().add(LoadAvailableSlots(
@@ -95,12 +132,54 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
     super.dispose();
   }
 
+  Future<void> _showPaymentMethodSheet() async {
+    final balance = _walletBalance ?? 0;
+    final method = await showModalBottomSheet<PaymentMethod>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => PaymentMethodSheet(
+        serviceCost: widget.serviceCost,
+        walletBalance: balance,
+      ),
+    );
+
+    if (method != null && mounted) {
+      setState(() {
+        _selectedPaymentMethod = method == PaymentMethod.wallet ? 'Wallet' : 'Cash';
+      });
+    }
+  }
+
   void _confirmBooking(DateTime startTime) {
+    final balance = _walletBalance ?? 0;
+    if (_selectedPaymentMethod == 'Wallet' && balance < widget.serviceCost) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Insufficient wallet balance. Please choose Cash or top up.'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          action: SnackBarAction(
+            label: 'Top Up',
+            textColor: Colors.white,
+            onPressed: () => context.push(AppRoutes.wallet),
+          ),
+        ),
+      );
+      return;
+    }
+
     context.read<AppointmentBloc>().add(ConfirmBooking(
           serviceId: widget.serviceId,
           staffId: widget.staffId,
           branchId: widget.branchId,
           durationMinutes: widget.serviceDurationMinutes,
+          paymentMethod: _selectedPaymentMethod,
         ));
   }
 
@@ -585,6 +664,8 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
                     _buildCompactSummary(slot),
                     const SizedBox(height: 12),
                   ],
+                  _buildPaymentMethodChip(),
+                  const SizedBox(height: 12),
                   SizedBox(
                     width: double.infinity,
                     height: 54,
@@ -695,6 +776,60 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethodChip() {
+    final isWallet = _selectedPaymentMethod == 'Wallet';
+    final balance = _walletBalance ?? 0;
+    final hasBalance = balance >= widget.serviceCost;
+
+    return GestureDetector(
+      onTap: _showPaymentMethodSheet,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: _border),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isWallet ? Icons.account_balance_wallet_outlined : Icons.money_outlined,
+              size: 18,
+              color: _primary,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Pay with $_selectedPaymentMethod',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: _textPrimary,
+                    ),
+                  ),
+                  if (isWallet)
+                    Text(
+                      hasBalance
+                          ? 'Balance: \$${balance.toStringAsFixed(2)}'
+                          : 'Insufficient balance',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: hasBalance ? _textSecondary : Colors.red,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, size: 20, color: _textSecondary),
+          ],
+        ),
       ),
     );
   }

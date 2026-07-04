@@ -20,5 +20,6 @@ abstract class AppointmentRepository {
     required String branchId,
     required DateTime reservationDate,
     required int durationMinutes,
+    required String paymentMethod,
   });
 }

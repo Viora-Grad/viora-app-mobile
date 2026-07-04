@@ -30,6 +30,8 @@ import 'package:viora_app/features/appointments/representation/pages/appointment
 import 'package:viora_app/features/staff/representation/pages/staff_listing_page.dart';
 import 'package:viora_app/features/wellness/presentation/pages/wellness_hub_page.dart';
 import 'package:viora_app/features/wellness/presentation/pages/workout_reminder_page.dart';
+import 'package:viora_app/features/wallet/presentation/bloc/wallet_bloc.dart';
+import 'package:viora_app/features/wallet/presentation/pages/wallet_page.dart';
 
 class AppRoutes {
   static const splash = '/';
@@ -55,6 +57,7 @@ class AppRoutes {
   static const serviceListing = '/services';
   static const staffListing = '/staff';
   static const bookAppointment = '/book-appointment';
+  static const wallet = '/wallet';
 }
 
 final appRouter = GoRouter(
@@ -214,6 +217,13 @@ final appRouter = GoRouter(
           serviceCost: serviceCost,
         );
       },
+    ),
+    GoRoute(
+      path: AppRoutes.wallet,
+      builder: (context, state) => BlocProvider(
+        create: (_) => sl<WalletBloc>(),
+        child: const WalletPage(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.bookAppointment,

@@ -50,14 +50,22 @@ final class ConfirmBooking extends AppointmentEvent {
   final String staffId;
   final String branchId;
   final int durationMinutes;
+  final String paymentMethod;
 
   const ConfirmBooking({
     required this.serviceId,
     required this.staffId,
     required this.branchId,
     required this.durationMinutes,
+    required this.paymentMethod,
   });
 
   @override
-  List<Object?> get props => [serviceId, staffId, branchId, durationMinutes];
+  List<Object?> get props => [
+        serviceId,
+        staffId,
+        branchId,
+        durationMinutes,
+        paymentMethod,
+      ];
 }
