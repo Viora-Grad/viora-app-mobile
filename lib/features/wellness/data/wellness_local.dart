@@ -24,4 +24,9 @@ abstract class WellnessLocal {
   /// (logged or dismissed), so the same suggestion isn't shown again.
   Future<void> setHandledSuggestionStart(DateTime start);
   Future<DateTime?> getHandledSuggestionStart();
+
+  /// The "I'm awake" marker for two-tap logging: set when the user wakes,
+  /// cleared (pass null) once they mark going to sleep.
+  Future<void> setAwakeMarker(DateTime? time);
+  Future<DateTime?> getAwakeMarker();
 }

@@ -13,10 +13,14 @@ class SleepState extends Equatable {
   /// confirmation. Null when there's nothing to suggest.
   final SleepSuggestion? suggestion;
 
+  /// Set when the user has tapped "I'm awake" but not yet "going to sleep".
+  final DateTime? awakeSince;
+
   const SleepState({
     this.entries = const [],
     this.loading = true,
     this.suggestion,
+    this.awakeSince,
   });
 
   SleepAdvice get advice => SleepAdvice.fromEntries(entries);
@@ -26,16 +30,19 @@ class SleepState extends Equatable {
     bool? loading,
     SleepSuggestion? suggestion,
     bool clearSuggestion = false,
+    DateTime? awakeSince,
+    bool clearAwake = false,
   }) {
     return SleepState(
       entries: entries ?? this.entries,
       loading: loading ?? this.loading,
       suggestion: clearSuggestion ? null : (suggestion ?? this.suggestion),
+      awakeSince: clearAwake ? null : (awakeSince ?? this.awakeSince),
     );
   }
 
   @override
-  List<Object?> get props => [entries, loading, suggestion];
+  List<Object?> get props => [entries, loading, suggestion, awakeSince];
 }
 
 class SleepCubit extends Cubit<SleepState> {
@@ -49,7 +56,62 @@ class SleepCubit extends Cubit<SleepState> {
   Future<void> load() async {
     final entries = await _local.getSleepEntries();
     final suggestion = await _buildSuggestion();
-    emit(SleepState(entries: entries, loading: false, suggestion: suggestion));
+    final awakeSince = await _local.getAwakeMarker();
+    emit(
+      SleepState(
+        entries: entries,
+        loading: false,
+        suggestion: suggestion,
+        awakeSince: awakeSince,
+      ),
+    );
+  }
+
+  /// Two-tap logging, step 1: user marks the moment they woke up.
+  Future<void> markAwake() async {
+    final now = DateTime.now();
+    await _local.setAwakeMarker(now);
+    emit(state.copyWith(awakeSince: now));
+  }
+
+  /// Two-tap logging, step 2: user is heading to bed. The time awake since the
+  /// morning marker is one "shift"; the rest of the 24h day is counted as
+  /// sleep. Returns the logged sleep duration (null if no awake marker set).
+  Future<Duration?> markGoingToSleep() async {
+    final awake = state.awakeSince;
+    if (awake == null) return null;
+
+    final now = DateTime.now();
+    var awakeMinutes = now.difference(awake).inMinutes;
+    if (awakeMinutes < 0) awakeMinutes += 1440;
+    awakeMinutes %= 1440;
+    final sleepMinutes = 1440 - awakeMinutes;
+    final sleepDuration = Duration(minutes: sleepMinutes);
+
+    await _local.setAwakeMarker(null);
+    final updated = await _local.addSleepEntry(
+      SleepEntry(
+        id: DateTime.now().microsecondsSinceEpoch.toString(),
+        bedtime: now,
+        wakeTime: now.add(sleepDuration),
+      ),
+    );
+    emit(state.copyWith(entries: updated, clearAwake: true));
+    return sleepDuration;
+  }
+
+  /// Injects a sample suggestion so the idle-detection prompt can be previewed
+  /// on demand (demo/testing) without waiting for a real idle window.
+  void demoSuggestion() {
+    final now = DateTime.now();
+    emit(
+      state.copyWith(
+        suggestion: SleepSuggestion(
+          start: now.subtract(const Duration(hours: 7, minutes: 30)),
+          end: now,
+        ),
+      ),
+    );
   }
 
   Future<void> addEntry({
