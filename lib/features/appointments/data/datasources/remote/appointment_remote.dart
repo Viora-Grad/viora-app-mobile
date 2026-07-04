@@ -22,4 +22,15 @@ abstract class AppointmentRemoteDataSource {
     required String createdBy,
     required String requestPlatform,
   });
+
+  Future<List<ReservedAppointmentModel>> getCustomerAppointments(
+    String customerId, {
+    int page = 1,
+    int pageSize = 50,
+    String? status,
+  });
+
+  Future<String?> getStaffName(String staffId);
+
+  Future<Map<String, String?>> getBranchInfo(String branchId);
 }

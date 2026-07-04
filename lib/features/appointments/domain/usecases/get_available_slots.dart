@@ -52,6 +52,11 @@ class GetAvailableSlotsUseCase {
     // correctly with the local-time candidate slots
     final localAppointments = appointments.map((a) => ReservedAppointment(
       id: a.id,
+      serviceId: a.serviceId,
+      staffId: a.staffId,
+      branchId: a.branchId,
+      paymentMethod: a.paymentMethod,
+      status: a.status,
       reservationDate: a.reservationDate.toLocal(),
       estimatedDuration: a.estimatedDuration,
       customerName: a.customerName,

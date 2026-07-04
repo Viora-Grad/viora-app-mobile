@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:viora_app/core/api/end_points.dart';
 import 'package:viora_app/core/errors/error_handler.dart';
@@ -75,7 +78,9 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
       return items
           .map((e) =>
               ReservedAppointmentModel.fromJson(e as Map<String, dynamic>))
-          .where((a) => a.reservationDate.isAfter(now) || a.reservationDate.day == date.day)
+          .where((a) =>
+              a.reservationDate.isAfter(now) ||
+              a.reservationDate.day == date.day)
           .toList();
     } on DioException catch (e) {
       handleDioException(e);
@@ -111,6 +116,89 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
       );
     } on DioException catch (e) {
       handleDioException(e);
+    }
+  }
+
+  @override
+  Future<List<ReservedAppointmentModel>> getCustomerAppointments(
+    String customerId, {
+    int page = 1,
+    int pageSize = 50,
+    String? status,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{
+        'Page': page,
+        'PageSize': pageSize,
+        'IncludeStaffObject': true,
+        'IncludeServiceObject': true,
+        'IncludeBranchObject': true,
+        'IncludeCustomerObject': true,
+      };
+      if (status != null && status.isNotEmpty) {
+        queryParams['CustomerStatus'] = [status];
+      }
+
+      final response = await dio.get(
+        EndPoints.customerAppointmentsUrl(customerId),
+        queryParameters: queryParams,
+        options: await _buildOptions(),
+      );
+
+      final data = response.data;
+      debugPrint('=== GET /customers/$customerId RAW RESPONSE ===');
+      debugPrint(const JsonEncoder.withIndent('  ').convert(data));
+      debugPrint('===============================================');
+
+      if (data is! Map<String, dynamic>) return [];
+
+      final items = data['items'] as List? ?? [];
+      return items
+          .map((e) =>
+              ReservedAppointmentModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } on DioException catch (e) {
+      handleDioException(e);
+    }
+  }
+
+  @override
+  Future<String?> getStaffName(String staffId) async {
+    try {
+      final response = await dio.get(
+        EndPoints.staffsUrl,
+        queryParameters: {'StaffId': staffId, 'PageSize': 1},
+        options: await _buildOptions(),
+      );
+      final data = response.data;
+      if (data is! Map<String, dynamic>) return null;
+      final items = data['items'] as List? ?? [];
+      if (items.isEmpty) return null;
+      final first = items.first as Map<String, dynamic>;
+      final fName = first['firstName'] as String? ?? '';
+      final lName = first['lastName'] as String? ?? '';
+      final name = '$fName $lName'.trim();
+      return name.isEmpty ? null : name;
+    } on DioException {
+      return null;
+    }
+  }
+
+  @override
+  Future<Map<String, String?>> getBranchInfo(String branchId) async {
+    try {
+      final response = await dio.get(
+        EndPoints.branchDetailsUrl(branchId),
+        options: await _buildOptions(),
+      );
+      final data = response.data as Map<String, dynamic>?;
+      if (data == null) return {'address': null, 'organizationName': null};
+      return {
+        'address': data['address'] as String?,
+        'organizationName': data['organizationName'] as String?,
+      };
+    } on DioException {
+      return {'address': null, 'organizationName': null};
     }
   }
 

@@ -98,7 +98,9 @@ import 'package:viora_app/features/appointments/data/repositories/appointment_re
 import 'package:viora_app/features/appointments/domain/repositories/appointment_repository.dart';
 import 'package:viora_app/features/appointments/domain/usecases/book_appointment.dart';
 import 'package:viora_app/features/appointments/domain/usecases/get_available_slots.dart';
+import 'package:viora_app/features/appointments/domain/usecases/get_user_appointments.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_bloc.dart';
+import 'package:viora_app/features/appointments/representation/bloc/user_appointments_bloc.dart';
 import 'package:viora_app/features/wallet/data/datasources/wallet_remote.dart';
 import 'package:viora_app/features/wallet/data/datasources/wallet_remote_impl.dart';
 import 'package:viora_app/features/wallet/data/repositories/wallet_repository_impl.dart';
@@ -576,6 +578,20 @@ Future<void> dependencyInjection() async {
       () => AppointmentBloc(
         getAvailableSlots: sl(),
         bookAppointment: sl(),
+      ),
+    );
+  }
+
+  if (!sl.isRegistered<GetUserAppointmentsUseCase>()) {
+    sl.registerLazySingleton<GetUserAppointmentsUseCase>(
+      () => GetUserAppointmentsUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<UserAppointmentsBloc>()) {
+    sl.registerFactory<UserAppointmentsBloc>(
+      () => UserAppointmentsBloc(
+        getUserAppointments: sl(),
       ),
     );
   }

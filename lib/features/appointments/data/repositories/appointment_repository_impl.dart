@@ -63,4 +63,59 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
       return Left(handleException(e));
     }
   }
+
+  @override
+  Future<Either<Failure, List<ReservedAppointment>>> getCustomerAppointments(
+    String customerId, {
+    String? status,
+  }) async {
+    try {
+      final models = await remoteDataSource.getCustomerAppointments(
+        customerId,
+        status: status,
+      );
+
+      final uniqueBranchIds = models
+          .map((m) => m.branchId)
+          .where((id) => id.isNotEmpty)
+          .toSet()
+          .toList();
+      final uniqueStaffIds = models
+          .map((m) => m.staffId)
+          .where((id) => id.isNotEmpty)
+          .toSet()
+          .toList();
+
+      final branchInfoMap = <String, Map<String, String?>>{};
+      for (final id in uniqueBranchIds) {
+        branchInfoMap[id] = await remoteDataSource.getBranchInfo(id);
+      }
+
+      final staffNameMap = <String, String?>{};
+      for (final id in uniqueStaffIds) {
+        staffNameMap[id] = await remoteDataSource.getStaffName(id);
+      }
+
+      for (final model in models) {
+        final info = branchInfoMap[model.branchId];
+        if (info != null) {
+          if ((model.branchName == null || model.branchName!.isEmpty) &&
+              info['address'] != null) {
+            model.branchName = info['address'];
+          }
+          if (info['organizationName'] != null) {
+            model.organizationName = info['organizationName'];
+          }
+        }
+        final staffName = staffNameMap[model.staffId];
+        if (staffName != null) {
+          model.staffName = staffName;
+        }
+      }
+
+      return Right(models.map((m) => m.toEntity()).toList());
+    } catch (e) {
+      return Left(handleException(e));
+    }
+  }
 }

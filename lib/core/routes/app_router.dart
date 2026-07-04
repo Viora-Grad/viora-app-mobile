@@ -32,6 +32,9 @@ import 'package:viora_app/features/wellness/presentation/pages/wellness_hub_page
 import 'package:viora_app/features/wellness/presentation/pages/workout_reminder_page.dart';
 import 'package:viora_app/features/wallet/presentation/bloc/wallet_bloc.dart';
 import 'package:viora_app/features/wallet/presentation/pages/wallet_page.dart';
+import 'package:viora_app/features/appointments/representation/bloc/user_appointments_bloc.dart';
+import 'package:viora_app/features/appointments/representation/pages/user_appointments_page.dart';
+import 'package:viora_app/features/appointments/representation/pages/appointment_detail_page.dart';
 
 class AppRoutes {
   static const splash = '/';
@@ -58,6 +61,8 @@ class AppRoutes {
   static const staffListing = '/staff';
   static const bookAppointment = '/book-appointment';
   static const wallet = '/wallet';
+  static const myAppointments = '/my-appointments';
+  static const appointmentDetail = '/appointment-detail';
 }
 
 final appRouter = GoRouter(
@@ -251,6 +256,22 @@ final appRouter = GoRouter(
             serviceDurationMinutes: serviceDuration,
             serviceCost: serviceCost,
           ),
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.myAppointments,
+      builder: (context, state) => BlocProvider(
+        create: (_) => sl<UserAppointmentsBloc>(),
+        child: const UserAppointmentsPage(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.appointmentDetail,
+      builder: (context, state) {
+        final appointment = state.extra as dynamic;
+        return AppointmentDetailPage(
+          appointment: appointment,
         );
       },
     ),
