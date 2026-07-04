@@ -22,4 +22,9 @@ abstract class AppointmentRepository {
     required int durationMinutes,
     required String paymentMethod,
   });
+
+  Future<Either<Failure, List<ReservedAppointment>>> getCustomerAppointments(
+    String customerId, {
+    String? status,
+  });
 }
