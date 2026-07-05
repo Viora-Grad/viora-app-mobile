@@ -8,8 +8,10 @@ import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_bloc.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_event.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_state.dart';
+import 'package:viora_app/features/appointments/domain/entities/available_slot.dart';
 import 'package:viora_app/features/appointments/domain/entities/reserved_appointment.dart';
 import 'package:viora_app/features/appointments/representation/widgets/day_picker.dart';
+import 'package:viora_app/features/appointments/representation/widgets/time_slot_grid.dart';
 import 'package:viora_app/features/forms/domain/repositories/form_repository.dart';
 import 'package:viora_app/features/wallet/domain/repositories/wallet_repository.dart';
 import 'package:viora_app/features/wallet/presentation/pages/payment_method_sheet.dart';
@@ -21,28 +23,6 @@ const Color _surface = Color(0xFFF7FFFD);
 const Color _border = Color(0xFFC8E6DE);
 const Color _textPrimary = Color(0xFF1A1A2E);
 const Color _textSecondary = Color(0xFF6B7280);
-
-List<String> _generateTimeOptions(String? shiftStart, String? shiftEnd) {
-  final all = <String>[];
-  for (var h = 0; h < 24; h++) {
-    for (var m = 0; m < 60; m += 10) {
-      all.add('${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}');
-    }
-  }
-  if (shiftStart == null || shiftEnd == null) return all;
-
-  int toMinutes(String t) {
-    final p = t.split(':');
-    return int.parse(p[0]) * 60 + int.parse(p[1]);
-  }
-
-  final startMin = toMinutes(shiftStart);
-  final endMin = toMinutes(shiftEnd);
-  return all.where((t) {
-    final m = toMinutes(t);
-    return m >= startMin && m + 10 <= endMin;
-  }).toList();
-}
 
 class AppointmentBookingPage extends StatefulWidget {
   final String staffId;
@@ -77,7 +57,6 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
   String _selectedPaymentMethod = 'Cash';
   double? _walletBalance;
   bool _hasForm = false;
-  String? _selectedTimeStr;
   bool _conflictShown = false;
 
   @override
@@ -160,7 +139,6 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
 
   void _loadAppointments() {
     setState(() {
-      _selectedTimeStr = null;
       _conflictShown = false;
     });
     context.read<AppointmentBloc>().add(LoadDoctorAppointments(
@@ -169,19 +147,6 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
           serviceDurationMinutes: widget.serviceDurationMinutes,
           selectedDate: _selectedDate,
         ));
-  }
-
-  DateTime _parseTimeToDateTime(String timeStr) {
-    final parts = timeStr.split(':');
-    final hour = int.parse(parts[0]);
-    final minute = int.parse(parts[1]);
-    return DateTime(
-      _selectedDate.year,
-      _selectedDate.month,
-      _selectedDate.day,
-      hour,
-      minute,
-    );
   }
 
   @override
@@ -638,7 +603,6 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
       onDateSelected: (date) {
         setState(() {
           _selectedDate = date;
-          _selectedTimeStr = null;
           _conflictShown = false;
         });
         context.read<AppointmentBloc>().add(LoadDoctorAppointments(
@@ -737,87 +701,35 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
           );
         }
         if (state is DoctorAppointmentsLoaded) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTimeDropdown(state),
-                const SizedBox(height: 16),
-                if (state.manualStartTime != null) _buildTimeSummary(state),
-              ],
-            ),
+          final selectedSlot = state.manualStartTime != null
+              ? AvailableSlot(
+                  startTime: state.manualStartTime!,
+                  endTime: state.calculatedEndTime!,
+                )
+              : null;
+          return Column(
+            children: [
+              TimeSlotGrid(
+                slots: state.availableSlots,
+                selectedSlot: selectedSlot,
+                onSlotSelected: (slot) {
+                  setState(() => _conflictShown = false);
+                  context.read<AppointmentBloc>().add(
+                        SetAppointmentTime(startTime: slot.startTime),
+                      );
+                },
+              ),
+              const SizedBox(height: 16),
+              if (state.manualStartTime != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: _buildTimeSummary(state),
+                ),
+            ],
           );
         }
         return const SizedBox.shrink();
       },
-    );
-  }
-
-  Widget _buildTimeDropdown(DoctorAppointmentsLoaded state) {
-    final options = _generateTimeOptions(state.shiftStartTime, state.shiftEndTime);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _border),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: _selectedTimeStr,
-          isExpanded: true,
-          hint: Row(
-            children: [
-              Icon(Icons.access_time_rounded, size: 18, color: _textSecondary),
-              const SizedBox(width: 10),
-              Text(
-                'Choose start time',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: _textSecondary,
-                ),
-              ),
-            ],
-          ),
-          icon: Icon(Icons.keyboard_arrow_down_rounded, color: _primary),
-          items: [
-            if (options.isEmpty)
-              const DropdownMenuItem<String>(
-                value: null,
-                child: Text('No available times'),
-              )
-            else
-              ...options.map((timeStr) {
-                return DropdownMenuItem<String>(
-                  value: timeStr,
-                  child: Text(
-                    timeStr,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: _textPrimary,
-                    ),
-                  ),
-                );
-              }),
-          ],
-          onChanged: options.isEmpty
-              ? null
-              : (value) {
-                  if (value == null) return;
-                  setState(() {
-                    _selectedTimeStr = value;
-                    _conflictShown = false;
-                  });
-                  final dt = _parseTimeToDateTime(value);
-                  context.read<AppointmentBloc>().add(
-                        SetAppointmentTime(startTime: dt),
-                      );
-                },
-        ),
-      ),
     );
   }
 

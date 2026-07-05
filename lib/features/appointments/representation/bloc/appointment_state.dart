@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:viora_app/features/appointments/domain/entities/available_slot.dart';
 import 'package:viora_app/features/appointments/domain/entities/reserved_appointment.dart';
 
 sealed class AppointmentState extends Equatable {
@@ -25,6 +26,7 @@ final class DoctorAppointmentsLoaded extends AppointmentState {
   final DateTime? calculatedEndTime;
   final String? conflictMessage;
   final bool isBooking;
+  final List<AvailableSlot> availableSlots;
 
   const DoctorAppointmentsLoaded({
     required this.reservedAppointments,
@@ -35,6 +37,7 @@ final class DoctorAppointmentsLoaded extends AppointmentState {
     this.calculatedEndTime,
     this.conflictMessage,
     this.isBooking = false,
+    this.availableSlots = const [],
   });
 
   @override
@@ -47,6 +50,7 @@ final class DoctorAppointmentsLoaded extends AppointmentState {
         calculatedEndTime,
         conflictMessage ?? '',
         isBooking,
+        availableSlots,
       ];
 
   DoctorAppointmentsLoaded copyWith({
@@ -59,6 +63,7 @@ final class DoctorAppointmentsLoaded extends AppointmentState {
     String? conflictMessage,
     bool? isBooking,
     bool clearTime = false,
+    List<AvailableSlot>? availableSlots,
   }) =>
       DoctorAppointmentsLoaded(
         reservedAppointments:
@@ -72,6 +77,7 @@ final class DoctorAppointmentsLoaded extends AppointmentState {
             clearTime ? null : (calculatedEndTime ?? this.calculatedEndTime),
         conflictMessage: conflictMessage,
         isBooking: isBooking ?? this.isBooking,
+        availableSlots: availableSlots ?? this.availableSlots,
       );
 }
 

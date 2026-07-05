@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viora_app/core/errors/failure.dart';
+import 'package:viora_app/features/appointments/domain/entities/available_slot.dart';
 import 'package:viora_app/features/appointments/domain/entities/reserved_appointment.dart';
 import 'package:viora_app/features/appointments/domain/entities/staff_day_schedule.dart';
 import 'package:viora_app/features/appointments/domain/usecases/book_appointment.dart';
@@ -77,6 +78,14 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
       }
     }
 
+    final availableSlots = _generateAvailableSlots(
+      shiftStart: shiftStart,
+      shiftEnd: shiftEnd,
+      selectedDate: event.selectedDate,
+      serviceDurationMinutes: _serviceDurationMinutes,
+      reservedAppointments: appointmentsResult.getOrElse(() => []),
+    );
+
     appointmentsResult.fold(
       (failure) => emit(AppointmentsError(failure.message)),
       (appointments) => emit(DoctorAppointmentsLoaded(
@@ -84,6 +93,7 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
         selectedDate: event.selectedDate,
         shiftStartTime: shiftStart,
         shiftEndTime: shiftEnd,
+        availableSlots: availableSlots,
       )),
     );
   }
@@ -146,5 +156,53 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     final hour = dt.hour.toString().padLeft(2, '0');
     final minute = dt.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
+  }
+
+  List<AvailableSlot> _generateAvailableSlots({
+    required String? shiftStart,
+    required String? shiftEnd,
+    required DateTime selectedDate,
+    required int serviceDurationMinutes,
+    required List<ReservedAppointment> reservedAppointments,
+  }) {
+    if (shiftStart == null || shiftEnd == null) return [];
+
+    final start = _parseTime(shiftStart, selectedDate);
+    final end = _parseTime(shiftEnd, selectedDate);
+    final duration = Duration(minutes: serviceDurationMinutes);
+    final slots = <AvailableSlot>[];
+
+    var current = start;
+    while (!current.add(duration).isAfter(end)) {
+      final slotEnd = current.add(duration);
+
+      var isReserved = false;
+      for (final apt in reservedAppointments) {
+        if (current.isBefore(apt.endTime) &&
+            slotEnd.isAfter(apt.reservationDate)) {
+          isReserved = true;
+          break;
+        }
+      }
+
+      if (!isReserved) {
+        slots.add(AvailableSlot(startTime: current, endTime: slotEnd));
+      }
+
+      current = current.add(const Duration(minutes: 10));
+    }
+
+    return slots;
+  }
+
+  DateTime _parseTime(String time, DateTime date) {
+    final parts = time.split(':');
+    return DateTime(
+      date.year,
+      date.month,
+      date.day,
+      int.parse(parts[0]),
+      int.parse(parts[1]),
+    );
   }
 }
