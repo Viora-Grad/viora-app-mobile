@@ -12,15 +12,19 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
 
   @override
   Future<WalletModel> openWallet() async {
-    try {
-      final response = await _apiConsumer.post(
-        EndPoints.walletCustomerUrl,
-        requiresAuth: true,
-      );
+    final response = await _apiConsumer.postRaw(
+      EndPoints.walletCustomerUrl,
+      requiresAuth: true,
+    );
+    if (response is Map<String, dynamic>) {
       return WalletModel.fromJson(response);
-    } on DioException catch (e) {
-      handleDioException(e);
     }
+    return WalletModel(
+      walletId: response.toString(),
+      walletType: 'Customer',
+      balance: 0,
+      currency: 'EGP',
+    );
   }
 
   @override

@@ -79,9 +79,27 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
   ) async {
     emit(state.copyWith(status: WalletStatus.loading));
 
-    final result = await openWalletUseCase();
+    final openResult = await openWalletUseCase();
 
-    result.fold(
+    final opened = openResult.fold<WalletEntity?>(
+      (failure) {
+        emit(state.copyWith(
+          status: WalletStatus.error,
+          errorMessage: failure.message,
+        ));
+        return null;
+      },
+      (w) => w,
+    );
+
+    if (opened == null) return;
+
+    final getResult = await getWalletUseCase(
+      page: 1,
+      pageSize: 20,
+    );
+
+    getResult.fold(
       (failure) => emit(state.copyWith(
         status: WalletStatus.error,
         errorMessage: failure.message,
