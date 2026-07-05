@@ -236,6 +236,18 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
     }
   }
 
+  @override
+  Future<void> cancelAppointment(String appointmentId) async {
+    try {
+      await dio.patch(
+        EndPoints.cancelAppointmentUrl(appointmentId),
+        options: await _buildOptions(),
+      );
+    } on DioException catch (e) {
+      handleDioException(e);
+    }
+  }
+
   String _formatDuration(int minutes) {
     final hours = minutes ~/ 60;
     final mins = minutes % 60;

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:viora_app/core/di/service_locator.dart';
 import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/features/appointments/domain/entities/reserved_appointment.dart';
+import 'package:viora_app/features/appointments/domain/usecases/cancel_appointment.dart';
 
 const Color _primary = Color(0xFF0D7C66);
 const Color _accent = Color(0xFF14A085);
@@ -39,20 +41,83 @@ Color _statusColor(String status) {
   }
 }
 
-class AppointmentDetailPage extends StatelessWidget {
+class AppointmentDetailPage extends StatefulWidget {
   final ReservedAppointment appointment;
 
   const AppointmentDetailPage({super.key, required this.appointment});
 
   @override
+  State<AppointmentDetailPage> createState() => _AppointmentDetailPageState();
+}
+
+class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
+  bool _isCancelling = false;
+
+  void _cancelAppointment() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Cancel Appointment'),
+        content: const Text(
+          'Are you sure you want to cancel this appointment? '
+          'The amount will be refunded to your wallet.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Keep'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Cancel Appointment'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+    if (!mounted) return;
+
+    setState(() => _isCancelling = true);
+
+    final useCase = sl<CancelAppointmentUseCase>();
+    final result = await useCase.call(widget.appointment.id);
+
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        setState(() => _isCancelling = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to cancel: ${failure.message}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      },
+      (_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Appointment cancelled successfully. '
+                'Amount refunded to your wallet.'),
+            backgroundColor: Color(0xFF0D7C66),
+          ),
+        );
+        context.pop(true);
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final dateStr =
-        '${appointment.reservationDate.day.toString().padLeft(2, '0')}/'
-        '${appointment.reservationDate.month.toString().padLeft(2, '0')}/'
-        '${appointment.reservationDate.year}';
+        '${widget.appointment.reservationDate.day.toString().padLeft(2, '0')}/'
+        '${widget.appointment.reservationDate.month.toString().padLeft(2, '0')}/'
+        '${widget.appointment.reservationDate.year}';
     final timeStr =
-        '${appointment.reservationDate.hour.toString().padLeft(2, '0')}:'
-        '${appointment.reservationDate.minute.toString().padLeft(2, '0')}';
+        '${widget.appointment.reservationDate.hour.toString().padLeft(2, '0')}:'
+        '${widget.appointment.reservationDate.minute.toString().padLeft(2, '0')}';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -77,9 +142,13 @@ class AppointmentDetailPage extends StatelessWidget {
             _buildStatusHeader(),
             const SizedBox(height: 32),
             _buildQrCode(),
-            if (appointment.status == 'Completed') ...[
+            if (widget.appointment.status == 'Completed') ...[
               const SizedBox(height: 20),
               _buildPrescriptionButton(context),
+            ],
+            if (widget.appointment.status == 'NotArrived') ...[
+              const SizedBox(height: 20),
+              _buildCancelButton(),
             ],
             const SizedBox(height: 32),
             _buildInstructions(),
@@ -96,24 +165,24 @@ class AppointmentDetailPage extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
       decoration: BoxDecoration(
-        color: _statusColor(appointment.status).withValues(alpha: 0.1),
+        color: _statusColor(widget.appointment.status).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            _statusIcon(appointment.status),
-            color: _statusColor(appointment.status),
+            _statusIcon(widget.appointment.status),
+            color: _statusColor(widget.appointment.status),
             size: 20,
           ),
           const SizedBox(width: 8),
           Text(
-            _statusLabels[appointment.status] ?? appointment.status,
+            _statusLabels[widget.appointment.status] ?? widget.appointment.status,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: _statusColor(appointment.status),
+              color: _statusColor(widget.appointment.status),
             ),
           ),
         ],
@@ -182,7 +251,7 @@ class AppointmentDetailPage extends StatelessWidget {
               border: Border.all(color: _border),
             ),
             child: QrImageView(
-              data: appointment.id,
+              data: widget.appointment.id,
               version: QrVersions.auto,
               size: 220,
               backgroundColor: Colors.white,
@@ -209,7 +278,7 @@ class AppointmentDetailPage extends StatelessWidget {
                 Icon(Icons.fingerprint, size: 14, color: _accent),
                 const SizedBox(width: 6),
                 Text(
-                  'ID: ${appointment.id.substring(0, 8).toUpperCase()}...',
+                  'ID: ${widget.appointment.id.substring(0, 8).toUpperCase()}...',
                   style: TextStyle(
                     fontSize: 12,
                     color: _textSecondary,
@@ -313,7 +382,7 @@ class AppointmentDetailPage extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: () => context.push(
           AppRoutes.prescription,
-          extra: appointment.id,
+          extra: widget.appointment.id,
         ),
         icon: const Icon(Icons.medication),
         label: const Text(
@@ -322,6 +391,38 @@ class AppointmentDetailPage extends StatelessWidget {
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: _primary,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          elevation: 0,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCancelButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: _isCancelling ? null : _cancelAppointment,
+        icon: _isCancelling
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : const Icon(Icons.cancel_outlined),
+        label: Text(
+          _isCancelling ? 'Cancelling...' : 'Cancel Appointment',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFE53935),
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
@@ -372,20 +473,20 @@ class AppointmentDetailPage extends StatelessWidget {
           _buildSummaryRow(Icons.access_time, 'Time', timeStr),
           const Divider(height: 20, color: _border),
           _buildSummaryRow(Icons.medical_services_outlined, 'Service',
-              appointment.serviceName ?? 'N/A'),
+              widget.appointment.serviceName ?? 'N/A'),
           const Divider(height: 20, color: _border),
           _buildSummaryRow(Icons.person_outline, 'Doctor',
-              appointment.staffName ?? 'N/A'),
+              widget.appointment.staffName ?? 'N/A'),
           const Divider(height: 20, color: _border),
           _buildSummaryRow(Icons.business, 'Organization',
-              appointment.organizationName ?? 'N/A'),
+              widget.appointment.organizationName ?? 'N/A'),
           const Divider(height: 20, color: _border),
           _buildSummaryRow(Icons.location_on_outlined, 'Branch',
-              appointment.branchName ?? 'N/A'),
-          if (appointment.cost != null && appointment.cost!.isNotEmpty) ...[
+              widget.appointment.branchName ?? 'N/A'),
+          if (widget.appointment.cost != null && widget.appointment.cost!.isNotEmpty) ...[
             const Divider(height: 20, color: _border),
             _buildSummaryRow(
-                Icons.attach_money, 'Cost', '\$${appointment.cost}'),
+                Icons.attach_money, 'Cost', '\$${widget.appointment.cost}'),
           ],
         ],
       ),

@@ -102,7 +102,7 @@ class _HealthDashboardState extends State<HealthDashboard> {
                 subtitle: 'View pending visits.',
                 buttonLabel: 'View All',
                 isPrimary: false,
-                onTap: () {},
+                onTap: () => context.push(AppRoutes.myAppointments),
               ),
             ),
           ],

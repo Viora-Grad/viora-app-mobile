@@ -74,6 +74,9 @@ class EndPoints {
   static String customerAppointmentsUrl(String customerId) =>
       '$baseUrl/customers/$customerId';
 
+  static String cancelAppointmentUrl(String appointmentId) =>
+      '$baseUrl/api/appointments/$appointmentId/cancel';
+
   // Prescription
   static String prescriptionByAppointmentUrl(String appointmentId) =>
       '$baseUrl/api/prescription/appointment/$appointmentId';

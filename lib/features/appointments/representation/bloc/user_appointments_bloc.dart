@@ -1,18 +1,23 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viora_app/features/appointments/domain/entities/reserved_appointment.dart';
 import 'package:viora_app/features/appointments/domain/usecases/get_user_appointments.dart';
+import 'package:viora_app/features/appointments/domain/usecases/cancel_appointment.dart';
 import 'package:viora_app/features/appointments/representation/bloc/user_appointments_event.dart';
 import 'package:viora_app/features/appointments/representation/bloc/user_appointments_state.dart';
 
 class UserAppointmentsBloc
     extends Bloc<UserAppointmentsEvent, UserAppointmentsState> {
   final GetUserAppointmentsUseCase getUserAppointments;
+  final CancelAppointmentUseCase cancelAppointment;
   List<ReservedAppointment> _cachedAppointments = [];
 
-  UserAppointmentsBloc({required this.getUserAppointments})
-      : super(const UserAppointmentsInitial()) {
+  UserAppointmentsBloc({
+    required this.getUserAppointments,
+    required this.cancelAppointment,
+  }) : super(const UserAppointmentsInitial()) {
     on<LoadUserAppointments>(_onLoadUserAppointments);
     on<FilterUserAppointments>(_onFilterUserAppointments);
+    on<CancelSingleAppointment>(_onCancelAppointment);
   }
 
   Future<void> _onLoadUserAppointments(
@@ -38,6 +43,31 @@ class UserAppointmentsBloc
             allAppointments: _cachedAppointments,
             filteredAppointments: _cachedAppointments,
             selectedStatus: event.statusFilter,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _onCancelAppointment(
+    CancelSingleAppointment event,
+    Emitter<UserAppointmentsState> emit,
+  ) async {
+    emit(const UserAppointmentsLoading());
+
+    final result = await cancelAppointment(event.appointmentId);
+
+    result.fold(
+      (failure) => emit(
+        UserAppointmentsError(message: failure.message),
+      ),
+      (_) {
+        _cachedAppointments.removeWhere((a) => a.id == event.appointmentId);
+        emit(
+          UserAppointmentsLoaded(
+            allAppointments: _cachedAppointments,
+            filteredAppointments: _cachedAppointments,
+            cancelledSuccessfully: true,
           ),
         );
       },

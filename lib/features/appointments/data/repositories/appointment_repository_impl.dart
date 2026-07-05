@@ -137,4 +137,14 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
       return Left(handleException(e));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> cancelAppointment(String appointmentId) async {
+    try {
+      await remoteDataSource.cancelAppointment(appointmentId);
+      return const Right(null);
+    } catch (e) {
+      return Left(handleException(e));
+    }
+  }
 }
