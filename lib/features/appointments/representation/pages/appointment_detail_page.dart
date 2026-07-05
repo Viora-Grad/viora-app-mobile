@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/features/appointments/domain/entities/reserved_appointment.dart';
 
 const Color _primary = Color(0xFF0D7C66);
@@ -75,6 +77,10 @@ class AppointmentDetailPage extends StatelessWidget {
             _buildStatusHeader(),
             const SizedBox(height: 32),
             _buildQrCode(),
+            if (appointment.status == 'Completed') ...[
+              const SizedBox(height: 20),
+              _buildPrescriptionButton(context),
+            ],
             const SizedBox(height: 32),
             _buildInstructions(),
             const SizedBox(height: 32),
@@ -298,6 +304,32 @@ class AppointmentDetailPage extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildPrescriptionButton(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () => context.push(
+          AppRoutes.prescription,
+          extra: appointment.id,
+        ),
+        icon: const Icon(Icons.medication),
+        label: const Text(
+          'View Prescription',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: _primary,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+          elevation: 0,
+        ),
+      ),
     );
   }
 
