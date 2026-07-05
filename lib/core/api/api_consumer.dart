@@ -1,31 +1,66 @@
+import 'package:dio/dio.dart';
+
 abstract class ApiConsumer {
-  Future<dynamic> get(
+  Future<Map<String, dynamic>> get(
     String url, {
     Object? data,
     Map<String, dynamic>? queryParameters,
+    bool isFormData = false,
+    bool requiresAuth = false,
+    CancelToken? cancelToken,
   });
 
-  Future<dynamic> post(
+  Future<Map<String, dynamic>> post(
     String url, {
     Object? data,
     Map<String, dynamic>? queryParameters,
+    bool isFormData = false,
+    bool requiresAuth = false,
+    CancelToken? cancelToken,
   });
 
-  Future<dynamic> put(
+  Future<dynamic> getRaw(
     String url, {
     Object? data,
     Map<String, dynamic>? queryParameters,
+    bool isFormData = false,
+    bool requiresAuth = false,
+    CancelToken? cancelToken,
   });
 
-  Future<dynamic> patch(
+  Future<dynamic> postRaw(
     String url, {
     Object? data,
     Map<String, dynamic>? queryParameters,
+    bool isFormData = false,
+    bool requiresAuth = false,
+    CancelToken? cancelToken,
   });
 
-  Future<dynamic> delete(
+  Future<Map<String, dynamic>> put(
     String url, {
     Object? data,
     Map<String, dynamic>? queryParameters,
+    bool isFormData = false,
+    bool requiresAuth = false,
+    CancelToken? cancelToken,
+  });
+
+  Future<Map<String, dynamic>> patch(
+    String url, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    bool isFormData = false,
+    bool requiresAuth = false,
+    CancelToken? cancelToken,
+  });
+
+  Future<Map<String, dynamic>> delete(
+    String url, {
+    Object? data,
+    Map<String, dynamic>? queryParameters,
+    bool isFormData = false,
+    bool requiresAuth = false,
+    CancelToken? cancelToken,
   });
 }

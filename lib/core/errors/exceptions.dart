@@ -85,3 +85,31 @@ class ValidationException implements Exception {
   @override
   String toString() => 'ValidationException: $message';
 }
+
+class OAuthCancelledException implements Exception {
+  final String message;
+  const OAuthCancelledException([this.message = 'OAuth cancelled by user']);
+
+  OAuthCancelledFailure toFailure() => OAuthCancelledFailure(message);
+
+  @override
+  String toString() => 'OAuthCancelledException: $message';
+}
+
+class OAuthRequiresRegistrationException implements Exception {
+  final String providerKey;
+  final String email;
+  final String? firstName;
+  final String? lastName;
+
+  const OAuthRequiresRegistrationException({
+    required this.providerKey,
+    required this.email,
+    this.firstName,
+    this.lastName,
+  });
+
+  @override
+  String toString() =>
+      'OAuthRequiresRegistrationException(providerKey: $providerKey, email: $email)';
+}
