@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viora_app/core/di/service_locator.dart';
+import 'package:viora_app/core/widgets/app_snackbar.dart';
 import 'package:viora_app/features/wellness/domain/sleep_advice.dart';
 import 'package:viora_app/features/wellness/domain/sleep_entry.dart';
+import 'package:viora_app/features/wellness/domain/sleep_suggestion.dart';
 import 'package:viora_app/features/wellness/presentation/cubits/sleep_cubit.dart';
 
 const _primary = Color(0xFF2F1193);
@@ -49,6 +51,15 @@ class _SleepTrackerView extends StatelessWidget {
           'Sleep Tracker',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
+        actions: [
+          Builder(
+            builder: (context) => IconButton(
+              tooltip: 'Preview sleep suggestion',
+              icon: const Icon(Icons.science_outlined),
+              onPressed: () => context.read<SleepCubit>().demoSuggestion(),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: Builder(
         builder: (context) => FloatingActionButton.extended(
@@ -67,7 +78,47 @@ class _SleepTrackerView extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 100),
             children: [
+              if (state.suggestion != null) ...[
+                _SuggestionCard(
+                  suggestion: state.suggestion!,
+                  onAccept: () {
+                    context.read<SleepCubit>().acceptSuggestion();
+                    AppSnackBar.show(
+                      context,
+                      'Sleep logged. Sweet dreams counted! 🌙',
+                      type: AppSnackBarType.success,
+                    );
+                  },
+                  onDismiss: () =>
+                      context.read<SleepCubit>().dismissSuggestion(),
+                ),
+                const SizedBox(height: 24),
+              ],
               _AdviceCard(advice: state.advice),
+              const SizedBox(height: 24),
+              _QuickLogCard(
+                awakeSince: state.awakeSince,
+                onAwake: () {
+                  context.read<SleepCubit>().markAwake();
+                  AppSnackBar.show(
+                    context,
+                    'Good morning! Awake time noted ☀️',
+                    type: AppSnackBarType.success,
+                  );
+                },
+                onSleep: () async {
+                  final slept = await context
+                      .read<SleepCubit>()
+                      .markGoingToSleep();
+                  if (slept != null && context.mounted) {
+                    AppSnackBar.show(
+                      context,
+                      'Night! Logged ${slept.inHours}h ${slept.inMinutes % 60}m of sleep 🌙',
+                      type: AppSnackBarType.success,
+                    );
+                  }
+                },
+              ),
               const SizedBox(height: 24),
               const Text(
                 'Recent nights',
@@ -128,6 +179,217 @@ class _SleepTrackerView extends StatelessWidget {
 
 class WellnessSleepLimit {
   static const int max = 30;
+}
+
+class _QuickLogCard extends StatelessWidget {
+  final DateTime? awakeSince;
+  final VoidCallback onAwake;
+  final VoidCallback onSleep;
+
+  const _QuickLogCard({
+    required this.awakeSince,
+    required this.onAwake,
+    required this.onSleep,
+  });
+
+  String _clock(DateTime d) {
+    final period = d.hour < 12 ? 'AM' : 'PM';
+    final h = d.hour % 12 == 0 ? 12 : d.hour % 12;
+    final m = d.minute.toString().padLeft(2, '0');
+    return '$h:$m $period';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isAwake = awakeSince != null;
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE8E8EE)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: _primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.touch_app_rounded, color: _primary),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Text(
+                  'Quick log',
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            isAwake
+                ? 'Awake since ${_clock(awakeSince!)}. Tap below when you head to '
+                      'bed and Vivi logs the rest of your day as sleep.'
+                : 'Two taps: mark when you wake up, then when you go to sleep. '
+                      'The rest of your 24 hours is counted as sleep.',
+            style: const TextStyle(fontSize: 14, height: 1.4, color: Colors.black87),
+          ),
+          const SizedBox(height: 18),
+          SizedBox(
+            width: double.infinity,
+            child: isAwake
+                ? ElevatedButton.icon(
+                    onPressed: onSleep,
+                    icon: const Icon(Icons.nightlight_round, size: 20),
+                    label: const Text("I'm going to sleep"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _accent,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                      textStyle: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  )
+                : ElevatedButton.icon(
+                    onPressed: onAwake,
+                    icon: const Icon(Icons.wb_sunny_rounded, size: 20),
+                    label: const Text("I'm awake now"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                      textStyle: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SuggestionCard extends StatelessWidget {
+  final SleepSuggestion suggestion;
+  final VoidCallback onAccept;
+  final VoidCallback onDismiss;
+
+  const _SuggestionCard({
+    required this.suggestion,
+    required this.onAccept,
+    required this.onDismiss,
+  });
+
+  String _clock(DateTime d) {
+    final period = d.hour < 12 ? 'AM' : 'PM';
+    final h = d.hour % 12 == 0 ? 12 : d.hour % 12;
+    final m = d.minute.toString().padLeft(2, '0');
+    return '$h:$m $period';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final d = suggestion.duration;
+    final durationLabel = '${d.inHours}h ${d.inMinutes % 60}m';
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: _accent.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _accent.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: _accent.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.nights_stay_rounded, color: _accent),
+              ),
+              const SizedBox(width: 14),
+              const Expanded(
+                child: Text(
+                  'Did you just sleep?',
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Your phone was idle for $durationLabel — from '
+            '${_clock(suggestion.start)} to ${_clock(suggestion.end)}. '
+            'Want to log this as sleep?',
+            style: const TextStyle(fontSize: 14, height: 1.4, color: Colors.black87),
+          ),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: onAccept,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Yes, log it',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: onDismiss,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: _primary,
+                    side: const BorderSide(color: Color(0xFFDDDDE5)),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'No, thanks',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _AdviceCard extends StatelessWidget {

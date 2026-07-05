@@ -14,6 +14,9 @@ class WellnessLocalImpl implements WellnessLocal {
   static const String _waterKey = 'wellness_water_settings';
   static const String _workoutKey = 'wellness_workout_settings';
   static const String _sleepKey = 'wellness_sleep_entries';
+  static const String _lastBackgroundedKey = 'wellness_last_backgrounded_ms';
+  static const String _handledSuggestionKey = 'wellness_handled_suggestion_ms';
+  static const String _awakeMarkerKey = 'wellness_awake_marker_ms';
 
   /// Only the most recent sessions are kept in cache.
   static const int maxSleepEntries = 30;
@@ -84,5 +87,40 @@ class WellnessLocalImpl implements WellnessLocal {
   Future<void> _persistSleep(List<SleepEntry> entries) async {
     final jsonList = entries.map((e) => jsonEncode(e.toJson())).toList();
     await _cache.saveData(_sleepKey, jsonList);
+  }
+
+  @override
+  Future<void> setLastBackgrounded(DateTime time) async {
+    await _cache.saveData(_lastBackgroundedKey, time.millisecondsSinceEpoch);
+  }
+
+  @override
+  Future<DateTime?> getLastBackgrounded() => _readTimestamp(_lastBackgroundedKey);
+
+  @override
+  Future<void> setHandledSuggestionStart(DateTime start) async {
+    await _cache.saveData(_handledSuggestionKey, start.millisecondsSinceEpoch);
+  }
+
+  @override
+  Future<DateTime?> getHandledSuggestionStart() =>
+      _readTimestamp(_handledSuggestionKey);
+
+  @override
+  Future<void> setAwakeMarker(DateTime? time) async {
+    if (time == null) {
+      await _cache.deleteData(_awakeMarkerKey);
+      return;
+    }
+    await _cache.saveData(_awakeMarkerKey, time.millisecondsSinceEpoch);
+  }
+
+  @override
+  Future<DateTime?> getAwakeMarker() => _readTimestamp(_awakeMarkerKey);
+
+  Future<DateTime?> _readTimestamp(String key) async {
+    final raw = await _cache.getData(key);
+    if (raw is int) return DateTime.fromMillisecondsSinceEpoch(raw);
+    return null;
   }
 }
