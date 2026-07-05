@@ -101,6 +101,12 @@ import 'package:viora_app/features/appointments/domain/usecases/get_available_sl
 import 'package:viora_app/features/appointments/domain/usecases/get_user_appointments.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_bloc.dart';
 import 'package:viora_app/features/appointments/representation/bloc/user_appointments_bloc.dart';
+import 'package:viora_app/features/prescription/data/datasources/remote/prescription_remote.dart';
+import 'package:viora_app/features/prescription/data/datasources/remote/prescription_remote_impl.dart';
+import 'package:viora_app/features/prescription/data/repositories/prescription_repository_impl.dart';
+import 'package:viora_app/features/prescription/domain/repositories/prescription_repository.dart';
+import 'package:viora_app/features/prescription/domain/usecases/get_prescription_by_appointment.dart';
+import 'package:viora_app/features/prescription/presentation/bloc/prescription_bloc.dart';
 import 'package:viora_app/features/wallet/data/datasources/wallet_remote.dart';
 import 'package:viora_app/features/wallet/data/datasources/wallet_remote_impl.dart';
 import 'package:viora_app/features/wallet/data/repositories/wallet_repository_impl.dart';
@@ -592,6 +598,33 @@ Future<void> dependencyInjection() async {
     sl.registerFactory<UserAppointmentsBloc>(
       () => UserAppointmentsBloc(
         getUserAppointments: sl(),
+      ),
+    );
+  }
+
+  // Prescription
+  if (!sl.isRegistered<PrescriptionRemoteDataSource>()) {
+    sl.registerLazySingleton<PrescriptionRemoteDataSource>(
+      () => PrescriptionRemoteDataSourceImpl(sl(), sl()),
+    );
+  }
+
+  if (!sl.isRegistered<PrescriptionRepository>()) {
+    sl.registerLazySingleton<PrescriptionRepository>(
+      () => PrescriptionRepositoryImpl(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetPrescriptionByAppointment>()) {
+    sl.registerLazySingleton<GetPrescriptionByAppointment>(
+      () => GetPrescriptionByAppointment(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<PrescriptionBloc>()) {
+    sl.registerFactory<PrescriptionBloc>(
+      () => PrescriptionBloc(
+        getPrescriptionByAppointment: sl(),
       ),
     );
   }
