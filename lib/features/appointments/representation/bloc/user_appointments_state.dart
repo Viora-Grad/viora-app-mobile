@@ -22,6 +22,7 @@ final class UserAppointmentsLoaded extends UserAppointmentsState {
   final String? selectedStatus;
   final String searchQuery;
   final bool sortAscending;
+  final bool cancelledSuccessfully;
 
   const UserAppointmentsLoaded({
     required this.allAppointments,
@@ -29,6 +30,7 @@ final class UserAppointmentsLoaded extends UserAppointmentsState {
     this.selectedStatus,
     this.searchQuery = '',
     this.sortAscending = false,
+    this.cancelledSuccessfully = false,
   });
 
   @override
@@ -38,6 +40,7 @@ final class UserAppointmentsLoaded extends UserAppointmentsState {
         selectedStatus,
         searchQuery,
         sortAscending,
+        cancelledSuccessfully,
       ];
 }
 

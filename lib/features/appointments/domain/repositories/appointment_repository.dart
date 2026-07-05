@@ -34,4 +34,6 @@ abstract class AppointmentRepository {
     String customerId, {
     String? status,
   });
+
+  Future<Either<Failure, void>> cancelAppointment(String appointmentId);
 }

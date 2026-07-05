@@ -40,4 +40,6 @@ abstract class AppointmentRemoteDataSource {
   Future<String?> getStaffName(String staffId);
 
   Future<Map<String, String?>> getBranchInfo(String branchId);
+
+  Future<void> cancelAppointment(String appointmentId);
 }

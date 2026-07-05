@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:viora_app/core/di/service_locator.dart';
 import 'package:viora_app/core/enums/gender.dart';
+import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/profile/domain/entities/user.dart';
 import 'package:viora_app/features/profile/domain/repositories/user_repository.dart';
@@ -266,7 +267,7 @@ class _ProfileView extends StatelessWidget {
             _GridItemData(
               icon: Icons.location_on_outlined,
               label: 'Visited',
-              onTap: () {},
+              onTap: () => context.push(AppRoutes.myAppointments),
             ),
             _GridItemData(
               icon: Icons.bookmark_outline_rounded,

@@ -233,22 +233,32 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _onRefresh() async {
+    _homeBloc
+      ..add(LoadHomeDataEvent())
+      ..add(const LoadFilterOptionsEvent());
+  }
+
   Widget _buildMainContent() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 4),
-          const AiBanner(),
-          const SizedBox(height: 28),
-          const PopularSpecialties(),
-          const SizedBox(height: 28),
-          const MedicalRecordBanner(),
-          const SizedBox(height: 24),
-          const HealthDashboard(),
-          const SizedBox(height: 16),
-        ],
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            const AiBanner(),
+            const SizedBox(height: 28),
+            const PopularSpecialties(),
+            const SizedBox(height: 28),
+            const MedicalRecordBanner(),
+            const SizedBox(height: 24),
+            const HealthDashboard(),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }

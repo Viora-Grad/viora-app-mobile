@@ -20,6 +20,15 @@ final class LoadUserAppointments extends UserAppointmentsEvent {
   List<Object?> get props => [customerId, statusFilter];
 }
 
+final class CancelSingleAppointment extends UserAppointmentsEvent {
+  final String appointmentId;
+
+  const CancelSingleAppointment({required this.appointmentId});
+
+  @override
+  List<Object?> get props => [appointmentId];
+}
+
 final class FilterUserAppointments extends UserAppointmentsEvent {
   final String searchQuery;
   final String? statusFilter;

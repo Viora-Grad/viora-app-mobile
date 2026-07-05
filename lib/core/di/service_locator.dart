@@ -100,6 +100,7 @@ import 'package:viora_app/features/appointments/domain/usecases/book_appointment
 import 'package:viora_app/features/appointments/domain/usecases/get_doctor_appointments.dart';
 import 'package:viora_app/features/appointments/domain/usecases/get_staff_schedule.dart';
 import 'package:viora_app/features/appointments/domain/usecases/get_user_appointments.dart';
+import 'package:viora_app/features/appointments/domain/usecases/cancel_appointment.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_bloc.dart';
 import 'package:viora_app/features/appointments/representation/bloc/user_appointments_bloc.dart';
 import 'package:viora_app/features/forms/data/datasources/remote/form_remote.dart';
@@ -596,9 +597,18 @@ Future<void> dependencyInjection() async {
     );
   }
 
+  if (!sl.isRegistered<CancelAppointmentUseCase>()) {
+    sl.registerLazySingleton<CancelAppointmentUseCase>(
+      () => CancelAppointmentUseCase(sl()),
+    );
+  }
+
   if (!sl.isRegistered<UserAppointmentsBloc>()) {
     sl.registerFactory<UserAppointmentsBloc>(
-      () => UserAppointmentsBloc(getUserAppointments: sl()),
+      () => UserAppointmentsBloc(
+        getUserAppointments: sl(),
+        cancelAppointment: sl(),
+      ),
     );
   }
 
