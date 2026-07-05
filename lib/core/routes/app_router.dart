@@ -37,6 +37,8 @@ import 'package:viora_app/features/wallet/presentation/pages/wallet_page.dart';
 import 'package:viora_app/features/appointments/representation/bloc/user_appointments_bloc.dart';
 import 'package:viora_app/features/appointments/representation/pages/user_appointments_page.dart';
 import 'package:viora_app/features/appointments/representation/pages/appointment_detail_page.dart';
+import 'package:viora_app/features/prescription/presentation/bloc/prescription_bloc.dart';
+import 'package:viora_app/features/prescription/presentation/pages/prescription_page.dart';
 
 class AppRoutes {
   static const splash = '/';
@@ -66,6 +68,7 @@ class AppRoutes {
   static const wallet = '/wallet';
   static const myAppointments = '/my-appointments';
   static const appointmentDetail = '/appointment-detail';
+  static const prescription = '/prescription';
 }
 
 final appRouter = GoRouter(
@@ -295,6 +298,16 @@ final appRouter = GoRouter(
         final appointment = state.extra as dynamic;
         return AppointmentDetailPage(
           appointment: appointment,
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.prescription,
+      builder: (context, state) {
+        final appointmentId = state.extra as String;
+        return BlocProvider(
+          create: (_) => sl<PrescriptionBloc>(),
+          child: PrescriptionPage(appointmentId: appointmentId),
         );
       },
     ),

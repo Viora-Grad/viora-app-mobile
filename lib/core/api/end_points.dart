@@ -74,6 +74,10 @@ class EndPoints {
   static String customerAppointmentsUrl(String customerId) =>
       '$baseUrl/customers/$customerId';
 
+  // Prescription
+  static String prescriptionByAppointmentUrl(String appointmentId) =>
+      '$baseUrl/api/prescription/appointment/$appointmentId';
+
   // Wallet
   static const String walletCustomerUrl = '$baseUrl/api/wallets/customer';
   static const String walletRechargeUrl = '$baseUrl/api/wallets/customer/recharge';
