@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:viora_app/core/api/end_points.dart';
 import 'package:viora_app/core/errors/error_handler.dart';
@@ -24,14 +25,24 @@ class FormRemoteDataSourceImpl implements FormRemoteDataSource {
 
   @override
   Future<FormModel?> getServiceForm(String serviceId) async {
+    final url = EndPoints.serviceFormUrl(serviceId);
+    debugPrint('=== FormRemoteDataSource.getServiceForm ===');
+    debugPrint('URL: $url');
     try {
-      final response = await dio.get(
-        EndPoints.serviceFormUrl(serviceId),
-        options: await _buildOptions(),
-      );
-      if (response.data == null) return null;
-      return FormModel.fromJson(response.data as Map<String, dynamic>);
+      final options = await _buildOptions();
+      debugPrint('Headers: ${options.headers}');
+      final response = await dio.get(url, options: options);
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.data}');
+      if (response.data == null) {
+        debugPrint('Response data is null');
+        return null;
+      }
+      final form = FormModel.fromJson(response.data as Map<String, dynamic>);
+      debugPrint('Parsed questions count: ${form.questions.length}');
+      return form;
     } on DioException catch (e) {
+      debugPrint('DioException: ${e.message}, status: ${e.response?.statusCode}');
       if (e.response?.statusCode == 404) return null;
       handleDioException(e);
     }

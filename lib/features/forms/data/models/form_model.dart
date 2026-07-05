@@ -17,19 +17,25 @@ class FormFieldModel {
     this.accept,
   });
 
+  static List<String>? _parseStringList(dynamic value) {
+    if (value == null) return null;
+    if (value is List) return value.cast<String>();
+    if (value is String) {
+      if (value.isEmpty) return null;
+      return value.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    }
+    return null;
+  }
+
   factory FormFieldModel.fromJson(Map<String, dynamic> json) {
     return FormFieldModel(
-      id: json['id'] as String? ?? '',
+      id: (json['id'] as String? ?? json['name'] as String?) ?? '',
       type: json['type'] as String? ?? 'text',
       label: json['label'] as String? ?? '',
       required: json['required'] as bool? ?? false,
       placeholder: json['placeholder'] as String?,
-      options: json['options'] != null
-          ? (json['options'] as List).cast<String>()
-          : null,
-      accept: json['accept'] != null
-          ? (json['accept'] as List).cast<String>()
-          : null,
+      options: _parseStringList(json['options']),
+      accept: _parseStringList(json['accept']),
     );
   }
 
@@ -69,12 +75,29 @@ class FormModel {
           .toList();
     } else {
       final fields = json['fields'];
-      if (fields is Map<String, dynamic>) {
-        final nestedQuestions = fields['questions'];
-        if (nestedQuestions is List) {
-          questions = nestedQuestions
-              .map((e) => FormFieldModel.fromJson(e as Map<String, dynamic>))
-              .toList();
+      if (fields is List) {
+        questions = fields
+            .map((e) => FormFieldModel.fromJson(e as Map<String, dynamic>))
+            .toList();
+      } else if (fields is Map<String, dynamic>) {
+        for (final key in ['questions', 'fields', 'formFields', 'items']) {
+          final value = fields[key];
+          if (value is List) {
+            questions = value
+                .map((e) => FormFieldModel.fromJson(e as Map<String, dynamic>))
+                .toList();
+            break;
+          }
+        }
+        if (questions.isEmpty) {
+          for (final value in fields.values) {
+            if (value is List && value.isNotEmpty && value.first is Map) {
+              questions = value
+                  .map((e) => FormFieldModel.fromJson(e as Map<String, dynamic>))
+                  .toList();
+              break;
+            }
+          }
         }
       }
     }

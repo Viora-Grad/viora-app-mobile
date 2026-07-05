@@ -79,16 +79,22 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
   }
 
   Future<void> _checkHasForm() async {
+    debugPrint('=== _checkHasForm ===');
+    debugPrint('serviceId: ${widget.serviceId}');
     try {
       final repo = sl<FormRepository>();
       final result = await repo.getServiceForm(widget.serviceId);
       result.fold(
         (failure) {
-          debugPrint('Form check failed: ${failure.message}');
+          debugPrint('Form check failed: ${failure.message} (${failure.runtimeType})');
         },
         (form) {
+          debugPrint('Form received: ${form != null}, questions: ${form?.questions.length}');
           if (mounted && form != null && form.questions.isNotEmpty) {
+            debugPrint('Setting _hasForm = true');
             setState(() => _hasForm = true);
+          } else {
+            debugPrint('Not setting _hasForm: mounted=$mounted, form=${form != null}, questions=${form?.questions.length}');
           }
         },
       );
