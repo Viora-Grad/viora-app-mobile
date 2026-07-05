@@ -7,17 +7,15 @@ sealed class AppointmentEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-final class LoadAvailableSlots extends AppointmentEvent {
+final class LoadDoctorAppointments extends AppointmentEvent {
   final String branchId;
   final String staffId;
-  final String serviceId;
   final int serviceDurationMinutes;
   final DateTime selectedDate;
 
-  const LoadAvailableSlots({
+  const LoadDoctorAppointments({
     required this.branchId,
     required this.staffId,
-    required this.serviceId,
     required this.serviceDurationMinutes,
     required this.selectedDate,
   });
@@ -26,23 +24,18 @@ final class LoadAvailableSlots extends AppointmentEvent {
   List<Object?> get props => [
         branchId,
         staffId,
-        serviceId,
         serviceDurationMinutes,
         selectedDate,
       ];
 }
 
-final class SelectSlot extends AppointmentEvent {
+final class SetAppointmentTime extends AppointmentEvent {
   final DateTime startTime;
-  final DateTime endTime;
 
-  const SelectSlot({
-    required this.startTime,
-    required this.endTime,
-  });
+  const SetAppointmentTime({required this.startTime});
 
   @override
-  List<Object?> get props => [startTime, endTime];
+  List<Object?> get props => [startTime];
 }
 
 final class ConfirmBooking extends AppointmentEvent {

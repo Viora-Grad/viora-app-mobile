@@ -28,6 +28,13 @@ class EndPoints {
   // Schedule
   static const String scheduleUrl = '$baseUrl/api/schedule';
 
+  static String staffDayShiftUrl({
+    required String staffId,
+    required String shiftId,
+    required String day,
+  }) =>
+      '$baseUrl/api/schedule/staff?StaffId=$staffId&ShiftId=$shiftId&day=$day';
+
   // AI Chat
   static const String aiChatUrl = '$baseUrl/api/ai/chats';
   static const String aiSessionsUrl = '$baseUrl/api/ai/sessions';
@@ -74,6 +81,22 @@ class EndPoints {
       '$baseUrl/api/wallets/branch/$branchId';
   static String walletBranchCheckoutUrl(String branchId) =>
       '$baseUrl/api/wallets/branch/$branchId/checkout';
+
+  // Forms
+  static String serviceFormUrl(String serviceId) =>
+      '$baseUrl/api/service/$serviceId/form';
+
+  static String formByIdUrl(String formId) =>
+      '$baseUrl/api/service/form/$formId';
+
+  static String formSubmissionUrl(String appointmentId) =>
+      '$baseUrl/api/appontment/$appointmentId/form-submission';
+
+  static String formFileUploadUrl(String formSubmissionId) =>
+      '$baseUrl/api/form/submission/file/$formSubmissionId';
+
+  static String formSubmissionFileUrl(String formSubmissionId, String fileId) =>
+      '$baseUrl/api/form/submission/file/$formSubmissionId/$fileId';
 }
 
 class ApiKey {

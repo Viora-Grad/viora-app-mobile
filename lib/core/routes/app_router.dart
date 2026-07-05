@@ -27,6 +27,8 @@ import 'package:viora_app/features/wellness/presentation/pages/water_reminder_pa
 import 'package:viora_app/features/service/representation/pages/service_listing_page.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_bloc.dart';
 import 'package:viora_app/features/appointments/representation/pages/appointment_booking_page.dart';
+import 'package:viora_app/features/forms/presentation/bloc/form_bloc.dart';
+import 'package:viora_app/features/forms/presentation/pages/form_page.dart';
 import 'package:viora_app/features/staff/representation/pages/staff_listing_page.dart';
 import 'package:viora_app/features/wellness/presentation/pages/wellness_hub_page.dart';
 import 'package:viora_app/features/wellness/presentation/pages/workout_reminder_page.dart';
@@ -60,6 +62,7 @@ class AppRoutes {
   static const serviceListing = '/services';
   static const staffListing = '/staff';
   static const bookAppointment = '/book-appointment';
+  static const fillForm = '/fill-form';
   static const wallet = '/wallet';
   static const myAppointments = '/my-appointments';
   static const appointmentDetail = '/appointment-detail';
@@ -220,6 +223,26 @@ final appRouter = GoRouter(
           serviceName: Uri.decodeComponent(serviceName),
           serviceDuration: serviceDuration,
           serviceCost: serviceCost,
+        );
+      },
+    ),
+    GoRoute(
+      path: AppRoutes.fillForm,
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>? ?? {};
+        return BlocProvider(
+          create: (_) => sl<FormBloc>(),
+          child: FormPage(
+            serviceId: extra['serviceId'] as String? ?? '',
+            staffId: extra['staffId'] as String? ?? '',
+            staffName: extra['staffName'] as String? ?? '',
+            serviceName: extra['serviceName'] as String? ?? '',
+            branchId: extra['branchId'] as String? ?? '',
+            serviceDurationMinutes: extra['serviceDurationMinutes'] as int? ?? 30,
+            serviceCost: (extra['serviceCost'] as num?)?.toDouble() ?? 0,
+            reservationDate: DateTime.tryParse(extra['reservationDate'] as String? ?? '') ?? DateTime.now(),
+            paymentMethod: extra['paymentMethod'] as String? ?? 'Cash',
+          ),
         );
       },
     ),

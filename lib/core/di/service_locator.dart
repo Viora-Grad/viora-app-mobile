@@ -97,10 +97,19 @@ import 'package:viora_app/features/appointments/data/datasources/remote/appointm
 import 'package:viora_app/features/appointments/data/repositories/appointment_repository_impl.dart';
 import 'package:viora_app/features/appointments/domain/repositories/appointment_repository.dart';
 import 'package:viora_app/features/appointments/domain/usecases/book_appointment.dart';
-import 'package:viora_app/features/appointments/domain/usecases/get_available_slots.dart';
+import 'package:viora_app/features/appointments/domain/usecases/get_doctor_appointments.dart';
+import 'package:viora_app/features/appointments/domain/usecases/get_staff_schedule.dart';
 import 'package:viora_app/features/appointments/domain/usecases/get_user_appointments.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_bloc.dart';
 import 'package:viora_app/features/appointments/representation/bloc/user_appointments_bloc.dart';
+import 'package:viora_app/features/forms/data/datasources/remote/form_remote.dart';
+import 'package:viora_app/features/forms/data/datasources/remote/form_remote_impl.dart';
+import 'package:viora_app/features/forms/data/repositories/form_repository_impl.dart';
+import 'package:viora_app/features/forms/domain/repositories/form_repository.dart';
+import 'package:viora_app/features/forms/domain/usecases/get_service_form.dart';
+import 'package:viora_app/features/forms/domain/usecases/submit_form_answer.dart';
+import 'package:viora_app/features/forms/domain/usecases/upload_form_file.dart';
+import 'package:viora_app/features/forms/presentation/bloc/form_bloc.dart';
 import 'package:viora_app/features/wallet/data/datasources/wallet_remote.dart';
 import 'package:viora_app/features/wallet/data/datasources/wallet_remote_impl.dart';
 import 'package:viora_app/features/wallet/data/repositories/wallet_repository_impl.dart';
@@ -561,9 +570,9 @@ Future<void> dependencyInjection() async {
     );
   }
 
-  if (!sl.isRegistered<GetAvailableSlotsUseCase>()) {
-    sl.registerLazySingleton<GetAvailableSlotsUseCase>(
-      () => GetAvailableSlotsUseCase(sl()),
+  if (!sl.isRegistered<GetDoctorAppointmentsUseCase>()) {
+    sl.registerLazySingleton<GetDoctorAppointmentsUseCase>(
+      () => GetDoctorAppointmentsUseCase(sl()),
     );
   }
 
@@ -573,10 +582,17 @@ Future<void> dependencyInjection() async {
     );
   }
 
+  if (!sl.isRegistered<GetDoctorDayShiftUseCase>()) {
+    sl.registerLazySingleton<GetDoctorDayShiftUseCase>(
+      () => GetDoctorDayShiftUseCase(sl()),
+    );
+  }
+
   if (!sl.isRegistered<AppointmentBloc>()) {
     sl.registerFactory<AppointmentBloc>(
       () => AppointmentBloc(
-        getAvailableSlots: sl(),
+        getDoctorAppointments: sl(),
+        getStaffSchedule: sl(),
         bookAppointment: sl(),
       ),
     );
@@ -592,6 +608,48 @@ Future<void> dependencyInjection() async {
     sl.registerFactory<UserAppointmentsBloc>(
       () => UserAppointmentsBloc(
         getUserAppointments: sl(),
+      ),
+    );
+  }
+
+  // Forms
+  if (!sl.isRegistered<FormRemoteDataSource>()) {
+    sl.registerLazySingleton<FormRemoteDataSource>(
+      () => FormRemoteDataSourceImpl(sl(), sl()),
+    );
+  }
+
+  if (!sl.isRegistered<FormRepository>()) {
+    sl.registerLazySingleton<FormRepository>(
+      () => FormRepositoryImpl(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetServiceFormUseCase>()) {
+    sl.registerLazySingleton<GetServiceFormUseCase>(
+      () => GetServiceFormUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<SubmitFormAnswerUseCase>()) {
+    sl.registerLazySingleton<SubmitFormAnswerUseCase>(
+      () => SubmitFormAnswerUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<UploadFormFileUseCase>()) {
+    sl.registerLazySingleton<UploadFormFileUseCase>(
+      () => UploadFormFileUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<FormBloc>()) {
+    sl.registerFactory<FormBloc>(
+      () => FormBloc(
+        getServiceForm: sl(),
+        bookAppointment: sl(),
+        submitFormAnswer: sl(),
+        uploadFormFile: sl(),
       ),
     );
   }

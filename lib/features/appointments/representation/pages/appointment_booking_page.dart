@@ -8,9 +8,9 @@ import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_bloc.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_event.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_state.dart';
-import 'package:viora_app/features/appointments/domain/entities/available_slot.dart';
+import 'package:viora_app/features/appointments/domain/entities/reserved_appointment.dart';
 import 'package:viora_app/features/appointments/representation/widgets/day_picker.dart';
-import 'package:viora_app/features/appointments/representation/widgets/time_slot_grid.dart';
+import 'package:viora_app/features/forms/domain/repositories/form_repository.dart';
 import 'package:viora_app/features/wallet/domain/repositories/wallet_repository.dart';
 import 'package:viora_app/features/wallet/presentation/pages/payment_method_sheet.dart';
 
@@ -21,6 +21,28 @@ const Color _surface = Color(0xFFF7FFFD);
 const Color _border = Color(0xFFC8E6DE);
 const Color _textPrimary = Color(0xFF1A1A2E);
 const Color _textSecondary = Color(0xFF6B7280);
+
+List<String> _generateTimeOptions(String? shiftStart, String? shiftEnd) {
+  final all = <String>[];
+  for (var h = 0; h < 24; h++) {
+    for (var m = 0; m < 60; m += 10) {
+      all.add('${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}');
+    }
+  }
+  if (shiftStart == null || shiftEnd == null) return all;
+
+  int toMinutes(String t) {
+    final p = t.split(':');
+    return int.parse(p[0]) * 60 + int.parse(p[1]);
+  }
+
+  final startMin = toMinutes(shiftStart);
+  final endMin = toMinutes(shiftEnd);
+  return all.where((t) {
+    final m = toMinutes(t);
+    return m >= startMin && m + 10 <= endMin;
+  }).toList();
+}
 
 class AppointmentBookingPage extends StatefulWidget {
   final String staffId;
@@ -54,6 +76,9 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
   String _userName = '';
   String _selectedPaymentMethod = 'Cash';
   double? _walletBalance;
+  bool _hasForm = false;
+  String? _selectedTimeStr;
+  bool _conflictShown = false;
 
   @override
   void initState() {
@@ -69,8 +94,28 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
     );
     _fadeController.forward();
     _loadUserName();
-    _loadSlots();
+    _loadAppointments();
     _loadWalletBalance();
+    _checkHasForm();
+  }
+
+  Future<void> _checkHasForm() async {
+    try {
+      final repo = sl<FormRepository>();
+      final result = await repo.getServiceForm(widget.serviceId);
+      result.fold(
+        (failure) {
+          debugPrint('Form check failed: ${failure.message}');
+        },
+        (form) {
+          if (mounted && form != null && form.questions.isNotEmpty) {
+            setState(() => _hasForm = true);
+          }
+        },
+      );
+    } catch (e) {
+      debugPrint('Form check error: $e');
+    }
   }
 
   Future<void> _loadUserName() async {
@@ -113,17 +158,30 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
     } catch (_) {}
   }
 
-
-
-
-  void _loadSlots() {
-    context.read<AppointmentBloc>().add(LoadAvailableSlots(
+  void _loadAppointments() {
+    setState(() {
+      _selectedTimeStr = null;
+      _conflictShown = false;
+    });
+    context.read<AppointmentBloc>().add(LoadDoctorAppointments(
           branchId: widget.branchId,
           staffId: widget.staffId,
-          serviceId: widget.serviceId,
           serviceDurationMinutes: widget.serviceDurationMinutes,
           selectedDate: _selectedDate,
         ));
+  }
+
+  DateTime _parseTimeToDateTime(String timeStr) {
+    final parts = timeStr.split(':');
+    final hour = int.parse(parts[0]);
+    final minute = int.parse(parts[1]);
+    return DateTime(
+      _selectedDate.year,
+      _selectedDate.month,
+      _selectedDate.day,
+      hour,
+      minute,
+    );
   }
 
   @override
@@ -153,7 +211,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
     }
   }
 
-  void _confirmBooking(DateTime startTime) {
+  void _confirmBooking() {
     final balance = _walletBalance ?? 0;
     if (_selectedPaymentMethod == 'Wallet' && balance < widget.serviceCost) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -174,6 +232,15 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
       return;
     }
 
+    final state = context.read<AppointmentBloc>().state;
+    final startTime = state is DoctorAppointmentsLoaded ? state.manualStartTime : null;
+    if (startTime == null) return;
+
+    if (_hasForm) {
+      _goToFormPage(startTime);
+      return;
+    }
+
     context.read<AppointmentBloc>().add(ConfirmBooking(
           serviceId: widget.serviceId,
           staffId: widget.staffId,
@@ -181,6 +248,23 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
           durationMinutes: widget.serviceDurationMinutes,
           paymentMethod: _selectedPaymentMethod,
         ));
+  }
+
+  void _goToFormPage(DateTime startTime) {
+    context.push(
+      AppRoutes.fillForm,
+      extra: {
+        'serviceId': widget.serviceId,
+        'staffId': widget.staffId,
+        'staffName': widget.staffName,
+        'serviceName': widget.serviceName,
+        'branchId': widget.branchId,
+        'serviceDurationMinutes': widget.serviceDurationMinutes,
+        'serviceCost': widget.serviceCost,
+        'reservationDate': startTime.toIso8601String(),
+        'paymentMethod': _selectedPaymentMethod,
+      },
+    );
   }
 
   String _formatDate(DateTime d) {
@@ -221,6 +305,37 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
           );
           context.pop();
         }
+
+        if (state is DoctorAppointmentsLoaded &&
+            state.conflictMessage != null &&
+            !_conflictShown) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            setState(() => _conflictShown = true);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.conflictMessage!),
+                backgroundColor: const Color(0xFFEF4444),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                duration: const Duration(seconds: 5),
+                action: SnackBarAction(
+                  label: 'View Reserved',
+                  textColor: Colors.white,
+                  onPressed: () {
+                    Scrollable.ensureVisible(
+                      context,
+                      alignment: 0.1,
+                      duration: const Duration(milliseconds: 300),
+                    );
+                  },
+                ),
+              ),
+            );
+          });
+        }
       },
       child: Scaffold(
         backgroundColor: _surface,
@@ -245,9 +360,11 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
                         const SizedBox(height: 12),
                         _buildDayPicker(),
                         const SizedBox(height: 24),
-                        _buildSectionTitle('Available Times'),
+                        _buildSectionTitle('Select Time'),
                         const SizedBox(height: 12),
-                        _buildSlotsSection(),
+                        _buildTimeInputSection(),
+                        const SizedBox(height: 24),
+                        _buildReservedTimesSection(),
                       ],
                     ),
                   ),
@@ -500,7 +617,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
           const Spacer(),
           if (title == 'Select Date')
             GestureDetector(
-              onTap: () => _loadSlots(),
+              onTap: () => _loadAppointments(),
               child: Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
@@ -519,11 +636,14 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
     return DayPickerWidget(
       selectedDate: _selectedDate,
       onDateSelected: (date) {
-        setState(() => _selectedDate = date);
-        context.read<AppointmentBloc>().add(LoadAvailableSlots(
+        setState(() {
+          _selectedDate = date;
+          _selectedTimeStr = null;
+          _conflictShown = false;
+        });
+        context.read<AppointmentBloc>().add(LoadDoctorAppointments(
               branchId: widget.branchId,
               staffId: widget.staffId,
-              serviceId: widget.serviceId,
               serviceDurationMinutes: widget.serviceDurationMinutes,
               selectedDate: date,
             ));
@@ -531,7 +651,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
     );
   }
 
-  Widget _buildSlotsSection() {
+  Widget _buildTimeInputSection() {
     return BlocBuilder<AppointmentBloc, AppointmentState>(
       builder: (context, state) {
         if (state is AppointmentsLoading) {
@@ -550,7 +670,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Finding available slots...',
+                    'Loading...',
                     style: TextStyle(
                       fontSize: 14,
                       color: _textSecondary,
@@ -578,7 +698,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Unable to load slots',
+                    'Unable to load data',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
@@ -596,7 +716,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
-                    onPressed: _loadSlots,
+                    onPressed: _loadAppointments,
                     icon: const Icon(Icons.refresh_rounded, size: 18),
                     label: const Text('Try Again'),
                     style: OutlinedButton.styleFrom(
@@ -616,16 +736,17 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
             ),
           );
         }
-        if (state is SlotsLoaded) {
-          return TimeSlotGrid(
-            slots: state.slots,
-            selectedSlot: state.selectedSlot,
-            onSlotSelected: (slot) {
-              context.read<AppointmentBloc>().add(SelectSlot(
-                    startTime: slot.startTime,
-                    endTime: slot.endTime,
-                  ));
-            },
+        if (state is DoctorAppointmentsLoaded) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTimeDropdown(state),
+                const SizedBox(height: 16),
+                if (state.manualStartTime != null) _buildTimeSummary(state),
+              ],
+            ),
           );
         }
         return const SizedBox.shrink();
@@ -633,14 +754,278 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
     );
   }
 
+  Widget _buildTimeDropdown(DoctorAppointmentsLoaded state) {
+    final options = _generateTimeOptions(state.shiftStartTime, state.shiftEndTime);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _border),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: _selectedTimeStr,
+          isExpanded: true,
+          hint: Row(
+            children: [
+              Icon(Icons.access_time_rounded, size: 18, color: _textSecondary),
+              const SizedBox(width: 10),
+              Text(
+                'Choose start time',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: _textSecondary,
+                ),
+              ),
+            ],
+          ),
+          icon: Icon(Icons.keyboard_arrow_down_rounded, color: _primary),
+          items: [
+            if (options.isEmpty)
+              const DropdownMenuItem<String>(
+                value: null,
+                child: Text('No available times'),
+              )
+            else
+              ...options.map((timeStr) {
+                return DropdownMenuItem<String>(
+                  value: timeStr,
+                  child: Text(
+                    timeStr,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: _textPrimary,
+                    ),
+                  ),
+                );
+              }),
+          ],
+          onChanged: options.isEmpty
+              ? null
+              : (value) {
+                  if (value == null) return;
+                  setState(() {
+                    _selectedTimeStr = value;
+                    _conflictShown = false;
+                  });
+                  final dt = _parseTimeToDateTime(value);
+                  context.read<AppointmentBloc>().add(
+                        SetAppointmentTime(startTime: dt),
+                      );
+                },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimeSummary(DoctorAppointmentsLoaded state) {
+    final start = state.manualStartTime!;
+    final end = state.calculatedEndTime!;
+    final startStr =
+        '${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')}';
+    final endStr =
+        '${end.hour.toString().padLeft(2, '0')}:${end.minute.toString().padLeft(2, '0')}';
+
+    final hasConflict = state.conflictMessage != null;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: hasConflict ? const Color(0xFFFEF2F2) : _bg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: hasConflict
+              ? const Color(0xFFFECACA)
+              : _primary.withValues(alpha: 0.15),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              hasConflict
+                  ? Icons.close_rounded
+                  : Icons.check_circle_rounded,
+              size: 20,
+              color: hasConflict
+                  ? const Color(0xFFEF4444)
+                  : _primary,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$startStr - $endStr',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: _textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${widget.serviceDurationMinutes} min appointment',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: _textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (!hasConflict)
+            Icon(Icons.check_circle, color: _primary, size: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReservedTimesSection() {
+    return BlocBuilder<AppointmentBloc, AppointmentState>(
+      builder: (context, state) {
+        if (state is! DoctorAppointmentsLoaded) return const SizedBox.shrink();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: _buildSectionTitle('Reserved Times'),
+            ),
+            const SizedBox(height: 12),
+            if (state.reservedAppointments.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: _bg,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: _border.withValues(alpha: 0.6)),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.event_available_rounded,
+                          size: 18, color: _accent),
+                      const SizedBox(width: 10),
+                      Text(
+                        'No reservations yet for this day',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: _textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.event_busy_rounded, size: 16,
+                            color: const Color(0xFFEF4444)),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${state.reservedAppointments.length} reserved time${state.reservedAppointments.length != 1 ? 's' : ''}',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFFEF4444),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    ...state.reservedAppointments.map(_buildReservedTimeChip),
+                  ],
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildReservedTimeChip(ReservedAppointment apt) {
+    final startStr =
+        '${apt.reservationDate.hour.toString().padLeft(2, '0')}:${apt.reservationDate.minute.toString().padLeft(2, '0')}';
+    final endStr =
+        '${apt.endTime.hour.toString().padLeft(2, '0')}:${apt.endTime.minute.toString().padLeft(2, '0')}';
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFEF2F2),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+            color: const Color(0xFFFECACA).withValues(alpha: 0.5)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.access_time_rounded,
+                size: 16, color: Color(0xFFEF4444)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              '$startStr - $endStr',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF991B1B),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildBottomBar() {
     return BlocBuilder<AppointmentBloc, AppointmentState>(
       builder: (context, state) {
-        final isEnabled = state is SlotsLoaded &&
-            state.selectedSlot != null &&
-            !state.isBooking;
-        final isBooking = state is SlotsLoaded && state.isBooking;
-        final slot = state is SlotsLoaded ? state.selectedSlot : null;
+        final loadedState =
+            state is DoctorAppointmentsLoaded ? state : null;
+        final hasTime = loadedState != null && loadedState.manualStartTime != null;
+        final noConflict = hasTime && loadedState.conflictMessage == null;
+        final isEnabled = noConflict && !loadedState.isBooking;
+        final isBooking = loadedState?.isBooking ?? false;
+
+        final buttonIcon = _hasForm
+            ? Icons.assignment_rounded
+            : (isBooking
+                ? null
+                : Icons.check_circle_rounded);
+        final buttonLabel = isBooking
+            ? 'Booking...'
+            : _hasForm
+                ? (isEnabled ? 'Next: Fill Form' : 'Select a start time')
+                : (isEnabled ? 'Confirm Booking' : 'Select a start time');
 
         return Container(
           decoration: BoxDecoration(
@@ -660,8 +1045,8 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (slot != null) ...[
-                    _buildCompactSummary(slot),
+                  if (hasTime) ...[
+                    _buildCompactSummary(loadedState),
                     const SizedBox(height: 12),
                   ],
                   _buildPaymentMethodChip(),
@@ -670,9 +1055,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
                     width: double.infinity,
                     height: 54,
                     child: FilledButton.icon(
-                      onPressed: isEnabled && state.selectedSlot != null
-                          ? () => _confirmBooking(state.selectedSlot!.startTime)
-                          : null,
+                      onPressed: isEnabled ? _confirmBooking : null,
                       icon: isBooking
                           ? const SizedBox(
                               width: 20,
@@ -682,13 +1065,9 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
                                 color: Colors.white,
                               ),
                             )
-                          : const Icon(Icons.check_circle_rounded),
+                          : Icon(buttonIcon),
                       label: Text(
-                        isBooking
-                            ? 'Booking...'
-                            : isEnabled
-                                ? 'Confirm Booking'
-                                : 'Select a time slot',
+                        buttonLabel,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -717,12 +1096,18 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
     );
   }
 
-  Widget _buildCompactSummary(AvailableSlot slot) {
+  Widget _buildCompactSummary(DoctorAppointmentsLoaded state) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     final d = _selectedDate;
     final dateStr = '${days[d.weekday - 1]}, ${months[d.month - 1]} ${d.day}';
+    final start = state.manualStartTime!;
+    final end = state.calculatedEndTime!;
+    final startStr =
+        '${start.hour.toString().padLeft(2, '0')}:${start.minute.toString().padLeft(2, '0')}';
+    final endStr =
+        '${end.hour.toString().padLeft(2, '0')}:${end.minute.toString().padLeft(2, '0')}';
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -756,7 +1141,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '$dateStr  ·  ${slot.formattedStart} - ${slot.formattedEnd}',
+                  '$dateStr  ·  $startStr - $endStr',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,

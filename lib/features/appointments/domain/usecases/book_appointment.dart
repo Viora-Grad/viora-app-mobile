@@ -7,7 +7,7 @@ class BookAppointmentUseCase {
 
   BookAppointmentUseCase(this.repository);
 
-  Future<Either<Failure, void>> call({
+  Future<Either<Failure, String>> call({
     required String serviceId,
     required String staffId,
     required String branchId,
