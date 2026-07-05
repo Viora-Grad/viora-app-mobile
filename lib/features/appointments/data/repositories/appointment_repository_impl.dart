@@ -4,6 +4,7 @@ import 'package:viora_app/core/errors/failure.dart';
 import 'package:viora_app/features/appointments/data/datasources/remote/appointment_remote.dart';
 import 'package:viora_app/features/appointments/domain/entities/reserved_appointment.dart';
 import 'package:viora_app/features/appointments/domain/entities/staff_day_schedule.dart';
+import 'package:viora_app/features/appointments/domain/entities/staff_day_shift.dart';
 import 'package:viora_app/features/appointments/domain/repositories/appointment_repository.dart';
 
 class AppointmentRepositoryImpl implements AppointmentRepository {
@@ -39,7 +40,25 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
   }
 
   @override
-  Future<Either<Failure, void>> createAppointment({
+  Future<Either<Failure, StaffDayShift>> getStaffDayShift({
+    required String staffId,
+    required String shiftId,
+    required DateTime day,
+  }) async {
+    try {
+      final model = await remoteDataSource.getStaffDayShift(
+        staffId: staffId,
+        shiftId: shiftId,
+        day: day,
+      );
+      return Right(model.toEntity());
+    } catch (e) {
+      return Left(handleException(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> createAppointment({
     required String serviceId,
     required String staffId,
     required String branchId,
@@ -48,7 +67,7 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
     required String paymentMethod,
   }) async {
     try {
-      await remoteDataSource.createAppointment(
+      final appointmentId = await remoteDataSource.createAppointment(
         serviceId: serviceId,
         staffId: staffId,
         branchId: branchId,
@@ -58,7 +77,7 @@ class AppointmentRepositoryImpl implements AppointmentRepository {
         createdBy: 'Customer',
         requestPlatform: 'Mobile',
       );
-      return const Right(null);
+      return Right(appointmentId);
     } catch (e) {
       return Left(handleException(e));
     }

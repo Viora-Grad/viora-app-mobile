@@ -1,5 +1,6 @@
 import 'package:viora_app/features/appointments/data/models/reserved_appointment_model.dart';
 import 'package:viora_app/features/appointments/data/models/staff_day_schedule_model.dart';
+import 'package:viora_app/features/appointments/data/models/staff_day_shift_model.dart';
 
 abstract class AppointmentRemoteDataSource {
   Future<List<StaffDayScheduleModel>> getStaffSchedule(
@@ -12,7 +13,13 @@ abstract class AppointmentRemoteDataSource {
     DateTime date,
   );
 
-  Future<void> createAppointment({
+  Future<StaffDayShiftModel> getStaffDayShift({
+    required String staffId,
+    required String shiftId,
+    required DateTime day,
+  });
+
+  Future<String> createAppointment({
     required String serviceId,
     required String staffId,
     required String branchId,

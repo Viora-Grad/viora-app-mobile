@@ -8,6 +8,7 @@ import 'package:viora_app/core/errors/error_handler.dart';
 import 'package:viora_app/features/appointments/data/datasources/remote/appointment_remote.dart';
 import 'package:viora_app/features/appointments/data/models/reserved_appointment_model.dart';
 import 'package:viora_app/features/appointments/data/models/staff_day_schedule_model.dart';
+import 'package:viora_app/features/appointments/data/models/staff_day_shift_model.dart';
 
 class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
   final Dio dio;
@@ -38,6 +39,12 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
       );
 
       final data = response.data;
+      debugPrint('=== GET Staff Schedule Response ===');
+      debugPrint('URL: ${EndPoints.staffScheduleUrl(branchId, staffId)}');
+      debugPrint('Status: ${response.statusCode}');
+      debugPrint('Body: $data');
+      debugPrint('===================================');
+
       if (data is! List) return [];
 
       return data
@@ -70,6 +77,12 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
         options: await _buildOptions(),
       );
 
+      debugPrint('=== GET Doctor Appointments Response ===');
+      debugPrint('URL: ${EndPoints.doctorAppointmentsUrl(doctorId)}');
+      debugPrint('Status: ${response.statusCode}');
+      debugPrint('Body: ${response.data}');
+      debugPrint('=========================================');
+
       final data = response.data;
       if (data is! Map<String, dynamic>) return [];
 
@@ -88,7 +101,27 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
   }
 
   @override
-  Future<void> createAppointment({
+  Future<StaffDayShiftModel> getStaffDayShift({
+    required String staffId,
+    required String shiftId,
+    required DateTime day,
+  }) async {
+    final dayStr =
+        '${day.year}-${day.month.toString().padLeft(2, '0')}-${day.day.toString().padLeft(2, '0')}';
+    final response = await dio.get(
+      EndPoints.staffDayShiftUrl(
+        staffId: staffId,
+        shiftId: shiftId,
+        day: dayStr,
+      ),
+      options: await _buildOptions(),
+    );
+    final data = response.data as Map<String, dynamic>;
+    return StaffDayShiftModel.fromJson(data);
+  }
+
+  @override
+  Future<String> createAppointment({
     required String serviceId,
     required String staffId,
     required String branchId,
@@ -100,7 +133,7 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
   }) async {
     try {
       final durationStr = _formatDuration(durationMinutes);
-      await dio.post(
+      final response = await dio.post(
         EndPoints.createAppointmentUrl,
         data: {
           'serviceId': serviceId,
@@ -114,6 +147,7 @@ class AppointmentRemoteDataSourceImpl implements AppointmentRemoteDataSource {
         },
         options: await _buildOptions(),
       );
+      return response.data.toString();
     } on DioException catch (e) {
       handleDioException(e);
     }
