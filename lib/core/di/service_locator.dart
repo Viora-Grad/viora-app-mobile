@@ -244,10 +244,7 @@ Future<void> dependencyInjection() async {
   // repository
   if (!sl.isRegistered<OAuthRepository>()) {
     sl.registerLazySingleton<OAuthRepository>(
-      () => OAuthRepositoryImpl(
-        facade: sl(),
-        authLocalDataSource: sl(),
-      ),
+      () => OAuthRepositoryImpl(facade: sl(), authLocalDataSource: sl()),
     );
   }
 
@@ -334,9 +331,7 @@ Future<void> dependencyInjection() async {
   }
 
   if (!sl.isRegistered<SearchRemote>()) {
-    sl.registerLazySingleton<SearchRemote>(
-      () => SearchRemoteImpl(sl(), sl()),
-    );
+    sl.registerLazySingleton<SearchRemote>(() => SearchRemoteImpl(sl(), sl()));
   }
 
   if (!sl.isRegistered<SearchRepository>()) {
@@ -383,9 +378,7 @@ Future<void> dependencyInjection() async {
 
   // AI Chat
   if (!sl.isRegistered<AiChatRemote>()) {
-    sl.registerLazySingleton<AiChatRemote>(
-      () => AiChatRemoteImpl(sl()),
-    );
+    sl.registerLazySingleton<AiChatRemote>(() => AiChatRemoteImpl(sl()));
   }
 
   if (!sl.isRegistered<AiChatRepository>()) {
@@ -413,15 +406,11 @@ Future<void> dependencyInjection() async {
   }
 
   if (!sl.isRegistered<ChatBloc>()) {
-    sl.registerFactory<ChatBloc>(
-      () => ChatBloc(sl()),
-    );
+    sl.registerFactory<ChatBloc>(() => ChatBloc(sl()));
   }
 
   if (!sl.isRegistered<SessionsBloc>()) {
-    sl.registerFactory<SessionsBloc>(
-      () => SessionsBloc(sl(), sl()),
-    );
+    sl.registerFactory<SessionsBloc>(() => SessionsBloc(sl(), sl()));
   }
 
   // Organization Details
@@ -556,10 +545,7 @@ Future<void> dependencyInjection() async {
 
   if (!sl.isRegistered<StaffBloc>()) {
     sl.registerFactory<StaffBloc>(
-      () => StaffBloc(
-        getStaffByBranchService: sl(),
-        getStaffSchedule: sl(),
-      ),
+      () => StaffBloc(getStaffByBranchService: sl(), getStaffSchedule: sl()),
     );
   }
 
@@ -612,9 +598,7 @@ Future<void> dependencyInjection() async {
 
   if (!sl.isRegistered<UserAppointmentsBloc>()) {
     sl.registerFactory<UserAppointmentsBloc>(
-      () => UserAppointmentsBloc(
-        getUserAppointments: sl(),
-      ),
+      () => UserAppointmentsBloc(getUserAppointments: sl()),
     );
   }
 
@@ -626,9 +610,7 @@ Future<void> dependencyInjection() async {
   }
 
   if (!sl.isRegistered<FormRepository>()) {
-    sl.registerLazySingleton<FormRepository>(
-      () => FormRepositoryImpl(sl()),
-    );
+    sl.registerLazySingleton<FormRepository>(() => FormRepositoryImpl(sl()));
   }
 
   if (!sl.isRegistered<GetServiceFormUseCase>()) {
@@ -656,6 +638,10 @@ Future<void> dependencyInjection() async {
         bookAppointment: sl(),
         submitFormAnswer: sl(),
         uploadFormFile: sl(),
+      ),
+    );
+  }
+
   // Prescription
   if (!sl.isRegistered<PrescriptionRemoteDataSource>()) {
     sl.registerLazySingleton<PrescriptionRemoteDataSource>(
@@ -677,9 +663,7 @@ Future<void> dependencyInjection() async {
 
   if (!sl.isRegistered<PrescriptionBloc>()) {
     sl.registerFactory<PrescriptionBloc>(
-      () => PrescriptionBloc(
-        getPrescriptionByAppointment: sl(),
-      ),
+      () => PrescriptionBloc(getPrescriptionByAppointment: sl()),
     );
   }
 
@@ -697,15 +681,11 @@ Future<void> dependencyInjection() async {
   }
 
   if (!sl.isRegistered<GetWalletUseCase>()) {
-    sl.registerLazySingleton<GetWalletUseCase>(
-      () => GetWalletUseCase(sl()),
-    );
+    sl.registerLazySingleton<GetWalletUseCase>(() => GetWalletUseCase(sl()));
   }
 
   if (!sl.isRegistered<OpenWalletUseCase>()) {
-    sl.registerLazySingleton<OpenWalletUseCase>(
-      () => OpenWalletUseCase(sl()),
-    );
+    sl.registerLazySingleton<OpenWalletUseCase>(() => OpenWalletUseCase(sl()));
   }
 
   if (!sl.isRegistered<RechargeWalletUseCase>()) {
