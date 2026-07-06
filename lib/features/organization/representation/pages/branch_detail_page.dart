@@ -4,12 +4,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:viora_app/core/di/service_locator.dart';
 import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/features/organization/domain/entities/branch_detail.dart';
 import 'package:viora_app/features/organization/domain/entities/branch_schedule.dart';
 import 'package:viora_app/features/organization/representation/bloc/organization_bloc.dart';
 import 'package:viora_app/features/organization/representation/bloc/organization_event.dart';
 import 'package:viora_app/features/organization/representation/bloc/organization_state.dart';
+import 'package:viora_app/features/reviews/representation/bloc/review_bloc.dart';
+import 'package:viora_app/features/reviews/representation/widgets/reviews_section.dart';
 
 const Color _primary = Color(0xFF0D7C66);
 const Color _accent = Color(0xFF14A085);
@@ -144,23 +147,26 @@ class _BranchDetailPageState extends State<BranchDetailPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _surface,
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: BlocBuilder<OrganizationBloc, OrganizationState>(
-          builder: (context, state) {
-            if (state is OrganizationInitial || state is OrganizationLoading) {
+    return BlocProvider(
+      create: (_) => sl<ReviewBloc>(),
+      child: Scaffold(
+        backgroundColor: _surface,
+        body: FadeTransition(
+          opacity: _fadeAnimation,
+          child: BlocBuilder<OrganizationBloc, OrganizationState>(
+            builder: (context, state) {
+              if (state is OrganizationInitial || state is OrganizationLoading) {
+                return _buildLoading();
+              }
+              if (state is OrganizationError) {
+                return _buildError(state.message);
+              }
+              if (state is BranchDetailLoaded) {
+                return _buildContent(state.branch, state.schedule);
+              }
               return _buildLoading();
-            }
-            if (state is OrganizationError) {
-              return _buildError(state.message);
-            }
-            if (state is BranchDetailLoaded) {
-              return _buildContent(state.branch, state.schedule);
-            }
-            return _buildLoading();
-          },
+            },
+          ),
         ),
       ),
     );
@@ -268,6 +274,9 @@ class _BranchDetailPageState extends State<BranchDetailPage>
                   _buildServicesSection(branch),
                   const SizedBox(height: 24),
                   _buildContactHoursSection(branch, schedule),
+                  const SizedBox(height: 32),
+                  ReviewsSection(
+                      branchId: widget.branchId),
                   const SizedBox(height: 40),
                 ],
               ),

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:viora_app/core/database/cache/cache_helper.dart';
 import 'package:viora_app/core/di/service_locator.dart';
 import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/features/appointments/domain/entities/reserved_appointment.dart';
 import 'package:viora_app/features/appointments/domain/usecases/cancel_appointment.dart';
+import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/reviews/domain/usecases/check_user_feedback_usecase.dart';
+import 'package:viora_app/features/reviews/representation/widgets/feedback_dialog.dart';
 
 const Color _primary = Color(0xFF0D7C66);
 const Color _accent = Color(0xFF14A085);
@@ -52,6 +56,50 @@ class AppointmentDetailPage extends StatefulWidget {
 
 class _AppointmentDetailPageState extends State<AppointmentDetailPage> {
   bool _isCancelling = false;
+
+  static const String _feedbackShownKey = 'feedback_shown_appointment_ids';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAndShowFeedback();
+    });
+  }
+
+  Future<void> _checkAndShowFeedback() async {
+    if (widget.appointment.status != 'Completed') return;
+
+    final cache = sl<CacheHelper>();
+    final stored = await cache.getData(_feedbackShownKey);
+    final shownIds = stored is List ? stored.cast<String>() : <String>[];
+
+    if (shownIds.contains(widget.appointment.id)) return;
+
+    final authLocal = sl<AuthLocalDataSource>();
+    final currentUser = await authLocal.getCurrentUser();
+    if (currentUser != null) {
+      final checkUseCase = sl<CheckUserFeedbackUseCase>();
+      final result = await checkUseCase(
+          widget.appointment.branchId, currentUser.id);
+      bool hasFeedback = false;
+      result.fold(
+        (_) {},
+        (review) => hasFeedback = review != null,
+      );
+      if (hasFeedback) {
+        if (!mounted) return;
+        shownIds.add(widget.appointment.id);
+        await cache.saveData(_feedbackShownKey, shownIds);
+        return;
+      }
+    }
+
+    if (!mounted) return;
+    await showFeedbackDialog(context, widget.appointment.branchId);
+    shownIds.add(widget.appointment.id);
+    await cache.saveData(_feedbackShownKey, shownIds);
+  }
 
   void _cancelAppointment() async {
     final confirmed = await showDialog<bool>(

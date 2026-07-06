@@ -103,6 +103,15 @@ import 'package:viora_app/features/appointments/domain/usecases/get_user_appoint
 import 'package:viora_app/features/appointments/domain/usecases/cancel_appointment.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_bloc.dart';
 import 'package:viora_app/features/appointments/representation/bloc/user_appointments_bloc.dart';
+import 'package:viora_app/features/reviews/data/datasources/remote/review_remote.dart';
+import 'package:viora_app/features/reviews/data/datasources/remote/review_remote_impl.dart';
+import 'package:viora_app/features/reviews/data/repositories/review_repository_impl.dart';
+import 'package:viora_app/features/reviews/domain/repositories/review_repository.dart';
+import 'package:viora_app/features/reviews/domain/usecases/check_user_feedback_usecase.dart';
+import 'package:viora_app/features/reviews/domain/usecases/get_branch_reviews_usecase.dart';
+import 'package:viora_app/features/reviews/domain/usecases/submit_feedback_usecase.dart';
+import 'package:viora_app/features/reviews/domain/usecases/update_feedback_usecase.dart';
+import 'package:viora_app/features/reviews/representation/bloc/review_bloc.dart';
 import 'package:viora_app/features/forms/data/datasources/remote/form_remote.dart';
 import 'package:viora_app/features/forms/data/datasources/remote/form_remote_impl.dart';
 import 'package:viora_app/features/forms/data/repositories/form_repository_impl.dart';
@@ -609,6 +618,47 @@ Future<void> dependencyInjection() async {
         getUserAppointments: sl(),
         cancelAppointment: sl(),
       ),
+    );
+  }
+
+  // Reviews & Feedback
+  if (!sl.isRegistered<ReviewRemote>()) {
+    sl.registerLazySingleton<ReviewRemote>(() => ReviewRemoteImpl(sl()));
+  }
+
+  if (!sl.isRegistered<ReviewRepository>()) {
+    sl.registerLazySingleton<ReviewRepository>(
+      () => ReviewRepositoryImpl(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetBranchReviewsUseCase>()) {
+    sl.registerLazySingleton<GetBranchReviewsUseCase>(
+      () => GetBranchReviewsUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<SubmitFeedbackUseCase>()) {
+    sl.registerLazySingleton<SubmitFeedbackUseCase>(
+      () => SubmitFeedbackUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<CheckUserFeedbackUseCase>()) {
+    sl.registerLazySingleton<CheckUserFeedbackUseCase>(
+      () => CheckUserFeedbackUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<UpdateFeedbackUseCase>()) {
+    sl.registerLazySingleton<UpdateFeedbackUseCase>(
+      () => UpdateFeedbackUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<ReviewBloc>()) {
+    sl.registerFactory<ReviewBloc>(
+      () => ReviewBloc(getBranchReviewsUseCase: sl()),
     );
   }
 

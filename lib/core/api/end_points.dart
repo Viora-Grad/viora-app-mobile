@@ -89,6 +89,9 @@ class EndPoints {
   static String walletBranchCheckoutUrl(String branchId) =>
       '$baseUrl/api/wallets/branch/$branchId/checkout';
 
+  // Feedback
+  static const String feedbackUrl = '$baseUrl/api/feedbacks';
+
   // Forms
   static String serviceFormUrl(String serviceId) =>
       '$baseUrl/api/service/$serviceId/form';
