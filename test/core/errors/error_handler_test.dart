@@ -106,7 +106,28 @@ void main() {
       );
     });
 
-    test('badResponse uses response statusMessage', () {
+    test('badResponse uses response data when available', () {
+      final response = Response(
+        requestOptions: RequestOptions(path: '/test'),
+        statusCode: 404,
+        statusMessage: 'Not Found',
+        data: {'description': 'Resource not found'},
+      );
+      expect(
+        () => handleDioException(
+          _makeDioException(DioExceptionType.badResponse, response: response),
+        ),
+        throwsA(
+          isA<ServerException>().having(
+            (e) => e.errorModel.errorMessage,
+            'errorMessage',
+            'Resource not found',
+          ),
+        ),
+      );
+    });
+
+    test('badResponse falls back to generic message when data is null', () {
       final response = Response(
         requestOptions: RequestOptions(path: '/test'),
         statusCode: 404,
@@ -120,13 +141,13 @@ void main() {
           isA<ServerException>().having(
             (e) => e.errorModel.errorMessage,
             'errorMessage',
-            'Not Found',
+            'An error occurred. Please try again later.',
           ),
         ),
       );
     });
 
-    test('badResponse with null response falls back to 500', () {
+    test('badResponse with null response falls back to 500 and generic message', () {
       expect(
         () =>
             handleDioException(_makeDioException(DioExceptionType.badResponse)),
