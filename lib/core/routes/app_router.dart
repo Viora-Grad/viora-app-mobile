@@ -6,7 +6,6 @@ import 'package:viora_app/features/auth/representation/pages/login.dart';
 import 'package:viora_app/features/auth/representation/pages/register.dart';
 import 'package:viora_app/features/home/representation/pages/all_specialties_page.dart';
 import 'package:viora_app/features/home/representation/pages/home_page.dart';
-import 'package:viora_app/features/organization/representation/bloc/organization_bloc.dart';
 import 'package:viora_app/features/organization/representation/pages/branch_detail_page.dart';
 import 'package:viora_app/features/organization/representation/pages/organization_detail_page.dart';
 import 'package:viora_app/features/organization/representation/pages/saved_organizations_page.dart';
@@ -148,13 +147,10 @@ final appRouter = GoRouter(
         final orgId = params['id'] ?? state.extra as String? ?? '';
         final rating = params['rating'] != null ? double.tryParse(params['rating']!) : null;
         final ratingsCount = params['ratingsCount'] != null ? int.tryParse(params['ratingsCount']!) : null;
-        return BlocProvider(
-          create: (_) => sl<OrganizationBloc>(),
-          child: OrganizationDetailPage(
-            organizationId: orgId,
-            initialRating: rating,
-            initialRatingsCount: ratingsCount,
-          ),
+        return OrganizationDetailPage(
+          organizationId: orgId,
+          initialRating: rating,
+          initialRatingsCount: ratingsCount,
         );
       },
     ),
@@ -163,10 +159,7 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final params = state.uri.queryParameters;
         final branchId = params['id'] ?? state.extra as String? ?? '';
-        return BlocProvider.value(
-          value: sl<OrganizationBloc>(),
-          child: BranchDetailPage(branchId: branchId),
-        );
+        return BranchDetailPage(branchId: branchId);
       },
     ),
     GoRoute(

@@ -40,6 +40,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage>
   late final AnimationController _fadeController;
   late final Animation<double> _fadeAnimation;
   late final SavedOrganizationsLocal _savedOrgsLocal;
+  final OrganizationBloc _orgBloc = sl<OrganizationBloc>();
   bool _isSaved = false;
   bool _savedChecked = false;
 
@@ -58,9 +59,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage>
 
     _savedOrgsLocal = sl<SavedOrganizationsLocal>();
 
-    context
-        .read<OrganizationBloc>()
-        .add(GetOrganizationDetail(organizationId: widget.organizationId));
+    _orgBloc.add(GetOrganizationDetail(organizationId: widget.organizationId));
   }
 
   Future<void> _checkSaved() async {
@@ -93,11 +92,13 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: BlocBuilder<OrganizationBloc, OrganizationState>(
+    return BlocProvider.value(
+      value: _orgBloc,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: FadeTransition(
+          opacity: _fadeAnimation,
+          child: BlocBuilder<OrganizationBloc, OrganizationState>(
           builder: (context, state) {
             if (state is OrganizationLoading) {
               return _buildLoading();
@@ -113,6 +114,7 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage>
           },
         ),
       ),
+    ),
     );
   }
 
@@ -169,10 +171,8 @@ class _OrganizationDetailPageState extends State<OrganizationDetailPage>
               const SizedBox(height: 24),
               FilledButton.icon(
                 onPressed: () {
-                  context
-                      .read<OrganizationBloc>()
-                      .add(GetOrganizationDetail(
-                          organizationId: widget.organizationId));
+                  _orgBloc.add(GetOrganizationDetail(
+                      organizationId: widget.organizationId));
                 },
                 icon: const Icon(Icons.refresh_rounded),
                 label: const Text('Try Again'),
