@@ -160,20 +160,6 @@ class _HomePageState extends State<HomePage> {
         ),
         Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF5F5F9),
-                shape: BoxShape.circle,
-              ),
-              child: const Badge(
-                alignment: Alignment.topRight,
-                backgroundColor: Colors.red,
-                smallSize: 8,
-                child: Icon(Icons.notifications_none_outlined,
-                    color: Colors.black, size: 26),
-              ),
-            ),
             const SizedBox(width: 12),
             GestureDetector(
               onTap: () => context.go(AppRoutes.profile),

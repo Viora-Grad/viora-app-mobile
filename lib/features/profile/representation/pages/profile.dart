@@ -212,10 +212,21 @@ class _ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: BlocBuilder<ProfileCubit, _ProfileState>(
-        builder: (context, state) {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/home');
+          }
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: BlocBuilder<ProfileCubit, _ProfileState>(
+          builder: (context, state) {
           if (state.status == _ProfileStatus.loading ||
               state.status == _ProfileStatus.initial) {
             return _buildSkeleton();
@@ -294,7 +305,8 @@ class _ProfileView extends StatelessWidget {
               ),
             ),
           );
-        },
+          },
+        ),
       ),
     );
   }
