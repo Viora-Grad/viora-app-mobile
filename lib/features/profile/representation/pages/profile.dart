@@ -10,6 +10,7 @@ import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/appointments/domain/usecases/get_user_appointments.dart';
 import 'package:viora_app/features/profile/domain/entities/user.dart';
 import 'package:viora_app/features/profile/domain/repositories/user_repository.dart';
+import 'package:viora_app/features/profile/domain/usecases/get_visited_organization_ids_usecase.dart';
 
 const _fieldNames = ['Username', 'Phone Number'];
 const _fieldIcons = [Icons.person, Icons.phone];
@@ -27,6 +28,7 @@ class _ProfileState {
   final int showed;
   final int inProgress;
   final int cancelled;
+  final List<String> visitedOrgIds;
 
   _ProfileState._({
     required this.status,
@@ -37,6 +39,7 @@ class _ProfileState {
     this.showed = 0,
     this.inProgress = 0,
     this.cancelled = 0,
+    this.visitedOrgIds = const [],
   });
 
   factory _ProfileState.initial() =>
@@ -50,6 +53,7 @@ class _ProfileState {
     int showed = 0,
     int inProgress = 0,
     int cancelled = 0,
+    List<String> visitedOrgIds = const [],
   }) =>
       _ProfileState._(
         status: _ProfileStatus.success,
@@ -59,6 +63,7 @@ class _ProfileState {
         showed: showed,
         inProgress: inProgress,
         cancelled: cancelled,
+        visitedOrgIds: visitedOrgIds,
       );
   factory _ProfileState.failure(String error) =>
       _ProfileState._(status: _ProfileStatus.failure, error: error);
@@ -68,9 +73,14 @@ class ProfileCubit extends Cubit<_ProfileState> {
   final UserRepository userRepository;
   final AuthLocalDataSource authLocal;
   final GetUserAppointmentsUseCase getUserAppointments;
+  final GetVisitedOrganizationIdsUseCase getVisitedOrganizationIds;
 
-  ProfileCubit(this.userRepository, this.authLocal, this.getUserAppointments)
-      : super(_ProfileState.initial());
+  ProfileCubit(
+    this.userRepository,
+    this.authLocal,
+    this.getUserAppointments,
+    this.getVisitedOrganizationIds,
+  ) : super(_ProfileState.initial());
 
   Future<void> loadProfile() async {
     emit(_ProfileState.loading());
@@ -81,6 +91,7 @@ class ProfileCubit extends Cubit<_ProfileState> {
       (failure) async => emit(_ProfileState.failure(failure.message)),
       (user) async {
         int showed = 0, inProgress = 0, cancelled = 0;
+        List<String> visitedOrgIds = user.organizationsVisited;
         try {
           final token = await authLocal.getUserToken();
           String? customerId;
@@ -124,8 +135,16 @@ class ProfileCubit extends Cubit<_ProfileState> {
                 debugPrint('[ProfileCubit] showed=$showed inProgress=$inProgress cancelled=$cancelled');
               },
             );
+            final orgResult = await getVisitedOrganizationIds(customerId);
+            orgResult.fold(
+              (_) {},
+              (ids) {
+                if (ids.isNotEmpty) visitedOrgIds = ids;
+              },
+            );
           }
         } catch (_) {}
+
         emit(_ProfileState.success(
           user: user,
           userName: userName,
@@ -133,6 +152,7 @@ class ProfileCubit extends Cubit<_ProfileState> {
           showed: showed,
           inProgress: inProgress,
           cancelled: cancelled,
+          visitedOrgIds: visitedOrgIds,
         ));
       },
     );
@@ -147,8 +167,14 @@ class ProfilePage extends StatelessWidget {
     final userRepository = sl<UserRepository>();
     final authLocal = sl<AuthLocalDataSource>();
     final getUserAppointments = sl<GetUserAppointmentsUseCase>();
+    final getVisitedOrganizationIds = sl<GetVisitedOrganizationIdsUseCase>();
     return BlocProvider<ProfileCubit>(
-      create: (_) => ProfileCubit(userRepository, authLocal, getUserAppointments)..loadProfile(),
+      create: (_) => ProfileCubit(
+        userRepository,
+        authLocal,
+        getUserAppointments,
+        getVisitedOrganizationIds,
+      )..loadProfile(),
       child: const _ProfileView(),
     );
   }
@@ -253,7 +279,7 @@ class _ProfileView extends StatelessWidget {
                     cancelled: state.cancelled,
                   ),
                   const SizedBox(height: 20),
-                  _buildInfoCard(context, user, genderLabel),
+                  _buildInfoCard(context, user, genderLabel, state.visitedOrgIds),
                   const SizedBox(height: 16),
                   if (state.userName != null || state.phoneNumber != null)
                     _buildExtraInfoCard(context, state.userName, state.phoneNumber),
@@ -273,7 +299,8 @@ class _ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoCard(BuildContext context, User user, String genderLabel) {
+  Widget _buildInfoCard(
+      BuildContext context, User user, String genderLabel, List<String> visitedOrgIds) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -335,7 +362,10 @@ class _ProfileView extends StatelessWidget {
             _GridItemData(
               icon: Icons.location_on_outlined,
               label: 'Visited',
-              onTap: () => context.push(AppRoutes.myAppointments),
+              onTap: () => context.push(
+                AppRoutes.visitedOrganizations,
+                extra: visitedOrgIds,
+              ),
             ),
             _GridItemData(
               icon: Icons.bookmark_outline_rounded,

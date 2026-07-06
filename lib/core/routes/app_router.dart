@@ -10,6 +10,7 @@ import 'package:viora_app/features/organization/representation/bloc/organization
 import 'package:viora_app/features/organization/representation/pages/branch_detail_page.dart';
 import 'package:viora_app/features/organization/representation/pages/organization_detail_page.dart';
 import 'package:viora_app/features/organization/representation/pages/saved_organizations_page.dart';
+import 'package:viora_app/features/organization/representation/pages/visited_organizations_page.dart';
 import 'package:viora_app/features/profile/representation/pages/change_password_page.dart';
 import 'package:viora_app/features/profile/representation/pages/medical_record_page.dart';
 import 'package:viora_app/features/profile/representation/pages/profile.dart';
@@ -55,6 +56,7 @@ class AppRoutes {
   static const organizationDetail = '/organization';
   static const branchDetail = '/branch-detail';
   static const savedOrganizations = '/saved-organizations';
+  static const visitedOrganizations = '/visited-organizations';
   static const medicalRecord = '/medical-record';
   static const wellness = '/wellness';
   static const waterReminder = '/wellness/water';
@@ -170,6 +172,13 @@ final appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.savedOrganizations,
       builder: (context, state) => const SavedOrganizationsPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.visitedOrganizations,
+      builder: (context, state) {
+        final ids = (state.extra as List<String>?);
+        return VisitedOrganizationsPage(organizationIds: ids ?? []);
+      },
     ),
     GoRoute(
       path: AppRoutes.medicalRecord,
