@@ -80,7 +80,7 @@ class _FormPageState extends State<FormPage> {
               ),
             ),
           );
-          context.go(AppRoutes.home);
+          context.go(AppRoutes.myAppointments);
         }
         if (state is FormError) {
           ScaffoldMessenger.of(context).showSnackBar(

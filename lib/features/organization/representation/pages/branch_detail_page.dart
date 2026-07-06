@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:viora_app/core/di/service_locator.dart';
 import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/features/organization/domain/entities/branch_detail.dart';
@@ -526,41 +527,74 @@ class _BranchDetailPageState extends State<BranchDetailPage>
       children: [
         _buildSectionHeader(Icons.map_outlined, 'Location'),
         const SizedBox(height: 12),
-        Container(
+        SizedBox(
           height: 200,
           width: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _border),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: FlutterMap(
-            options: MapOptions(
-              initialCenter: position,
-              initialZoom: 15,
-              interactionOptions: const InteractionOptions(
-                flags: InteractiveFlag.all,
-              ),
-            ),
+          child: Stack(
             children: [
-              TileLayer(
-                urlTemplate:
-                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.viora.app',
-              ),
-              MarkerLayer(
-                markers: [
-                  Marker(
-                    point: position,
-                    width: 40,
-                    height: 40,
-                    child: const Icon(
-                      Icons.location_on_rounded,
-                      color: Color(0xFF0D7C66),
-                      size: 40,
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: _border),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: FlutterMap(
+                  options: MapOptions(
+                    initialCenter: position,
+                    initialZoom: 15,
+                    interactionOptions: const InteractionOptions(
+                      flags: InteractiveFlag.all,
                     ),
                   ),
-                ],
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.viora.app',
+                    ),
+                    MarkerLayer(
+                      markers: [
+                        Marker(
+                          point: position,
+                          width: 40,
+                          height: 40,
+                          child: const Icon(
+                            Icons.location_on_rounded,
+                            color: Color(0xFF0D7C66),
+                            size: 40,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Material(
+                  elevation: 2,
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: () {
+                      final uri = Uri.parse(
+                        'https://www.google.com/maps/search/?api=1&query='
+                        '${branch.latitude},${branch.longitude}',
+                      );
+                      launchUrl(uri, mode: LaunchMode.externalApplication);
+                    },
+                    child: const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Icon(
+                        Icons.directions_outlined,
+                        color: Color(0xFF0D7C66),
+                        size: 22,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -681,30 +715,49 @@ class _BranchDetailPageState extends State<BranchDetailPage>
                                 ),
                                 const SizedBox(width: 14),
                                 Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        service,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        'Tap to ${isExpanded ? "hide" : "view"} details',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.grey.shade400,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
+                                  child: Text(
+                                    service,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black87,
+                                    ),
                                   ),
                                 ),
+                                GestureDetector(
+                                  onTap: () {
+                                    context.push(
+                                      '${AppRoutes.serviceListing}?branchId=${branch.id}&type=$service',
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: color.withValues(alpha: 0.08),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                          color: color.withValues(alpha: 0.2)),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'View Services',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w700,
+                                            color: color,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Icon(Icons.arrow_forward_ios_rounded,
+                                            size: 10, color: color),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
                                 AnimatedRotation(
                                   duration:
                                       const Duration(milliseconds: 250),
@@ -760,40 +813,7 @@ class _BranchDetailPageState extends State<BranchDetailPage>
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 12),
-                                  GestureDetector(
-                                    onTap: () {
-                                      context.push(
-                                        '${AppRoutes.serviceListing}?branchId=${branch.id}&type=$service',
-                                      );
-                                    },
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 14, vertical: 10),
-                                      decoration: BoxDecoration(
-                                        color: color.withValues(alpha: 0.08),
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                            color: color.withValues(alpha: 0.2)),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(Icons.arrow_forward_ios_rounded,
-                                              size: 14, color: color),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            'View Services',
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w700,
-                                              color: color,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
+
                                 ],
                               ),
                             ),
