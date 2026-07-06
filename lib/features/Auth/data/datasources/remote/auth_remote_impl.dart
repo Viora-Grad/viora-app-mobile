@@ -238,7 +238,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String otp,
     required String newPassword,
   }) async {
-    await _apiConsumer.post(
+    await _apiConsumer.postRaw(
       EndPoints.confirmForgetPasswordUrl,
       data: {
         'email': email,

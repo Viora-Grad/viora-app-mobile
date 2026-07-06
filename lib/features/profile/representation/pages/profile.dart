@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +7,7 @@ import 'package:viora_app/core/di/service_locator.dart';
 import 'package:viora_app/core/enums/gender.dart';
 import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/appointments/domain/usecases/get_user_appointments.dart';
 import 'package:viora_app/features/profile/domain/entities/user.dart';
 import 'package:viora_app/features/profile/domain/repositories/user_repository.dart';
 
@@ -21,6 +24,9 @@ class _ProfileState {
   final String? error;
   final String? userName;
   final String? phoneNumber;
+  final int showed;
+  final int inProgress;
+  final int cancelled;
 
   _ProfileState._({
     required this.status,
@@ -28,6 +34,9 @@ class _ProfileState {
     this.error,
     this.userName,
     this.phoneNumber,
+    this.showed = 0,
+    this.inProgress = 0,
+    this.cancelled = 0,
   });
 
   factory _ProfileState.initial() =>
@@ -38,12 +47,18 @@ class _ProfileState {
     required User user,
     String? userName,
     String? phoneNumber,
+    int showed = 0,
+    int inProgress = 0,
+    int cancelled = 0,
   }) =>
       _ProfileState._(
         status: _ProfileStatus.success,
         user: user,
         userName: userName,
         phoneNumber: phoneNumber,
+        showed: showed,
+        inProgress: inProgress,
+        cancelled: cancelled,
       );
   factory _ProfileState.failure(String error) =>
       _ProfileState._(status: _ProfileStatus.failure, error: error);
@@ -52,8 +67,9 @@ class _ProfileState {
 class ProfileCubit extends Cubit<_ProfileState> {
   final UserRepository userRepository;
   final AuthLocalDataSource authLocal;
+  final GetUserAppointmentsUseCase getUserAppointments;
 
-  ProfileCubit(this.userRepository, this.authLocal)
+  ProfileCubit(this.userRepository, this.authLocal, this.getUserAppointments)
       : super(_ProfileState.initial());
 
   Future<void> loadProfile() async {
@@ -61,13 +77,64 @@ class ProfileCubit extends Cubit<_ProfileState> {
     final result = await userRepository.getUserProfile();
     final userName = await authLocal.getUserName();
     final phoneNumber = await authLocal.getPhoneNumber();
-    result.fold(
-      (failure) => emit(_ProfileState.failure(failure.message)),
-      (user) => emit(_ProfileState.success(
-        user: user,
-        userName: userName,
-        phoneNumber: phoneNumber,
-      )),
+    await result.fold(
+      (failure) async => emit(_ProfileState.failure(failure.message)),
+      (user) async {
+        int showed = 0, inProgress = 0, cancelled = 0;
+        try {
+          final token = await authLocal.getUserToken();
+          String? customerId;
+          if (token != null && token.isNotEmpty) {
+            try {
+              final parts = token.split('.');
+              if (parts.length >= 2) {
+                final payload = utf8.decode(
+                  base64Url.decode(base64Url.normalize(parts[1])),
+                );
+                final json = jsonDecode(payload) as Map<String, dynamic>;
+                customerId = (json['sub'] ?? json['nameid'] ?? json['userId'])?.toString();
+              }
+            } catch (_) {}
+          }
+          debugPrint('[ProfileCubit] customerId=$customerId');
+          if (customerId != null && customerId.isNotEmpty) {
+            final appointments = await getUserAppointments(
+              customerId: customerId,
+            );
+            appointments.fold(
+              (failure) {
+                debugPrint('[ProfileCubit] getUserAppointments failed: ${failure.message}');
+              },
+              (list) {
+                debugPrint('[ProfileCubit] appointments count: ${list.length}');
+                for (final a in list) {
+                  debugPrint('[ProfileCubit]   id=${a.id} status=${a.status} date=${a.reservationDate}');
+                  switch (a.status) {
+                    case 'Completed':
+                      showed++;
+                      break;
+                    case 'NotArrived':
+                      inProgress++;
+                      break;
+                    case 'Canceled':
+                      cancelled++;
+                      break;
+                  }
+                }
+                debugPrint('[ProfileCubit] showed=$showed inProgress=$inProgress cancelled=$cancelled');
+              },
+            );
+          }
+        } catch (_) {}
+        emit(_ProfileState.success(
+          user: user,
+          userName: userName,
+          phoneNumber: phoneNumber,
+          showed: showed,
+          inProgress: inProgress,
+          cancelled: cancelled,
+        ));
+      },
     );
   }
 }
@@ -79,8 +146,9 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final userRepository = sl<UserRepository>();
     final authLocal = sl<AuthLocalDataSource>();
+    final getUserAppointments = sl<GetUserAppointmentsUseCase>();
     return BlocProvider<ProfileCubit>(
-      create: (_) => ProfileCubit(userRepository, authLocal)..loadProfile(),
+      create: (_) => ProfileCubit(userRepository, authLocal, getUserAppointments)..loadProfile(),
       child: const _ProfileView(),
     );
   }
@@ -180,9 +248,9 @@ class _ProfileView extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   _AppointmentStats(
-                    showed: 0,
-                    noShow: 0,
-                    cancelled: 0,
+                    showed: state.showed,
+                    inProgress: state.inProgress,
+                    cancelled: state.cancelled,
                   ),
                   const SizedBox(height: 20),
                   _buildInfoCard(context, user, genderLabel),
@@ -486,12 +554,12 @@ class _ProfileHeader extends StatelessWidget {
 class _AppointmentStats extends StatelessWidget {
   const _AppointmentStats({
     required this.showed,
-    required this.noShow,
+    required this.inProgress,
     required this.cancelled,
   });
 
   final int showed;
-  final int noShow;
+  final int inProgress;
   final int cancelled;
 
   @override
@@ -500,7 +568,7 @@ class _AppointmentStats extends StatelessWidget {
       children: [
         Expanded(child: _StatCard(label: 'Showed', value: showed, color: const Color(0xFF28F0A8))),
         const SizedBox(width: 10),
-        Expanded(child: _StatCard(label: 'No Show', value: noShow, color: const Color(0xFFF5A623))),
+        Expanded(child: _StatCard(label: 'In Progress', value: inProgress, color: const Color(0xFFF5A623))),
         const SizedBox(width: 10),
         Expanded(child: _StatCard(label: 'Cancelled', value: cancelled, color: const Color(0xFFFF6B6B))),
       ],

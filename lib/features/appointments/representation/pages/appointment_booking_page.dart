@@ -274,7 +274,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
               ),
             ),
           );
-          context.pop();
+          context.go(AppRoutes.myAppointments);
         }
 
         if (state is DoctorAppointmentsLoaded &&
