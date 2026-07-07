@@ -15,7 +15,7 @@ class WellnessHubPage extends StatelessWidget {
       case 0:
         context.go(AppRoutes.home);
       case 1:
-        break;
+        context.push(AppRoutes.myAppointments);
       case 2:
         context.push(AppRoutes.aiChat);
       case 3:
