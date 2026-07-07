@@ -1,7 +1,7 @@
 class EndPoints {
   // Android emulator -> host machine
   // static const String baseUrl = 'http://10.0.2.2:8080';
-  static const String baseUrl = 'https://results-again-condos-retailer.trycloudflare.com';
+  static const String baseUrl = 'https://aluminum-enables-trend-inherited.trycloudflare.com';
 
   // Auth
   static const String loginUrl = '$baseUrl/api/auth/login';
