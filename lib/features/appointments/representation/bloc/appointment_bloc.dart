@@ -110,10 +110,13 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
     String? conflictMessage;
 
     for (final apt in current.reservedAppointments) {
-      if (event.startTime.isBefore(apt.endTime) &&
+      final blockedEnd = apt.reservationDate.add(
+        Duration(minutes: _serviceDurationMinutes),
+      );
+      if (event.startTime.isBefore(blockedEnd) &&
           endTime.isAfter(apt.reservationDate)) {
         conflictMessage =
-            'This time conflicts with an existing appointment (${_formatTime(apt.reservationDate)} - ${_formatTime(apt.endTime)}). Please choose a different time.';
+            'This time conflicts with an existing appointment (${_formatTime(apt.reservationDate)} - ${_formatTime(blockedEnd)}). Please choose a different time.';
         break;
       }
     }
@@ -178,7 +181,8 @@ class AppointmentBloc extends Bloc<AppointmentEvent, AppointmentState> {
 
       var isReserved = false;
       for (final apt in reservedAppointments) {
-        if (current.isBefore(apt.endTime) &&
+        final blockedEnd = apt.reservationDate.add(duration);
+        if (current.isBefore(blockedEnd) &&
             slotEnd.isAfter(apt.reservationDate)) {
           isReserved = true;
           break;

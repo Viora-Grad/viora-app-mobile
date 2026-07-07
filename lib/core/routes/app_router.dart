@@ -6,10 +6,10 @@ import 'package:viora_app/features/auth/representation/pages/login.dart';
 import 'package:viora_app/features/auth/representation/pages/register.dart';
 import 'package:viora_app/features/home/representation/pages/all_specialties_page.dart';
 import 'package:viora_app/features/home/representation/pages/home_page.dart';
-import 'package:viora_app/features/organization/representation/bloc/organization_bloc.dart';
 import 'package:viora_app/features/organization/representation/pages/branch_detail_page.dart';
 import 'package:viora_app/features/organization/representation/pages/organization_detail_page.dart';
 import 'package:viora_app/features/organization/representation/pages/saved_organizations_page.dart';
+import 'package:viora_app/features/organization/representation/pages/visited_organizations_page.dart';
 import 'package:viora_app/features/profile/representation/pages/change_password_page.dart';
 import 'package:viora_app/features/profile/representation/pages/medical_record_page.dart';
 import 'package:viora_app/features/profile/representation/pages/profile.dart';
@@ -55,6 +55,7 @@ class AppRoutes {
   static const organizationDetail = '/organization';
   static const branchDetail = '/branch-detail';
   static const savedOrganizations = '/saved-organizations';
+  static const visitedOrganizations = '/visited-organizations';
   static const medicalRecord = '/medical-record';
   static const wellness = '/wellness';
   static const waterReminder = '/wellness/water';
@@ -146,13 +147,10 @@ final appRouter = GoRouter(
         final orgId = params['id'] ?? state.extra as String? ?? '';
         final rating = params['rating'] != null ? double.tryParse(params['rating']!) : null;
         final ratingsCount = params['ratingsCount'] != null ? int.tryParse(params['ratingsCount']!) : null;
-        return BlocProvider(
-          create: (_) => sl<OrganizationBloc>(),
-          child: OrganizationDetailPage(
-            organizationId: orgId,
-            initialRating: rating,
-            initialRatingsCount: ratingsCount,
-          ),
+        return OrganizationDetailPage(
+          organizationId: orgId,
+          initialRating: rating,
+          initialRatingsCount: ratingsCount,
         );
       },
     ),
@@ -161,15 +159,19 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final params = state.uri.queryParameters;
         final branchId = params['id'] ?? state.extra as String? ?? '';
-        return BlocProvider.value(
-          value: sl<OrganizationBloc>(),
-          child: BranchDetailPage(branchId: branchId),
-        );
+        return BranchDetailPage(branchId: branchId);
       },
     ),
     GoRoute(
       path: AppRoutes.savedOrganizations,
       builder: (context, state) => const SavedOrganizationsPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.visitedOrganizations,
+      builder: (context, state) {
+        final ids = (state.extra as List<String>?);
+        return VisitedOrganizationsPage(organizationIds: ids ?? []);
+      },
     ),
     GoRoute(
       path: AppRoutes.medicalRecord,

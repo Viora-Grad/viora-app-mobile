@@ -1,9 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:viora_app/core/errors/failure.dart';
 import 'package:viora_app/features/appointments/domain/usecases/book_appointment.dart';
 import 'package:viora_app/features/forms/domain/entities/form_entity.dart';
 import 'package:viora_app/features/forms/domain/usecases/get_service_form.dart';
 import 'package:viora_app/features/forms/domain/usecases/submit_form_answer.dart';
 import 'package:viora_app/features/forms/domain/usecases/upload_form_file.dart';
+import 'package:viora_app/features/forms/presentation/bloc/form_data_cache.dart';
 import 'package:viora_app/features/forms/presentation/bloc/form_event.dart';
 import 'package:viora_app/features/forms/presentation/bloc/form_state.dart';
 
@@ -42,7 +44,17 @@ class FormBloc extends Bloc<FormEvent, FormLoadState> {
         for (final q in form.questions) {
           answers[q.id] = '';
         }
-        emit(FormLoaded(form: form, answers: answers, files: {}));
+        final cached = FormDataCache.consume(form.id);
+        if (cached != null) {
+          for (final q in form.questions) {
+            if (cached.answers.containsKey(q.id)) {
+              answers[q.id] = cached.answers[q.id]!;
+            }
+          }
+          emit(FormLoaded(form: form, answers: answers, files: cached.files));
+        } else {
+          emit(FormLoaded(form: form, answers: answers, files: {}));
+        }
       },
     );
   }
@@ -117,6 +129,17 @@ class FormBloc extends Bloc<FormEvent, FormLoadState> {
 
     final appointmentId = bookResult.fold(
       (failure) {
+        if (failure is ServerFailure && failure.statusCode == 409) {
+          FormDataCache.store(
+            answers: Map.from(current.answers),
+            files: Map.from(current.files),
+            formId: current.form.id,
+          );
+          emit(FormConflict(
+            'This time slot is no longer available. Please choose a different time.',
+          ));
+          return null;
+        }
         emit(FormError(failure.message));
         return null;
       },

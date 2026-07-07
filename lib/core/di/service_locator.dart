@@ -43,6 +43,7 @@ import 'package:viora_app/features/profile/data/repositories/medical_record_repo
 import 'package:viora_app/features/profile/domain/repositories/user_repository.dart';
 import 'package:viora_app/features/profile/domain/repositories/medical_record_repository.dart';
 import 'package:viora_app/features/profile/domain/usecases/change_password_usecase.dart';
+import 'package:viora_app/features/profile/domain/usecases/get_visited_organization_ids_usecase.dart';
 import 'package:viora_app/features/profile/domain/usecases/get_medical_record_usecase.dart';
 import 'package:viora_app/features/profile/domain/usecases/create_medical_record_usecase.dart';
 import 'package:viora_app/features/profile/domain/usecases/update_medical_record_usecase.dart';
@@ -291,6 +292,12 @@ Future<void> dependencyInjection() async {
   if (!sl.isRegistered<ChangePasswordUseCase>()) {
     sl.registerLazySingleton<ChangePasswordUseCase>(
       () => ChangePasswordUseCase(sl()),
+    );
+  }
+
+  if (!sl.isRegistered<GetVisitedOrganizationIdsUseCase>()) {
+    sl.registerLazySingleton<GetVisitedOrganizationIdsUseCase>(
+      () => GetVisitedOrganizationIdsUseCase(sl(), sl()),
     );
   }
 

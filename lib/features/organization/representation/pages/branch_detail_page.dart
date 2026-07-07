@@ -120,6 +120,7 @@ class _BranchDetailPageState extends State<BranchDetailPage>
     with SingleTickerProviderStateMixin {
   late final AnimationController _fadeController;
   late final Animation<double> _fadeAnimation;
+  final OrganizationBloc _orgBloc = sl<OrganizationBloc>();
   final Set<int> _expandedServices = {};
 
   @override
@@ -135,9 +136,7 @@ class _BranchDetailPageState extends State<BranchDetailPage>
     );
     _fadeController.forward();
 
-    context
-        .read<OrganizationBloc>()
-        .add(GetBranchDetail(branchId: widget.branchId));
+    _orgBloc.add(GetBranchDetail(branchId: widget.branchId));
   }
 
   @override
@@ -148,13 +147,15 @@ class _BranchDetailPageState extends State<BranchDetailPage>
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<ReviewBloc>(),
-      child: Scaffold(
-        backgroundColor: _surface,
-        body: FadeTransition(
-          opacity: _fadeAnimation,
-          child: BlocBuilder<OrganizationBloc, OrganizationState>(
+    return BlocProvider.value(
+      value: _orgBloc,
+      child: BlocProvider(
+        create: (_) => sl<ReviewBloc>(),
+        child: Scaffold(
+          backgroundColor: _surface,
+          body: FadeTransition(
+            opacity: _fadeAnimation,
+            child: BlocBuilder<OrganizationBloc, OrganizationState>(
             builder: (context, state) {
               if (state is OrganizationInitial || state is OrganizationLoading) {
                 return _buildLoading();
@@ -170,6 +171,7 @@ class _BranchDetailPageState extends State<BranchDetailPage>
           ),
         ),
       ),
+    ),
     );
   }
 
@@ -226,9 +228,7 @@ class _BranchDetailPageState extends State<BranchDetailPage>
               const SizedBox(height: 24),
               FilledButton.icon(
                 onPressed: () {
-                  context
-                      .read<OrganizationBloc>()
-                      .add(GetBranchDetail(branchId: widget.branchId));
+                  _orgBloc.add(GetBranchDetail(branchId: widget.branchId));
                 },
                 icon: const Icon(Icons.refresh_rounded),
                 label: const Text('Try Again'),

@@ -60,6 +60,15 @@ final class FormSubmissionSuccess extends FormLoadState {
   List<Object?> get props => [appointmentId];
 }
 
+final class FormConflict extends FormLoadState {
+  final String message;
+
+  const FormConflict(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
 final class FormError extends FormLoadState {
   final String message;
 

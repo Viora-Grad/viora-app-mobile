@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:viora_app/core/functions/service_type_mapper.dart';
+import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/features/search/domain/entities/branch.dart';
 import 'package:viora_app/features/search/representation/bloc/search_bloc.dart';
 import 'package:viora_app/features/search/representation/bloc/search_event.dart';
@@ -882,22 +883,27 @@ class _BranchSearchPageState extends State<BranchSearchPage>
           ),
         );
       },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFE8E8EE)),
-          boxShadow: [
-            BoxShadow(
-              color: _primary.withValues(alpha: 0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
+      child: InkWell(
+        onTap: () => context.push(
+          '${AppRoutes.branchDetail}?id=${branch.branchId}',
         ),
-        child: Column(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE8E8EE)),
+            boxShadow: [
+              BoxShadow(
+                color: _primary.withValues(alpha: 0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
@@ -1022,6 +1028,7 @@ class _BranchSearchPageState extends State<BranchSearchPage>
             ],
           ],
         ),
+      ),
       ),
     );
   }
