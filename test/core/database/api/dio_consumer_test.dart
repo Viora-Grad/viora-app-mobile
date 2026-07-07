@@ -38,6 +38,7 @@ void main() {
           any(),
           data: any(named: 'data'),
           queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
         ),
       ).thenAnswer((_) async => response);
 
@@ -52,6 +53,7 @@ void main() {
           any(),
           data: any(named: 'data'),
           queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
         ),
       ).thenThrow(
         DioException(
@@ -77,6 +79,7 @@ void main() {
           any(),
           data: any(named: 'data'),
           queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
         ),
       ).thenAnswer((_) async => response);
 
@@ -91,6 +94,7 @@ void main() {
           any(),
           data: any(named: 'data'),
           queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
         ),
       ).thenThrow(
         DioException(
@@ -120,6 +124,7 @@ void main() {
           any(),
           data: any(named: 'data'),
           queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
         ),
       ).thenAnswer((_) async => response);
 
@@ -144,6 +149,7 @@ void main() {
           any(),
           data: any(named: 'data'),
           queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
         ),
       ).thenAnswer((_) async => response);
 
@@ -168,12 +174,13 @@ void main() {
           any(),
           data: any(named: 'data'),
           queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
         ),
       ).thenAnswer((_) async => response);
 
       final result = await dioConsumer.delete('/users/1');
 
-      expect(result, isNull);
+      expect(result, isEmpty);
     });
   });
 }
