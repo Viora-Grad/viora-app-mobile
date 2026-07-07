@@ -161,6 +161,10 @@ class _UserAppointmentsPageState extends State<UserAppointmentsPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: _primary),
+          onPressed: () => context.go(AppRoutes.home),
+        ),
         title: const Text(
           'My Appointments',
           style: TextStyle(

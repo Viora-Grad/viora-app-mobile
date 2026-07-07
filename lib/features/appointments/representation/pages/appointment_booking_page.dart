@@ -13,6 +13,7 @@ import 'package:viora_app/features/appointments/domain/entities/reserved_appoint
 import 'package:viora_app/features/appointments/representation/widgets/day_picker.dart';
 import 'package:viora_app/features/appointments/representation/widgets/time_slot_grid.dart';
 import 'package:viora_app/features/forms/domain/repositories/form_repository.dart';
+import 'package:viora_app/features/forms/presentation/bloc/form_data_cache.dart';
 import 'package:viora_app/features/wallet/domain/repositories/wallet_repository.dart';
 import 'package:viora_app/features/wallet/presentation/pages/payment_method_sheet.dart';
 
@@ -58,6 +59,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
   double? _walletBalance;
   bool _hasForm = false;
   bool _conflictShown = false;
+  bool _restoredFromConflict = false;
 
   @override
   void initState() {
@@ -158,7 +160,39 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
   @override
   void dispose() {
     _fadeController.dispose();
+    FormDataCache.clear();
     super.dispose();
+  }
+
+  void _checkCachedFormData() {
+    if (!FormDataCache.hasData || _restoredFromConflict || !mounted) return;
+    _restoredFromConflict = true;
+    _loadAppointments();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.info_outline, color: Colors.white, size: 20),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Your form data has been saved. Please select a different time slot.',
+                  style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: _primary,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          duration: const Duration(seconds: 5),
+        ),
+      );
+    });
   }
 
   Future<void> _showPaymentMethodSheet() async {
@@ -247,6 +281,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
 
   @override
   Widget build(BuildContext context) {
+    _checkCachedFormData();
     return BlocListener<AppointmentBloc, AppointmentState>(
       listener: (context, state) {
         if (state is BookingSuccess) {
@@ -607,10 +642,11 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
     return DayPickerWidget(
       selectedDate: _selectedDate,
       onDateSelected: (date) {
-        setState(() {
-          _selectedDate = date;
-          _conflictShown = false;
-        });
+          setState(() {
+            _selectedDate = date;
+            _conflictShown = false;
+            _restoredFromConflict = false;
+          });
         context.read<AppointmentBloc>().add(LoadDoctorAppointments(
               branchId: widget.branchId,
               staffId: widget.staffId,
@@ -883,10 +919,13 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
   }
 
   Widget _buildReservedTimeChip(ReservedAppointment apt) {
+    final endTime = apt.reservationDate.add(
+      Duration(minutes: widget.serviceDurationMinutes),
+    );
     final startStr =
         '${apt.reservationDate.hour.toString().padLeft(2, '0')}:${apt.reservationDate.minute.toString().padLeft(2, '0')}';
     final endStr =
-        '${apt.endTime.hour.toString().padLeft(2, '0')}:${apt.endTime.minute.toString().padLeft(2, '0')}';
+        '${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -911,7 +950,7 @@ class _AppointmentBookingPageState extends State<AppointmentBookingPage>
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              '$startStr - $endStr',
+              '$startStr - $endStr  ·  Reserved',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
