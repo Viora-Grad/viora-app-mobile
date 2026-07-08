@@ -11,72 +11,66 @@ abstract class CacheHelper {
 }
 
 class CacheHelperImpl implements CacheHelper {
-  static late SharedPreferences _sharedPrefernces;
+  CacheHelperImpl(this.sharedPreferences);
+
+  final SharedPreferences sharedPreferences;
+
+  Future<void> _saveValue(String key, dynamic data) async {
+    if (data is String) {
+      await sharedPreferences.setString(key, data);
+      return;
+    }
+    if (data is int) {
+      await sharedPreferences.setInt(key, data);
+      return;
+    }
+    if (data is bool) {
+      await sharedPreferences.setBool(key, data);
+      return;
+    }
+    if (data is double) {
+      await sharedPreferences.setDouble(key, data);
+      return;
+    }
+    if (data is List<String>) {
+      await sharedPreferences.setStringList(key, data);
+      return;
+    }
+
+    throw CacheException('Unsupported cache type: ${data.runtimeType}');
+  }
 
   @override
   Future<bool> containsKey(String key) async {
-    _sharedPrefernces = await SharedPreferences.getInstance();
-    return _sharedPrefernces.containsKey(key);
+    return sharedPreferences.containsKey(key);
   }
 
   @override
   Future<void> saveData(String key, dynamic data) async {
-    _sharedPrefernces = await SharedPreferences.getInstance();
-    if (data is String) {
-      await _sharedPrefernces.setString(key, data);
-    }
-    if (data is int) {
-      await _sharedPrefernces.setInt(key, data);
-    }
-    if (data is bool) {
-      await _sharedPrefernces.setBool(key, data);
-    }
-    if (data is double) {
-      await _sharedPrefernces.setDouble(key, data);
-    }
-    if (data is List<String>) {
-      await _sharedPrefernces.setStringList(key, data);
-    }
+    await _saveValue(key, data);
   }
 
   @override
   Future<dynamic> getData(String key) async {
-    _sharedPrefernces = await SharedPreferences.getInstance();
-    return _sharedPrefernces.get(key);
+    return sharedPreferences.get(key);
   }
 
   @override
   Future<void> patchData(String key, dynamic data) async {
-    _sharedPrefernces = await SharedPreferences.getInstance();
-    if (!_sharedPrefernces.containsKey(key)) {
+    if (!sharedPreferences.containsKey(key)) {
       throw CacheException('Key $key does not exist in cache');
     }
-    if (data is String) {
-      await _sharedPrefernces.setString(key, data);
-    }
-    if (data is int) {
-      await _sharedPrefernces.setInt(key, data);
-    }
-    if (data is bool) {
-      await _sharedPrefernces.setBool(key, data);
-    }
-    if (data is double) {
-      await _sharedPrefernces.setDouble(key, data);
-    }
-    if (data is List<String>) {
-      await _sharedPrefernces.setStringList(key, data);
-    }
+
+    await _saveValue(key, data);
   }
 
   @override
   Future<void> deleteData(String key) async {
-    _sharedPrefernces = await SharedPreferences.getInstance();
-    await _sharedPrefernces.remove(key);
+    await sharedPreferences.remove(key);
   }
 
   @override
   Future<void> clearCache() async {
-    _sharedPrefernces = await SharedPreferences.getInstance();
-    await _sharedPrefernces.clear();
+    await sharedPreferences.clear();
   }
 }

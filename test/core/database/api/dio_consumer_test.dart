@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:viora_app/core/api/dio_consumer.dart';
@@ -6,8 +7,11 @@ import 'package:viora_app/core/errors/exceptions.dart';
 
 class MockDio extends Mock implements Dio {}
 
+class MockFlutterSecureStorage extends Mock implements FlutterSecureStorage {}
+
 void main() {
   late MockDio mockDio;
+  late MockFlutterSecureStorage mockSecureStorage;
   late DioConsumer dioConsumer;
 
   setUpAll(() {
@@ -16,9 +20,10 @@ void main() {
 
   setUp(() {
     mockDio = MockDio();
+    mockSecureStorage = MockFlutterSecureStorage();
     // Provide a BaseOptions so DioConsumer constructor doesn't crash
     when(() => mockDio.options).thenReturn(BaseOptions());
-    dioConsumer = DioConsumer(mockDio);
+    dioConsumer = DioConsumer(mockDio, mockSecureStorage);
   });
 
   group('DioConsumer - GET', () {
@@ -33,6 +38,7 @@ void main() {
           any(),
           data: any(named: 'data'),
           queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
         ),
       ).thenAnswer((_) async => response);
 
@@ -47,6 +53,7 @@ void main() {
           any(),
           data: any(named: 'data'),
           queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
         ),
       ).thenThrow(
         DioException(
@@ -72,6 +79,7 @@ void main() {
           any(),
           data: any(named: 'data'),
           queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
         ),
       ).thenAnswer((_) async => response);
 
@@ -86,6 +94,7 @@ void main() {
           any(),
           data: any(named: 'data'),
           queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
         ),
       ).thenThrow(
         DioException(
@@ -115,6 +124,7 @@ void main() {
           any(),
           data: any(named: 'data'),
           queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
         ),
       ).thenAnswer((_) async => response);
 
@@ -139,6 +149,7 @@ void main() {
           any(),
           data: any(named: 'data'),
           queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
         ),
       ).thenAnswer((_) async => response);
 
@@ -163,12 +174,13 @@ void main() {
           any(),
           data: any(named: 'data'),
           queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
         ),
       ).thenAnswer((_) async => response);
 
       final result = await dioConsumer.delete('/users/1');
 
-      expect(result, isNull);
+      expect(result, isEmpty);
     });
   });
 }

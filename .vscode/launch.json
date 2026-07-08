@@ -2,18 +2,24 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "viora_app Development",
+      "name": "viora_app (dev)",
       "request": "launch",
       "type": "dart",
-      "program": "${workspaceFolder}/lib/main_dev.dart",
-      "args": ["--flavor", "development", "--target", "lib/main_dev.dart"]
+      "flutterMode": "debug",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=GOOGLE_OAUTH_CLIENT_ID=316069896553-tjlr79aq8gs96t6k9cooeq7qj8v63bh1.apps.googleusercontent.com"
+      ]
     },
     {
-      "name": "viora_app Production",
+      "name": "viora_app (prod)",
       "request": "launch",
       "type": "dart",
-      "program": "${workspaceFolder}/lib/main_prod.dart",
-      "args": ["--flavor", "production", "--target", "lib/main_prod.dart"]
+      "flutterMode": "release",
+      "program": "lib/main_prod.dart",
+      "args": [
+        "--dart-define=GOOGLE_OAUTH_CLIENT_ID=316069896553-tjlr79aq8gs96t6k9cooeq7qj8v63bh1.apps.googleusercontent.com"
+      ]
     }
   ]
 }
