@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:viora_app/core/params/user_parameters.dart';
-import 'package:viora_app/features/auth/domain/usecases/register_usecase.dart';
+import 'package:viora_app/features/Auth/domain/usecases/register_usecase.dart';
 import 'register_events.dart';
 import 'register_states.dart';
 

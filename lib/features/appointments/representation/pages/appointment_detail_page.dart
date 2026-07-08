@@ -6,7 +6,7 @@ import 'package:viora_app/core/di/service_locator.dart';
 import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/features/appointments/domain/entities/reserved_appointment.dart';
 import 'package:viora_app/features/appointments/domain/usecases/cancel_appointment.dart';
-import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/Auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/reviews/domain/usecases/check_user_feedback_usecase.dart';
 import 'package:viora_app/features/reviews/representation/widgets/feedback_dialog.dart';
 

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:viora_app/features/auth/domain/entities/oauth_provider_service.dart';
+import 'package:viora_app/features/Auth/domain/entities/oauth_provider_service.dart';
 
 sealed class OAuthEvent extends Equatable {
   const OAuthEvent();

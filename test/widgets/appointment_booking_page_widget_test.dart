@@ -13,7 +13,7 @@ import 'package:viora_app/features/appointments/domain/usecases/book_appointment
 import 'package:viora_app/features/appointments/domain/entities/reserved_appointment.dart';
 import 'package:viora_app/features/appointments/domain/entities/staff_day_schedule.dart';
 import 'package:viora_app/features/forms/domain/repositories/form_repository.dart';
-import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/Auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/wallet/domain/entities/wallet_entity.dart';
 import 'package:viora_app/features/wallet/domain/repositories/wallet_repository.dart';
 

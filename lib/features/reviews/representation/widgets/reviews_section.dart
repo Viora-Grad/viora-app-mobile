@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:viora_app/core/di/service_locator.dart';
-import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/Auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/reviews/domain/entities/review.dart';
 import 'package:viora_app/features/reviews/representation/bloc/review_bloc.dart';
 import 'package:viora_app/features/reviews/representation/bloc/review_event.dart';

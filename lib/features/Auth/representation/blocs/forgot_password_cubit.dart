@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:viora_app/features/auth/data/datasources/remote/auth_remote.dart';
+import 'package:viora_app/features/Auth/data/datasources/remote/auth_remote.dart';
 import 'package:viora_app/core/errors/exceptions.dart';
 
 enum ForgotPasswordStep { email, otp }

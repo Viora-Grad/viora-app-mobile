@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:viora_app/core/errors/failure.dart';
-import 'package:viora_app/features/auth/domain/entities/oauth_provider_service.dart';
-import 'package:viora_app/features/auth/domain/usecases/sign_in_with_oauth_usecase.dart';
+import 'package:viora_app/features/Auth/domain/entities/oauth_provider_service.dart';
+import 'package:viora_app/features/Auth/domain/usecases/sign_in_with_oauth_usecase.dart';
 
 import 'oauth_events.dart';
 import 'oauth_states.dart';

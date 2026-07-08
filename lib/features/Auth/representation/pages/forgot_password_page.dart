@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:viora_app/core/di/service_locator.dart';
-import 'package:viora_app/features/auth/data/datasources/remote/auth_remote.dart';
-import 'package:viora_app/features/auth/representation/blocs/forgot_password_cubit.dart';
-import 'package:viora_app/features/auth/representation/widgets/touched_form_field.dart';
+import 'package:viora_app/features/Auth/data/datasources/remote/auth_remote.dart';
+import 'package:viora_app/features/Auth/representation/blocs/forgot_password_cubit.dart';
+import 'package:viora_app/features/Auth/representation/widgets/touched_form_field.dart';
 
 const Color _primary = Color(0xFF2F1193);
 

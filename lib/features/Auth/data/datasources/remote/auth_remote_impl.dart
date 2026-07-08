@@ -5,9 +5,9 @@ import 'package:viora_app/core/api/api_consumer.dart';
 import 'package:viora_app/core/api/end_points.dart';
 import 'package:viora_app/core/errors/exceptions.dart';
 import 'package:viora_app/core/params/user_parameters.dart';
-import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
-import 'package:viora_app/features/auth/data/datasources/remote/auth_remote.dart';
-import 'package:viora_app/features/auth/data/models/user_model.dart';
+import 'package:viora_app/features/Auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/Auth/data/datasources/remote/auth_remote.dart';
+import 'package:viora_app/features/Auth/data/models/user_model.dart';
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final ApiConsumer _apiConsumer;

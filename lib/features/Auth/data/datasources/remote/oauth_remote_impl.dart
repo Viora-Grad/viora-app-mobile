@@ -2,9 +2,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:viora_app/core/api/api_consumer.dart';
 import 'package:viora_app/core/api/end_points.dart';
 import 'package:viora_app/core/errors/exceptions.dart';
-import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
-import 'package:viora_app/features/auth/data/datasources/remote/oauth_remote.dart';
-import 'package:viora_app/features/auth/data/models/oauth_user_model.dart';
+import 'package:viora_app/features/Auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/Auth/data/datasources/remote/oauth_remote.dart';
+import 'package:viora_app/features/Auth/data/models/oauth_user_model.dart';
 
 class GoogleOAuthRemoteImpl implements OAuthRemote {
   final GoogleSignIn googleSignIn;

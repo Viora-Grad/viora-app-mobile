@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:viora_app/core/di/service_locator.dart';
 import 'package:viora_app/core/routes/app_router.dart';
 import 'package:viora_app/core/widgets/bottom_nav_bar.dart';
-import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/Auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/search/domain/usecases/search_organizations_usecase.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';

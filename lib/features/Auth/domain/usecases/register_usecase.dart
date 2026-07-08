@@ -3,8 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:viora_app/core/enums/gender.dart';
 import 'package:viora_app/core/errors/failure.dart';
 import 'package:viora_app/core/params/user_parameters.dart';
-import 'package:viora_app/features/auth/domain/entities/user.dart';
-import 'package:viora_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:viora_app/features/Auth/domain/entities/user.dart';
+import 'package:viora_app/features/Auth/domain/repositories/auth_repository.dart';
 
 class RegisterUsecase {
   final AuthRepository repository;

@@ -1,5 +1,5 @@
 import 'package:viora_app/core/api/end_points.dart';
-import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/Auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/profile/data/datasources/local/user_local.dart';
 import 'package:viora_app/features/profile/data/datasources/remote/user_remote.dart';
 import 'package:viora_app/features/profile/data/models/user_model.dart';

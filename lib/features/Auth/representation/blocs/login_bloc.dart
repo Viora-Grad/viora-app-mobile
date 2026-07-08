@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:viora_app/core/params/user_parameters.dart';
-import 'package:viora_app/features/auth/domain/usecases/login_usecase.dart';
+import 'package:viora_app/features/Auth/domain/usecases/login_usecase.dart';
 
 import 'login_events.dart';
 import 'login_states.dart';

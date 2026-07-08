@@ -3,10 +3,10 @@ import 'package:dio/dio.dart';
 import 'package:viora_app/core/errors/error_handler.dart';
 import 'package:viora_app/core/errors/failure.dart';
 import 'package:viora_app/core/params/user_parameters.dart';
-import 'package:viora_app/features/auth/domain/repositories/auth_repository.dart';
-import 'package:viora_app/features/auth/domain/entities/user.dart';
-import 'package:viora_app/features/auth/data/datasources/remote/auth_remote.dart';
-import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/Auth/domain/repositories/auth_repository.dart';
+import 'package:viora_app/features/Auth/domain/entities/user.dart';
+import 'package:viora_app/features/Auth/data/datasources/remote/auth_remote.dart';
+import 'package:viora_app/features/Auth/data/datasources/local/auth_local.dart';
 
 // Brief: This is the implementation of the AuthRepository,
 // which serves as the main data repository for authentication-related operations.

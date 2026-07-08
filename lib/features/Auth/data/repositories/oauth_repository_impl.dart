@@ -1,11 +1,11 @@
 import 'package:dartz/dartz.dart';
 import 'package:viora_app/core/errors/error_handler.dart';
 import 'package:viora_app/core/errors/failure.dart';
-import 'package:viora_app/features/auth/data/datasources/facade/oauth_facade.dart';
-import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
-import 'package:viora_app/features/auth/domain/entities/oauth_provider_service.dart';
-import 'package:viora_app/features/auth/domain/entities/user.dart';
-import 'package:viora_app/features/auth/domain/repositories/oauth_repository.dart';
+import 'package:viora_app/features/Auth/data/datasources/facade/oauth_facade.dart';
+import 'package:viora_app/features/Auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/Auth/domain/entities/oauth_provider_service.dart';
+import 'package:viora_app/features/Auth/domain/entities/user.dart';
+import 'package:viora_app/features/Auth/domain/repositories/oauth_repository.dart';
 
 class OAuthRepositoryImpl implements OAuthRepository {
   final OAuthFacade facade;

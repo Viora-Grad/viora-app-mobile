@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:viora_app/core/di/service_locator.dart';
 import 'package:viora_app/core/enums/gender.dart';
 import 'package:viora_app/core/routes/app_router.dart';
-import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/Auth/data/datasources/local/auth_local.dart';
 import 'package:viora_app/features/appointments/domain/usecases/get_user_appointments.dart';
 import 'package:viora_app/features/profile/domain/entities/user.dart';
 import 'package:viora_app/features/profile/domain/repositories/user_repository.dart';

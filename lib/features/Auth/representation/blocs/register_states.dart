@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:viora_app/features/auth/domain/entities/user.dart';
+import 'package:viora_app/features/Auth/domain/entities/user.dart';
 
 // Brief: This file defines the states for the RegisterBloc, which represent the
 // different stages of the registration process. The RegisterState class includes

@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:viora_app/core/errors/exceptions.dart';
-import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
-import 'package:viora_app/features/auth/data/models/user_model.dart';
+import 'package:viora_app/features/Auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/Auth/data/models/user_model.dart';
 
 class AuthLocalImpl implements AuthLocalDataSource {
   final FlutterSecureStorage secureStorage;

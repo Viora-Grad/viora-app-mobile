@@ -1,8 +1,8 @@
 import 'package:dartz/dartz.dart';
 import 'package:viora_app/core/errors/failure.dart';
 import 'package:viora_app/core/params/user_parameters.dart';
-import 'package:viora_app/features/auth/domain/entities/user.dart';
-import 'package:viora_app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:viora_app/features/Auth/domain/entities/user.dart';
+import 'package:viora_app/features/Auth/domain/repositories/auth_repository.dart';
 
 // Brief: This is the LoginUsecase, which is responsible for handling the login logic in the domain layer.
 // It validates the input parameters and then calls the login method of the AuthRepository.

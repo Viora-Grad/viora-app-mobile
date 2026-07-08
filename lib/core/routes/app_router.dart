@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:viora_app/core/di/service_locator.dart';
-import 'package:viora_app/features/auth/representation/pages/forgot_password_page.dart';
-import 'package:viora_app/features/auth/representation/pages/login.dart';
-import 'package:viora_app/features/auth/representation/pages/register.dart';
+import 'package:viora_app/features/Auth/representation/pages/forgot_password_page.dart';
+import 'package:viora_app/features/Auth/representation/pages/login.dart';
+import 'package:viora_app/features/Auth/representation/pages/register.dart';
 import 'package:viora_app/features/home/representation/pages/all_specialties_page.dart';
 import 'package:viora_app/features/home/representation/pages/home_page.dart';
 import 'package:viora_app/features/organization/representation/pages/branch_detail_page.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:viora_app/features/auth/representation/widgets/login_page_header.dart';
+import 'package:viora_app/features/Auth/representation/widgets/login_page_header.dart';
 
 class LoginLayoutShell extends StatelessWidget {
   const LoginLayoutShell({

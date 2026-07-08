@@ -9,7 +9,7 @@ import 'package:viora_app/features/appointments/domain/entities/reserved_appoint
 import 'package:viora_app/features/appointments/representation/bloc/user_appointments_bloc.dart';
 import 'package:viora_app/features/appointments/representation/bloc/user_appointments_event.dart';
 import 'package:viora_app/features/appointments/representation/bloc/user_appointments_state.dart';
-import 'package:viora_app/features/auth/data/datasources/local/auth_local.dart';
+import 'package:viora_app/features/Auth/data/datasources/local/auth_local.dart';
 
 const Color _primary = Color(0xFF0D7C66);
 const Color _accent = Color(0xFF14A085);

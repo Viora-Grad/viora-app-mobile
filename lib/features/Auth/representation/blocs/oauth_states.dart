@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:viora_app/features/auth/domain/entities/user.dart';
+import 'package:viora_app/features/Auth/domain/entities/user.dart';
 
 enum OAuthStatus { initial, loading, success, failure, needsRegistration }
 

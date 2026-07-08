@@ -1,4 +1,4 @@
-import 'package:viora_app/features/auth/data/models/oauth_user_model.dart';
+import 'package:viora_app/features/Auth/data/models/oauth_user_model.dart';
 
 abstract class OAuthRemote {
   Future<OAuthUserModel> signInWithGoogle();

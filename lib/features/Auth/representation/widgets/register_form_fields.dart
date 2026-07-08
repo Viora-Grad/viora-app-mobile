@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:viora_app/core/enums/gender.dart';
-import 'package:viora_app/features/auth/representation/widgets/register_password_field.dart';
-import 'package:viora_app/features/auth/representation/widgets/touched_form_field.dart';
+import 'package:viora_app/features/Auth/representation/widgets/register_password_field.dart';
+import 'package:viora_app/features/Auth/representation/widgets/touched_form_field.dart';
 
 const double _spacing10 = 10.0;
 const double _spacing16 = 16.0;
