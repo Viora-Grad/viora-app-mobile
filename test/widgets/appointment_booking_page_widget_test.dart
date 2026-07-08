@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:viora_app/core/di/service_locator.dart' as di;
 import 'package:viora_app/features/appointments/representation/pages/appointment_booking_page.dart';
 import 'package:viora_app/features/appointments/representation/bloc/appointment_bloc.dart';

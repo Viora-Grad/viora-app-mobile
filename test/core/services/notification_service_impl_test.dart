@@ -10,8 +10,6 @@ import 'package:viora_app/core/services/notification_service.dart';
 /// scheduling and cancelling. We rely on a lightweight `Mock` implementation
 /// to avoid platform channels while keeping behavior deterministic.
 
-import 'dart:io';
-
 class MockFlutterLocalNotificationsPlugin extends Mock
     implements FlutterLocalNotificationsPlugin {}
 

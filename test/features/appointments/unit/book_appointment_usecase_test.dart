@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:viora_app/core/errors/failure.dart';
 import 'package:viora_app/features/appointments/domain/repositories/appointment_repository.dart';
 import 'package:viora_app/features/appointments/domain/usecases/book_appointment.dart';
 
