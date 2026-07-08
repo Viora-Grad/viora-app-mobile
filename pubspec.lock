@@ -262,9 +262,11 @@ packages:
   flutter_local_notifications:
     dependency: "direct main"
     description:
-      path: "packages/flutter_local_notifications"
-      relative: true
-    source: path
+      path: "."
+      ref: standalone-v15
+      resolved-ref: "2360e13113dc9e077f6ce5c16160b65939cff77d"
+      url: "https://github.com/Mazen-Nayef/flutter_local_notifications.git"
+    source: git
     version: "15.1.3"
   flutter_local_notifications_linux:
     dependency: transitive
